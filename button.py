@@ -4,7 +4,7 @@ from manager import State
 pygame.init()
 
 class Button:
-    def __init__(self, pos: tuple, size: tuple, screen, col_off=(100,100,100), col_on=(250,250,250), can_toggle_off=True):
+    def __init__(self, pos: tuple, size: tuple, screen, col_off=(100,100,100), col_on=(250,250,250), can_toggle_off=True, hover_text=None):
         self.pos = pos
         self.size = size
         self.col_off = col_off
@@ -20,6 +20,14 @@ class Button:
         self.just_clicked = False #is true one cycle after being clicked
         self.can_toggle_off = can_toggle_off
         self.set_color(self.clicked)
+
+        self.hover_text = str(hover_text)
+        self.hover_delay: float = 0.6
+        self.hover_start_time = 0
+
+        font = pygame.font.Font(None, 25)
+        self.hover_text_render = font.render(self.hover_text, True, (150,150,150))
+        self.hover_text_rect = self.hover_text_render.get_rect(center=(self.pos[0]+self.size[0]//2, self.pos[1]+self.size[1]//2-35))
 
     def update(self):
         if self.has_border:
@@ -79,7 +87,7 @@ class ButtonGroup:  #only one button in the button group can be on at a time
 
 class GridButton(Button):
     def __init__(self, pos: tuple, size: tuple, screen):
-        super().__init__(pos, size, screen)
+        super().__init__(pos, size, screen, hover_text="Grid (G)")
         self.set_state(1)
         self.image = pygame.image.load("Assets\\grid_btn_img.png")
         self.image = pygame.transform.scale(self.image, size)
@@ -90,8 +98,8 @@ class GridButton(Button):
 
 
 class ToolButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, manager, state_when_clicked, image):
-        super().__init__(pos, size, screen, can_toggle_off=False)
+    def __init__(self, pos: tuple, size: tuple, screen, manager, state_when_clicked, image, hover_text=None):
+        super().__init__(pos, size, screen, can_toggle_off=False, hover_text=hover_text)
         self.image = pygame.image.load(image)
         self.image = pygame.transform.scale(self.image, size)
         self.manager = manager

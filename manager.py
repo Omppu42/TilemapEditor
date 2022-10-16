@@ -1,5 +1,6 @@
 import pygame, time
 from enum import Enum
+from util import get_cell_from_mousepos
 pygame.init()
 
 class State(Enum):
@@ -15,21 +16,20 @@ class Manager:
     def mouse_update(self, mouse_pos: tuple):
         if mouse_pos[0] > self.ui.viewport_w: return
 
-        block = self.ui.get_cell_from_mousepos(mouse_pos)
+        block = get_cell_from_mousepos(mouse_pos)
         if block is None: return
 
         if self.state == State.BRUSH:
             block.tile_id = self.ui.tile_to_place_id
             block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
+
         elif self.state == State.ERASE:
             block.tile_id = -1
             block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
-        elif self.state == State.COLOR_PICKER:
-            if block.tile_id == -1: return
 
+        elif self.state == State.COLOR_PICKER:
+            if block.tile_id == -1: return #if clicked on air
             self.ui.tile_to_place_id = block.tile_id
-            self.state = State.BRUSH #Change back to brush after picking new tile
-            self.ui.sidebar.buttons["BrushButton"].just_clicked = True
 
 
     def handle_tool_hotkeys(self, event):

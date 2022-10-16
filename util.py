@@ -19,3 +19,10 @@ def generate_sprite(i, path, extension, img_size):
         sprite = pygame.image.load(path+str(i)+extension)
         sprite = pygame.transform.scale(sprite, img_size)
         return sprite
+
+def get_cell_from_mousepos(ui, pos: tuple) -> Block:
+        cell = ((pos[0] - ui.total_mouse_change[0]) // self.cell_size, 
+                 (pos[1] - ui.total_mouse_change[1]) // self.cell_size)
+
+        block = next((x for x in self.blocks if x.pos_on_grid == cell), None)
+        return block
