@@ -25,7 +25,29 @@ class Manager:
             block.tile_id = -1
             block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
         elif self.state == State.COLOR_PICKER:
-            if block.tile_id >= 0:
-                self.ui.tile_to_place_id = block.tile_id
-                self.state = State.BRUSH #Change back to brush after picking new tile
-                self.ui.sidebar.buttons["BrushButton"].just_clicked = True
+            if block.tile_id == -1: return
+
+            self.ui.tile_to_place_id = block.tile_id
+            self.state = State.BRUSH #Change back to brush after picking new tile
+            self.ui.sidebar.buttons["BrushButton"].just_clicked = True
+
+
+    def handle_tool_hotkeys(self, event):
+        if event.key == pygame.K_p:
+            self.change_state(State.BRUSH, self.ui.sidebar.buttons["BrushButton"])
+
+        elif event.key == pygame.K_o:
+            self.change_state(State.COLOR_PICKER, self.ui.sidebar.buttons["ColorPickButton"])
+
+        elif event.key == pygame.K_e:
+            self.change_state(State.ERASE, self.ui.sidebar.buttons["EraserButton"])
+
+        elif event.key == pygame.K_g:
+            self.ui.sidebar.buttons["GridButton"].clicked *= -1
+            self.ui.sidebar.buttons["GridButton"].set_color(self.ui.sidebar.buttons["GridButton"].clicked)
+            self.ui.sidebar.buttons["GridButton"].just_clicked = True
+
+
+    def change_state(self, state: State, button_to_activate):
+        self.state = state
+        button_to_activate.just_clicked = True

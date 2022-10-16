@@ -7,6 +7,7 @@ pygame.init()
 #TODO: hotkeys for tools and text telling the key when hovering over button
 #TODO: save tileset and create empty one 
 #TODO: export tilemaps
+#TODO: in paint mode, preview of where tile will be placed
 
 def main():
     SCR_W = 1200
@@ -27,6 +28,8 @@ def main():
             if event.type == pygame.QUIT:
                 sys.exit()
 
+            if event.type == pygame.KEYDOWN:
+                ui.manager.handle_tool_hotkeys(event)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.mouse.get_rel()  #reset rel pos

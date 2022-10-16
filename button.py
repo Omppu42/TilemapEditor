@@ -77,7 +77,6 @@ class ButtonGroup:  #only one button in the button group can be on at a time
         self.button_to_leave_on = None
 
 
-
 class GridButton(Button):
     def __init__(self, pos: tuple, size: tuple, screen):
         super().__init__(pos, size, screen)
@@ -101,39 +100,6 @@ class ToolButton(Button):
     def update(self):
         if self.just_clicked:
             self.manager.state = self.state_when_clicked
-
-        super().update()
-        self.screen.blit(self.image, self.rect)
-
-
-
-class BrushButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, manager):
-        super().__init__(pos, size, screen, can_toggle_off=False)
-        self.set_state(1)
-        self.image = pygame.image.load("Assets\\brush.png")
-        self.image = pygame.transform.scale(self.image, size)
-        self.manager = manager
-
-    def update(self):
-        if self.just_clicked:
-            self.manager.state = State.BRUSH
-
-        super().update()
-        self.screen.blit(self.image, self.rect)
-
-
-
-class EraserButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, manager):
-        super().__init__(pos, size, screen, can_toggle_off=False)
-        self.image = pygame.image.load("Assets\\eraser.png")
-        self.image = pygame.transform.scale(self.image, size)
-        self.manager = manager
-
-    def update(self):
-        if self.just_clicked:
-            self.manager.state = State.ERASE
 
         super().update()
         self.screen.blit(self.image, self.rect)

@@ -19,6 +19,12 @@ class UI:
         self.blocks = []
         self.total_mouse_change: tuple = (0, 0)
 
+        self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*self.cell_size, 1))
+        self.grid_bot_surf.fill((0,0,0))
+
+        self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*self.cell_size))
+        self.grid_right_surf.fill((0,0,0))
+
         self.tiles_cls = Tiles(self.cell_size)
         self.tiles_dict = self.tiles_cls.init_tiles(self.sidebar.pos)
         self.tile_selection_rects = [pygame.Rect(self.tiles_dict[x][1], (self.cell_size, self.cell_size)) for x in self.tiles_dict] #make sidebar tiles' rects
@@ -43,8 +49,7 @@ class UI:
             if not x.collidepoint(mouse_pos): continue
 
             if self.manager.state is not State.BRUSH: #select brush when clicking any tile from selection
-                self.manager.state = State.BRUSH
-                self.sidebar.buttons["BrushButton"].just_clicked = True #update brush button to highlight
+                self.manager.change_state(State.BRUSH, self.sidebar.buttons["BrushButton"])
 
             for _id, value in self.tiles_dict.items():
                 if x[0] == value[1][0] and x[1] == value[1][1]: #Get id of block clicked on
@@ -77,6 +82,10 @@ class UI:
                 [block.update_surf(True) for block in self.blocks]
             else:
                 [block.update_surf(False) for block in self.blocks]
+
+        if self.sidebar.buttons["GridButton"].is_clicked():
+            self.screen.blit(self.grid_bot_surf, (self.total_mouse_change[0], self.cells_r_c[1]*self.cell_size+self.total_mouse_change[1]))
+            self.screen.blit(self.grid_right_surf, (self.cells_r_c[0]*self.cell_size+self.total_mouse_change[0], self.total_mouse_change[1]))
 
 
     def get_movement_vec(self): #get mouse movement from previous frame
