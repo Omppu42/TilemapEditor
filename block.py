@@ -2,9 +2,9 @@ import pygame, random, operator
 pygame.init()
 
 class Block:
-    def __init__(self, pos: tuple, size: int, screen, grid_on: bool, tiles_dict: dict):
+    def __init__(self, pos: tuple, size: int, screen, grid_on: bool, tiles_data: dict):
         self.tile_id = -1 # if id -1, no image
-        self.tiles_dict = tiles_dict
+        self.tiles_data = tiles_data
         self.org_pos = (pos[0]*size, pos[1]*size)
         self.pos = self.org_pos
         self.size = size
@@ -17,7 +17,7 @@ class Block:
     def update_surf(self, grid: bool):
         self.surf.fill((120,120,120))
         if self.tile_id != -1:
-            self.surf.blit(self.tiles_dict[self.tile_id]["image"], (0, 0))
+            self.surf.blit(self.tiles_data[self.tile_id]["image"], (0, 0))
         if grid:
             pygame.draw.lines(self.surf, (0,0,0), False, ((0, self.size), (0, 0), (self.size, 0)))
 

@@ -9,7 +9,7 @@ def export_tilemap(ui):
 
 def create_explanations_dict(ui) -> dict:
     output = {}
-    for i in range(len(ui.tiles_dict)):
-        output[i] = ui.tiles_dict[i][0]
+    for i in range(len(ui.tiles_data)):
+        output[i] = ui.tiles_data[i][0]
 
     return output

@@ -37,7 +37,7 @@ class Sidebar:
 
         self.update_hover()
 
-        for _id, val in self.ui.tiles_dict.items():
+        for _id, val in enumerate(self.ui.tiles_data):
             if _id == self.ui.tile_to_place_id: #Tile selection highlighting
                 self.screen.blit(self.selected_tile_highlight, (val["pos"][0] - 3, val["pos"][1] - 3))
                 self.screen.blit(self.selected_bg, val["pos"])
