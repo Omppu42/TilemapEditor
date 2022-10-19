@@ -16,7 +16,7 @@ class Manager:
     def mouse_update(self, mouse_pos: tuple):
         if mouse_pos[0] > self.ui.viewport_w: return
 
-        block = get_cell_from_mousepos(mouse_pos)
+        block = get_cell_from_mousepos(self.ui, mouse_pos)
         if block is None: return
 
         if self.state == State.BRUSH:

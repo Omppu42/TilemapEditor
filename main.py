@@ -1,5 +1,6 @@
 import pygame, sys
 from ui import UI
+import export
 pygame.init()
 
 #TODO: in tile selection, make it possible to drag tiles around
@@ -20,7 +21,6 @@ def main():
     ui = UI((SCR_W, SCR_H), screen, CELL_SIZE)
     bg_color = 100
 
-
     while True:
         screen.fill((bg_color, bg_color, bg_color))
         for event in pygame.event.get():
@@ -29,6 +29,8 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 ui.manager.handle_tool_hotkeys(event)
+                if event.key == pygame.K_x:
+                    export.export_tilemap(ui)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.mouse.get_rel()  #reset rel pos

@@ -37,23 +37,23 @@ class Sidebar:
 
         self.update_hover()
 
-        for x in self.ui.tiles_dict:
-            if x == self.ui.tile_to_place_id: #Tile selection highlighting
-                self.screen.blit(self.selected_tile_highlight, (self.ui.tiles_dict[x][1][0] - 3, self.ui.tiles_dict[x][1][1] - 3))
-                self.screen.blit(self.selected_bg, (self.ui.tiles_dict[x][1][0], self.ui.tiles_dict[x][1][1]))
-            self.screen.blit(self.ui.tiles_dict[x][0], self.ui.tiles_dict[x][1])
+        for _id, val in self.ui.tiles_dict.items():
+            if _id == self.ui.tile_to_place_id: #Tile selection highlighting
+                self.screen.blit(self.selected_tile_highlight, (val["pos"][0] - 3, val["pos"][1] - 3))
+                self.screen.blit(self.selected_bg, val["pos"])
+            self.screen.blit(val["image"], val["pos"])
 
 
     def update_hover(self):
         mouse_pos = pygame.mouse.get_pos()
         for x in self.buttons.values():
-            if x.rect.collidepoint(mouse_pos): #if mouse hovering button
-                if x.hover_start_time == 0:
-                    x.hover_start_time = time.time() #set hovering start time
+            if not x.rect.collidepoint(mouse_pos):
+                x.hover_start_time = 0 #not hovering
+                continue
                 
-                if time.time() - x.hover_start_time >= x.hover_delay: #hovered for hover_delay amount of time
-                    self.screen.blit(x.hover_text_render, x.hover_text_rect)
-
-            else: #not hovering
-                x.hover_start_time = 0
+            if x.hover_start_time == 0:
+                x.hover_start_time = time.time() #set hovering start time
+            
+            if time.time() - x.hover_start_time >= x.hover_delay: #hovered for hover_delay amount of time
+                self.screen.blit(x.hover_text_render, x.hover_text_rect)
             

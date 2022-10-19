@@ -27,7 +27,7 @@ class UI:
 
         self.tiles_cls = Tiles(self.cell_size)
         self.tiles_dict = self.tiles_cls.init_tiles(self.sidebar.pos)
-        self.tile_selection_rects = [pygame.Rect(self.tiles_dict[x][1], (self.cell_size, self.cell_size)) for x in self.tiles_dict] #make sidebar tiles' rects
+        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.tiles_dict.values()] #make sidebar tiles' rects
         self.tile_to_place_id = 0
 
         for i in range(self.cells_r_c[0]):
@@ -52,7 +52,7 @@ class UI:
                 self.manager.change_state(State.BRUSH, self.sidebar.buttons["BrushButton"])
 
             for _id, value in self.tiles_dict.items():
-                if x[0] == value[1][0] and x[1] == value[1][1]: #Get id of block clicked on
+                if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
                     self.tile_to_place_id = _id
 
 

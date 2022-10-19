@@ -1,4 +1,4 @@
-import pygame, random
+import pygame, random, operator
 pygame.init()
 
 class Block:
@@ -17,11 +17,11 @@ class Block:
     def update_surf(self, grid: bool):
         self.surf.fill((120,120,120))
         if self.tile_id != -1:
-            self.surf.blit(self.tiles_dict[self.tile_id][0], (0, 0))
+            self.surf.blit(self.tiles_dict[self.tile_id]["image"], (0, 0))
         if grid:
             pygame.draw.lines(self.surf, (0,0,0), False, ((0, self.size), (0, 0), (self.size, 0)))
 
 
     def update(self, movement_vec: tuple):
-        self.pos = (self.org_pos[0]+movement_vec[0], self.org_pos[1]+movement_vec[1])
+        self.pos = list(map(operator.add, self.org_pos, movement_vec))
         self.screen.blit(self.surf, self.pos)
