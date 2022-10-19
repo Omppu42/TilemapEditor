@@ -1,14 +1,26 @@
-import pygame
-from util import load_sprites
+import pygame, os, glob
 pygame.init()
 
 class Tiles:
     def __init__(self, tile_size: int):
-        self.tile_list = []
         self.tile_size = tile_size
-        self.tile_list = load_sprites("Assets\\Tiles\\", "tile00", 10, ".png", (tile_size, tile_size))
-        self.tile_list = self.tile_list + load_sprites("Assets\\Tiles\\", "tile0", 36, ".png", (tile_size, tile_size), 10)
-        #TODO: Load all images from folder to tiles_list
+        self.tile_list = self.load_tiles()
+
+
+    def load_tiles(self) -> list:
+        output = []
+        png_images = []
+
+        for f in glob.glob(os.getcwd()+"\\Assets\\Tiles\\*.png"): #get all png images
+            png_images.append(f)
+
+        for image_path in png_images:                               #load all images to tiles
+            sprite = pygame.image.load(image_path)
+            sprite = pygame.transform.scale(sprite, (self.tile_size, self.tile_size))
+            output.append(sprite)
+
+        return output
+
 
     def init_tiles(self, pos: tuple) -> list: #tiles list has dicts with image and xy pos
         output = []
@@ -20,5 +32,4 @@ class Tiles:
 
             output.append({"image" : self.tile_list[i], "pos" : (pos[0] + 30 + (50 * (i % img_per_row)), pos[1] + 50 * j)})
         
-        print(output)
         return output
