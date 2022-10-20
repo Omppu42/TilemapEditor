@@ -6,7 +6,6 @@ pygame.init()
 #TODO: in tile selection, make it possible to drag tiles around
 #TODO: change mouse to hand when hovering over tile in tile selection and over buttons
 #TODO: save tileset and create empty one 
-#TODO: export tilemaps
 #TODO: in paint mode, preview of where tile will be placed
 
 def main():

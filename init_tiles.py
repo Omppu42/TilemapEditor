@@ -11,7 +11,7 @@ class Tiles:
         output = []
         png_images = []
 
-        for f in glob.glob(os.getcwd()+"\\Assets\\Tiles\\*.png"): #get all png images
+        for f in glob.glob("Assets\\Tiles\\*.png"): #get all png images
             png_images.append(f)
 
         for image_path in png_images:                               #load all images to tiles
