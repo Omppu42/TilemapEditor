@@ -1,7 +1,7 @@
 import pygame, os, glob
 pygame.init()
 
-class Tiles:
+class Palette:
     def __init__(self, tile_size: int):
         self.tile_size = tile_size
         self.tile_list = self.load_tiles()
@@ -22,7 +22,7 @@ class Tiles:
         return output
 
 
-    def init_tiles(self, pos: tuple) -> list: #tiles list has dicts with image and xy pos
+    def init_palette(self, pos: tuple) -> list: #tiles list has dicts with image and xy pos
         output = []
         img_per_row = 5
         j = 0

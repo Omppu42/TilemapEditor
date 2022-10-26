@@ -7,6 +7,7 @@ pygame.init()
 #TODO: change mouse to hand when hovering over tile in tile selection and over buttons
 #TODO: save tileset and create empty one 
 #TODO: in paint mode, preview of where tile will be placed
+#TODO: more pages for tiles to prevent overflow
 
 def main():
     SCR_W = 1200
@@ -28,8 +29,6 @@ def main():
 
             if event.type == pygame.KEYDOWN:
                 ui.manager.handle_tool_hotkeys(event)
-                if event.key == pygame.K_x:
-                    export.export_tilemap(ui)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.mouse.get_rel()  #reset rel pos

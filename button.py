@@ -146,6 +146,7 @@ class TextButton(Button):
         self.set_state(1)
         font = pygame.font.Font(None, text_size)
         self.text_surf = font.render(text, True, (0,0,0))
+        
 
         self.click_time_start = 0
         self.click_color_time: float = 0.15
@@ -162,8 +163,9 @@ class TextButton(Button):
 
         self.screen.blit(self.text_surf, rect)
 
-    def check_clicked(self, mouse_pos):
+    def check_clicked(self, mouse_pos) -> bool:
         clicked = super().check_clicked(mouse_pos)
-        if not clicked: return
+        if not clicked: return False
 
         self.click_time_start = time.time()
+        return True

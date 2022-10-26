@@ -21,7 +21,7 @@ class Sidebar:
                         "ExportPaletteButton" : button.TextButton((1060, 550), (128, 16), self.screen, "EXPORT PALETTE", 20, hover_col=(200,200,200)),
                         "ImportPaletteButton" : button.TextButton((1060, 575), (128, 16), self.screen, "IMPORT PALETTE", 20, hover_col=(200,200,200))}
                         #TODO: make new buttons functional
-                        
+
         self.buttons["BrushButton"].set_state(1) #set brush to be on
         self.brushes_group = button.ButtonGroup([self.buttons["BrushButton"], self.buttons["EraserButton"], self.buttons["ColorPickButton"]])
 
@@ -44,7 +44,7 @@ class Sidebar:
         for x in self.buttons.values():
             x.update_hover(mousepos)
 
-        for _id, val in enumerate(self.ui.tiles_data):
+        for _id, val in enumerate(self.ui.palette_data):
             if _id == self.ui.tile_to_place_id: #Tile selection highlighting
                 self.screen.blit(self.selected_tile_highlight, (val["pos"][0] - 3, val["pos"][1] - 3))
                 self.screen.blit(self.selected_bg, val["pos"])

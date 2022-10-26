@@ -1,8 +1,9 @@
 import pygame, time
 from block import Block
 from manager import Manager, State
-from init_tiles import Tiles
+from palette import Palette
 from sidebar import Sidebar
+import export
 
 pygame.init()
 
@@ -25,22 +26,31 @@ class UI:
         self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*self.cell_size))
         self.grid_right_surf.fill((0,0,0))
 
-        self.tiles_cls = Tiles(self.cell_size)
-        self.tiles_data = self.tiles_cls.init_tiles(self.sidebar.pos)
-        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.tiles_data] #make sidebar tiles' rects
+        self.palette_cls = Palette(self.cell_size)
+        self.palette_data = self.palette_cls.init_palette(self.sidebar.pos)
+        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.palette_data] #make sidebar tiles' rects
         self.tile_to_place_id = 0
 
         for i in range(self.cells_r_c[0]):
             for j in range(self.cells_r_c[1]):
-                self.blocks.append(Block((i, j), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.tiles_data))
+                self.blocks.append(Block((i, j), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.palette_data))
+        
+        
 
 
     def on_mouse_click(self):
         mouse_pos = pygame.mouse.get_pos()  
 
         for x in self.sidebar.buttons:
-            self.sidebar.buttons[x].check_clicked(mouse_pos)
+            if self.sidebar.buttons[x].check_clicked(mouse_pos):
+                pass
 
+        for x in self.sidebar.buttons:
+            if self.sidebar.buttons[x].just_clicked:
+                if x == "ExportButton":
+                    print("x")
+                    export.export_tilemap(self)
+        
         self.change_tile(mouse_pos)
         
 
@@ -51,7 +61,7 @@ class UI:
             if self.manager.state is not State.BRUSH: #select brush when clicking any tile from selection
                 self.manager.change_state(State.BRUSH, self.sidebar.buttons["BrushButton"])
 
-            for _id, value in enumerate(self.tiles_data):
+            for _id, value in enumerate(self.palette_data):
                 if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
                     self.tile_to_place_id = _id
 

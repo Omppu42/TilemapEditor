@@ -4,7 +4,6 @@ from tkinter import filedialog
 from util import timer
 pygame.init()
 
-@timer
 def export_tilemap(ui):
     tkinter.Tk().withdraw()
     dest_folder = filedialog.askdirectory()
@@ -17,7 +16,7 @@ def export_tilemap(ui):
     create_tiles_folder(dest_folder)
 
     with open(dest_folder + "\\explanations.json", "w") as f:
-        json_object = json.dumps(create_explanations_dict(ui), indent=4) #write json object to explanations.json
+        json_object = json.dumps(create_explanations_dict(), indent=4) #write json object to explanations.json
         f.write(json_object)
 
     with open(dest_folder + "\\tile_ids.txt", "w") as f:
@@ -26,7 +25,7 @@ def export_tilemap(ui):
             out = str(i).replace("[", "")
             out = out.replace("]", "")
             f.write(out + "\n")
-    
+
 
 def create_tiles_folder(dest_folder: str):
     tile_folder = dest_folder + "\\Tiles"
@@ -38,7 +37,7 @@ def create_tiles_folder(dest_folder: str):
         shutil.copy(png, tile_folder)
 
 
-def create_explanations_dict(ui) -> dict:
+def create_explanations_dict() -> dict:
     output = {}
     png_images = [x for x in os.listdir("Assets\\Tiles") if x.endswith(".png")]
     for i, path in enumerate(png_images):
