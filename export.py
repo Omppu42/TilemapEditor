@@ -1,8 +1,10 @@
 import pygame, tkinter, os, shutil, glob, json
 from datetime import datetime
 from tkinter import filedialog
+from util import timer
 pygame.init()
 
+@timer
 def export_tilemap(ui):
     tkinter.Tk().withdraw()
     dest_folder = filedialog.askdirectory()

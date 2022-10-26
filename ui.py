@@ -86,8 +86,5 @@ class UI:
 
         if pygame.mouse.get_pressed()[2]:
             mouse_pos = pygame.mouse.get_pos()
-            if mouse_pos[0] == 0 or mouse_pos[1] == 0 or mouse_pos[0] > self.viewport_w or mouse_pos[1] == self.scr_h-1: #if offscreen
-                pygame.mouse.get_rel()
-                return (0,0)
             rel = pygame.mouse.get_rel()
             return rel

@@ -12,11 +12,16 @@ class Sidebar:
         self.col = (200,200,200)
         self.screen = screen
 
-        self.buttons = {"GridButton" : button.GridButton((1125, 550), (32, 32), self.screen), 
-                        "BrushButton" : button.ToolButton((930, 550), (32, 32), self.screen, ui.manager, State.BRUSH, "Assets\\brush.png", hover_text="Paint (P)"),
-                        "EraserButton" : button.ToolButton((970, 550), (32, 32), self.screen, ui.manager, State.ERASE, "Assets\\eraser.png", hover_text="Eraser (E)"),
-                        "ColorPickButton" : button.ToolButton((1010, 550), (32, 32), self.screen, ui.manager, State.COLOR_PICKER, "Assets\\color_picker.png", hover_text="Color Picker (O)")}
-
+        self.buttons = {"GridButton" : button.GridButton((1150, 500), (32, 32), self.screen), 
+                        "BrushButton" : button.ToolButton((920, 500), (32, 32), self.screen, ui.manager, State.BRUSH, "Assets\\brush.png", hover_text="Paint (P)"),
+                        "EraserButton" : button.ToolButton((960, 500), (32, 32), self.screen, ui.manager, State.ERASE, "Assets\\eraser.png", hover_text="Eraser (E)"),
+                        "ColorPickButton" : button.ToolButton((1000, 500), (32, 32), self.screen, ui.manager, State.COLOR_PICKER, "Assets\\color_picker.png", hover_text="Color Picker (O)"),
+                        "ExportButton" : button.TextButton((915, 550), (128, 16), self.screen, "EXPORT MAP", 20, hover_col=(190,190,190)),
+                        "ImportButton" : button.TextButton((915, 575), (128, 16), self.screen, "IMPORT MAP", 20, hover_col=(190,190,190)),
+                        "ExportPaletteButton" : button.TextButton((1060, 550), (128, 16), self.screen, "EXPORT PALETTE", 20, hover_col=(200,200,200)),
+                        "ImportPaletteButton" : button.TextButton((1060, 575), (128, 16), self.screen, "IMPORT PALETTE", 20, hover_col=(200,200,200))}
+                        #TODO: make new buttons functional
+                        
         self.buttons["BrushButton"].set_state(1) #set brush to be on
         self.brushes_group = button.ButtonGroup([self.buttons["BrushButton"], self.buttons["EraserButton"], self.buttons["ColorPickButton"]])
 
@@ -34,26 +39,14 @@ class Sidebar:
 
         for x in self.buttons:
             self.buttons[x].update() #Brush and grid buttons
-
-        self.update_hover()
+        
+        mousepos = pygame.mouse.get_pos()
+        for x in self.buttons.values():
+            x.update_hover(mousepos)
 
         for _id, val in enumerate(self.ui.tiles_data):
             if _id == self.ui.tile_to_place_id: #Tile selection highlighting
                 self.screen.blit(self.selected_tile_highlight, (val["pos"][0] - 3, val["pos"][1] - 3))
                 self.screen.blit(self.selected_bg, val["pos"])
             self.screen.blit(val["image"], val["pos"])
-
-
-    def update_hover(self):
-        mouse_pos = pygame.mouse.get_pos()
-        for x in self.buttons.values():
-            if not x.rect.collidepoint(mouse_pos):
-                x.hover_start_time = 0 #not hovering
-                continue
-                
-            if x.hover_start_time == 0:
-                x.hover_start_time = time.time() #set hovering start time
-            
-            if time.time() - x.hover_start_time >= x.hover_delay: #hovered for hover_delay amount of time
-                self.screen.blit(x.hover_text_render, x.hover_text_rect)
             
