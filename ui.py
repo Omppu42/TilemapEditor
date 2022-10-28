@@ -3,7 +3,7 @@ from block import Block
 from manager import Manager, State
 from palette import Palette
 from sidebar import Sidebar
-import export
+import export, import_map
 
 pygame.init()
 
@@ -43,13 +43,11 @@ class UI:
 
         for x in self.sidebar.buttons:
             if self.sidebar.buttons[x].check_clicked(mouse_pos):
-                pass
-
-        for x in self.sidebar.buttons:
-            if self.sidebar.buttons[x].just_clicked:
                 if x == "ExportButton":
-                    print("x")
                     export.export_tilemap(self)
+                elif x == "ImportButton":
+                    import_map.import_tilemap(self)
+
         
         self.change_tile(mouse_pos)
         
@@ -96,5 +94,8 @@ class UI:
 
         if pygame.mouse.get_pressed()[2]:
             mouse_pos = pygame.mouse.get_pos()
+            if mouse_pos[0] == 0 or mouse_pos[1] == 0 or mouse_pos[0] > self.viewport_w or mouse_pos[1] == self.scr_h-1: #if offscreen
+                pygame.mouse.get_rel()
+                return (0,0)
             rel = pygame.mouse.get_rel()
             return rel

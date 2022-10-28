@@ -15,6 +15,7 @@ def main():
     CELL_SIZE = 32
 
     screen = pygame.display.set_mode((SCR_W,SCR_H))
+    pygame.display.set_caption("Tilemap Editor")
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 32)
 
