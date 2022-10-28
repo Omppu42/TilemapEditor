@@ -31,12 +31,10 @@ class UI:
         self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.palette_data] #make sidebar tiles' rects
         self.tile_to_place_id = 0
 
-        for i in range(self.cells_r_c[0]):
-            for j in range(self.cells_r_c[1]):
-                self.blocks.append(Block((i, j), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.palette_data))
-        
-        
-
+        for i in range(self.cells_r_c[1]):
+            for j in range(self.cells_r_c[0]):
+                self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.palette_data))
+                
 
     def on_mouse_click(self):
         mouse_pos = pygame.mouse.get_pos()  

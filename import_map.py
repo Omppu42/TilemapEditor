@@ -27,16 +27,9 @@ def import_tilemap(ui):
 @timer
 def update_tiles(ui, tile_ids):
     total = 0
-    for i in range(ui.cells_r_c[0]):
-        for j in range(ui.cells_r_c[1]):
-            # block = next((x for x in ui.blocks if x.pos_on_grid == (j, i)), None)
-            
-            # if block is None:
-            #     print("couldn't find block at pos: ", (j, i))
-            #     continue
-
-            ui.blocks[total].tile_id = tile_ids[j][i]
+    for i in range(ui.cells_r_c[1]):
+        for j in range(ui.cells_r_c[0]):
+            ui.blocks[total].tile_id = tile_ids[i][j]
             ui.blocks[total].update_surf(ui.sidebar.buttons["GridButton"].is_clicked())
 
             total += 1
-                

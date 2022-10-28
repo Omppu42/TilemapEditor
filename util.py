@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, time, inspect, os
 from block import Block
 pygame.init()
 
@@ -13,7 +13,14 @@ def timer(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
         rv = func(*args, **kwargs)
-        print(f"Running the function took: {time.time() - start_time} seconds")
+
+        #get caller filename
+        frame = inspect.stack()[1]
+        module = inspect.getmodule(frame[0])
+        filename = module.__file__
+        filename = os.path.basename(filename)
+
+        print(f"Running the function '{func.__name__}' in '{filename}' took: {time.time() - start_time} seconds")
         return rv
     
     return wrapper

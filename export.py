@@ -8,7 +8,10 @@ def export_tilemap(ui):
     tkinter.Tk().withdraw()
     dest_folder = filedialog.askdirectory()
     if dest_folder == "": return #pressed cancel when selecting folder
+    export_map(ui, dest_folder)
 
+@timer
+def export_map(ui, dest_folder):
     dt_string = datetime.now().strftime("%Y-%m-%d_%H-%M-%S") #make unique folder for output
     dest_folder = dest_folder+"\\"+"tilemap-"+dt_string
     os.mkdir(dest_folder)
@@ -21,7 +24,6 @@ def export_tilemap(ui):
 
     with open(dest_folder + "\\tile_ids.txt", "w") as f:
         for i in create_tiles_list(ui):
-            #print(str(i))
             out = str(i).replace("[", "")
             out = out.replace("]", "")
             f.write(out + "\n")
@@ -54,12 +56,7 @@ def create_tiles_list(ui) -> list:
     for i in range(ui.cells_r_c[1]):
         sublist = []
         for j in range(ui.cells_r_c[0]):
-            block = next((x for x in ui.blocks if x.pos_on_grid == (j, i)), None)
-            if block is None:
-                print("couldn't find block at pos: ", (j, i))
-                continue
-
-            sublist.append(block.tile_id)
+            sublist.append(ui.blocks[total].tile_id)
             total += 1
 
         output.append(sublist)
