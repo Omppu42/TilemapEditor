@@ -5,8 +5,10 @@ from util import timer
 pygame.init()
 
 def export_tilemap(ui):
-    tkinter.Tk().withdraw()
+    root = tkinter.Tk()
+    root.withdraw()
     dest_folder = filedialog.askdirectory()
+    root.destroy()
     if dest_folder == "": return #pressed cancel when selecting folder
     export_map(ui, dest_folder)
 

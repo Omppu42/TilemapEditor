@@ -4,8 +4,10 @@ from util import timer
 pygame.init()
 
 def import_tilemap(ui):
-    tkinter.Tk().withdraw()
+    root = tkinter.Tk()
+    root.withdraw()
     dest_folder = filedialog.askdirectory()
+    root.destroy()
     if dest_folder == "": return #pressed cancel when selecting 
     
     tile_ids_lst = []
