@@ -6,10 +6,12 @@ pygame.init()
 def import_tilemap(ui):
     root = tkinter.Tk()
     root.withdraw()
-    dest_folder = filedialog.askdirectory()
+    dest_folder = filedialog.askdirectory(initialdir="Tilemaps")
     root.destroy()
     if dest_folder == "": return #pressed cancel when selecting 
     
+    ui.manager.palette_manager.import_map_palette_change(dest_folder)
+
     tile_ids_lst = []
     with open(dest_folder+"\\tile_ids.txt", "r") as f:
         line_count = len(f.readlines())

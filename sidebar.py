@@ -4,11 +4,11 @@ from manager import State
 pygame.init()
 
 class Sidebar:
-    def __init__(self, ui, scr_size: tuple, viewport_w: int, screen):
+    def __init__(self, ui, scr_size: tuple, pos: tuple, viewport_w: int, screen):
         self.ui = ui
         self.scr_w, self.scr_h = scr_size
         self.size = (self.scr_w - viewport_w + 10, self.scr_h)
-        self.pos = (viewport_w, 0)
+        self.pos = pos
         self.col = (200,200,200)
         self.screen = screen
 
@@ -44,7 +44,7 @@ class Sidebar:
         for x in self.buttons.values():
             x.update_hover(mousepos)
 
-        for _id, val in enumerate(self.ui.palette_data):
+        for _id, val in enumerate(self.ui.current_palette.palette_data):
             if _id == self.ui.tile_to_place_id: #Tile selection highlighting
                 self.screen.blit(self.selected_tile_highlight, (val["pos"][0] - 3, val["pos"][1] - 3))
                 self.screen.blit(self.selected_bg, val["pos"])

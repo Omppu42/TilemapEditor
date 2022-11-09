@@ -7,7 +7,7 @@ pygame.init()
 def export_tilemap(ui):
     root = tkinter.Tk()
     root.withdraw()
-    dest_folder = filedialog.askdirectory()
+    dest_folder = filedialog.askdirectory(initialdir="Tilemaps")
     root.destroy()
     if dest_folder == "": return #pressed cancel when selecting folder
     export_map(ui, dest_folder)
@@ -18,7 +18,7 @@ def export_map(ui, dest_folder):
     dest_folder = dest_folder+"\\"+"tilemap-"+dt_string
     os.mkdir(dest_folder)
 
-    create_tiles_folder(dest_folder)
+    create_tiles_folder(dest_folder, ui)
 
     with open(dest_folder + "\\explanations.json", "w") as f:
         json_object = json.dumps(create_explanations_dict(), indent=4) #write json object to explanations.json
@@ -31,13 +31,14 @@ def export_map(ui, dest_folder):
             f.write(out + "\n")
 
 
-def create_tiles_folder(dest_folder: str):
+def create_tiles_folder(dest_folder: str, ui):
     tile_folder = dest_folder + "\\Tiles"
 
     if not os.path.isdir(tile_folder): #create tiles folder
         os.mkdir(tile_folder)
 
-    for png in glob.glob("Assets\\Tiles\\*.png"): #copy tiles to tiles folder
+    
+    for png in glob.glob(ui.manager.palette_manager.current_palette.path+"\\*.png"): #copy tiles to tiles folder
         shutil.copy(png, tile_folder)
 
 

@@ -9,14 +9,15 @@ pygame.init()
 
 class UI:
     def __init__(self, scr_size, screen, cell_size: int):
-        self.manager = Manager(self)
-        self.cell_size: int = cell_size
         self.scr_size: tuple = scr_size
         self.scr_w, self.scr_h = self.scr_size
-        self.cells_r_c: tuple = (200, 30)
         self.viewport_w: int = self.scr_w // 4 * 3
+        self.sidebar_pos = (self.viewport_w, 0)
+        self.cell_size: int = cell_size
+        self.manager = Manager(self)
+        self.cells_r_c: tuple = (200, 30)
         self.screen = screen
-        self.sidebar = Sidebar(self, self.scr_size, self.viewport_w, self.screen)
+        self.sidebar = Sidebar(self, self.scr_size, self.sidebar_pos, self.viewport_w, self.screen)
         self.blocks = []
         self.total_mouse_change: tuple = (0, 0)
 
@@ -26,14 +27,13 @@ class UI:
         self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*self.cell_size))
         self.grid_right_surf.fill((0,0,0))
 
-        self.palette_cls = Palette(self.cell_size)
-        self.palette_data = self.palette_cls.init_palette(self.sidebar.pos)
-        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.palette_data] #make sidebar tiles' rects
+        self.current_palette = self.manager.palette_manager.current_palette #if changing this, check palette change_palette function
+        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.current_palette.palette_data] #make sidebar tiles' rects
         self.tile_to_place_id = 0
 
         for i in range(self.cells_r_c[1]):
             for j in range(self.cells_r_c[0]):
-                self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.palette_data))
+                self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.manager.palette_manager))
                 
 
     def on_mouse_click(self):
@@ -57,7 +57,7 @@ class UI:
             if self.manager.state is not State.BRUSH: #select brush when clicking any tile from selection
                 self.manager.change_state(State.BRUSH, self.sidebar.buttons["BrushButton"])
 
-            for _id, value in enumerate(self.palette_data):
+            for _id, value in enumerate(self.current_palette.palette_data):
                 if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
                     self.tile_to_place_id = _id
 

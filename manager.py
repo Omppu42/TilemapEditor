@@ -1,6 +1,7 @@
 import pygame, time
 from enum import Enum
 from util import get_cell_from_mousepos
+from palette import PaletteManager
 pygame.init()
 
 class State(Enum):
@@ -12,6 +13,7 @@ class Manager:
     def __init__(self, ui):
         self.ui = ui
         self.state = State.BRUSH
+        self.palette_manager = PaletteManager(ui)
 
     def mouse_update(self, mouse_pos: tuple):
         if mouse_pos[0] > self.ui.viewport_w: return
