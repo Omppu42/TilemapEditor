@@ -1,4 +1,5 @@
 import time, os
+from util_logger import logger
 from block import Block
 from functools import wraps
 
@@ -20,11 +21,7 @@ def timer(func):
         caller_path = os.path.relpath(caller_path, os.getcwd()) #get path relative to cwd
         
         total_time = round(time.time() - start_time, 4)
-        log(f"Running the function '{func.__name__}' from file '{caller_path}' took: {total_time} seconds")
+        logger.log(f"Running function '{func.__name__}' in file '{caller_path}' took {total_time} seconds")
         return rv
     
     return wrapper
-
-
-def log(msg: str):
-    print(f"LOGGER: {msg}")

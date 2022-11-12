@@ -1,6 +1,5 @@
 import pygame, sys
 from ui import UI
-import export
 pygame.init()
 
 #TODO: in tile selection, make it possible to drag tiles around

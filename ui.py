@@ -1,7 +1,6 @@
 import pygame, time
 from block import Block
 from manager import Manager, State
-from palette import Palette
 from sidebar import Sidebar
 import export, import_map
 

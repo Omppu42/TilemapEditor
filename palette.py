@@ -1,5 +1,6 @@
 import pygame, os, glob, filecmp, tkinter, shutil
 from tkinter import filedialog
+from util_logger import logger
 pygame.init()
 
 class Palette:
@@ -77,8 +78,7 @@ class PaletteManager:
                 dest_palette = palette
                 break
         else:
-            print(f"ERROR: No palette found at path: {palette_path}")
-            print(self.current_palette)
+            logger.error(f"No palette found at path: {palette_path}")
             return
 
         self.current_palette = dest_palette
@@ -127,7 +127,7 @@ class PaletteManager:
                 if filecmp.cmp(tile, palette.path+"\\"+filename) == False:
                     break
             else:
-                print("matching palette:", palette.path)
+                logger.log(f"Changing palette to '{palette.path}'")
                 has_palette = True
                 new_palette_path = palette.path
                 break
@@ -137,6 +137,3 @@ class PaletteManager:
             return
         
         self.change_palette(new_palette_path)
-
-
-        #TODO: check if palette exists or should create new one, hardcoded path is for testing, automate changing
