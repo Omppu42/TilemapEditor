@@ -1,12 +1,12 @@
-import pygame, os, glob, filecmp, tkinter
+import pygame, os, glob, filecmp, tkinter, shutil
 from tkinter import filedialog
 pygame.init()
 
 class Palette:
-    def __init__(self, tile_size: int, path: str, ui):
-        self.tile_size = tile_size
-        self.path = path
+    def __init__(self, ui, path: str):
         self.ui = ui
+        self.path = path
+        self.tile_size = ui.cell_size
         self.tile_list = self.load_tiles()
         self.palette_data = self.init_palette(ui.sidebar_pos)
 
@@ -37,6 +37,8 @@ class Palette:
             output.append({"image" : self.tile_list[i], "pos" : (pos[0] + 30 + (50 * (i % img_per_row)), pos[1] + 50 * j)})
         return output
 
+
+
 class PaletteManager:
     def __init__(self, ui):
         self.ui = ui
@@ -46,13 +48,27 @@ class PaletteManager:
         self.palettes = []
 
         for path in self.palette_directories:
-            self.palettes.append(Palette(ui.cell_size, path, ui))
+            self.palettes.append(Palette(ui, path))
 
-        self.current_palette = self.palettes[0]
+        self.current_palette = self.palettes[1]
 
 
-    def create_palette(self):
-        pass
+    def create_palette(self, name: str, tiles_folder=None) -> str: 
+        """WARNING: will overwrite palette's folder if folder with same name already exists\n
+        Returns path to new folder."""
+        new_palette_folder = str(self.palettes_path+"Palette_"+name)
+
+        if os.path.isdir(new_palette_folder): #if already exists, delete old one
+            shutil.rmtree(new_palette_folder)
+        os.mkdir(new_palette_folder) #create tiles folder
+    
+        if tiles_folder is None: return
+
+        for png in glob.glob(tiles_folder+"\\*.png"): #copy tiles to tiles folder
+            shutil.copy(png, new_palette_folder)
+
+        self.palettes.append(Palette(self.ui, new_palette_folder))
+        return new_palette_folder
 
 
     def change_palette(self, palette_path: str):
@@ -62,11 +78,11 @@ class PaletteManager:
                 break
         else:
             print(f"ERROR: No palette found at path: {palette_path}")
+            print(self.current_palette)
             return
 
         self.current_palette = dest_palette
         self.update_palette_change()
-        #TODO: Finish palette changing
 
 
     def update_palette_change(self):
@@ -88,16 +104,39 @@ class PaletteManager:
 
 
     def import_map_palette_change(self, directory: str):
-        same_tilemap = True
-        for x in glob.glob(directory+"\\Tiles\\*.png"): #check that all tiles match in current palette and imported palette
+        tiles_dir = directory+"\\Tiles"
+        map_name = os.path.split(directory)[1]
+        has_palette = False
+        new_palette_path = None
+
+        for x in glob.glob(tiles_dir+"\\*.png"): #check that all tiles match in current palette and imported palette
             filename = os.path.split(x)[1]
 
             #if one of the tiles doesn't match, tilemaps are different
             if filecmp.cmp(x, self.current_palette.path+"\\"+filename) == False:
-                same_tilemap = False
                 break
+        else: return # different tilemap
         
-        print(same_tilemap)
-        if same_tilemap: return
-        #TODO: check if palette exists or should create new one, hardcoded path is for testing
-        self.change_palette("Assets\\Palettes\\Palette_1")
+        #find matching palette from existing palettes
+        for palette in self.palettes:
+            for tile in glob.glob(tiles_dir+"\\*.png"):
+                filename = os.path.split(tile)[1]
+                
+                if os.path.isfile(palette.path+"\\"+filename) == False:
+                    break
+                if filecmp.cmp(tile, palette.path+"\\"+filename) == False:
+                    break
+            else:
+                print("matching palette:", palette.path)
+                has_palette = True
+                new_palette_path = palette.path
+                break
+
+        if not has_palette:
+            self.change_palette(self.create_palette(map_name, tiles_folder=tiles_dir))
+            return
+        
+        self.change_palette(new_palette_path)
+
+
+        #TODO: check if palette exists or should create new one, hardcoded path is for testing, automate changing
