@@ -1,7 +1,8 @@
-import pygame, time
+import pygame
 from enum import Enum
 from util import get_cell_from_mousepos
 from palette import PaletteManager
+from util_logger import logger
 pygame.init()
 
 class State(Enum):
@@ -14,6 +15,7 @@ class Manager:
         self.ui = ui
         self.state = State.BRUSH
         self.palette_manager = PaletteManager(ui)
+        logger.log("Initialized Manager")
 
     def mouse_update(self, mouse_pos: tuple):
         if mouse_pos[0] > self.ui.viewport_w: return

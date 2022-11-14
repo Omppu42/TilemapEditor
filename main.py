@@ -1,4 +1,5 @@
 import pygame, sys
+from util_logger import logger
 from ui import UI
 pygame.init()
 
@@ -10,6 +11,7 @@ pygame.init()
 #TODO: add 'add tile' button
 
 def main():
+    logger.log("Starting...")
     SCR_W = 1200
     SCR_H = 600
     CELL_SIZE = 32
@@ -22,6 +24,7 @@ def main():
     ui = UI((SCR_W, SCR_H), screen, CELL_SIZE)
     bg_color = 100
 
+    logger.log("Finished initializing")
     while True:
         screen.fill((bg_color, bg_color, bg_color))
         for event in pygame.event.get():

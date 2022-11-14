@@ -2,6 +2,7 @@ import pygame, time
 from block import Block
 from manager import Manager, State
 from sidebar import Sidebar
+from util_logger import logger
 import export, import_map
 
 pygame.init()
@@ -33,6 +34,7 @@ class UI:
         for i in range(self.cells_r_c[1]):
             for j in range(self.cells_r_c[0]):
                 self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.manager.palette_manager))
+        logger.log("Initialized UI")
                 
 
     def on_mouse_click(self):

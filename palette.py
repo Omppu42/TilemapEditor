@@ -12,6 +12,10 @@ class Palette:
         self.palette_data = self.init_palette(ui.sidebar_pos)
 
 
+    def __str__(self):
+        return f"palette '{os.path.split(self.path)[1]}' at '{self.path}'"
+
+
     def load_tiles(self) -> list:
         output = []
         png_images = []
@@ -51,7 +55,9 @@ class PaletteManager:
         for path in self.palette_directories:
             self.palettes.append(Palette(ui, path))
 
-        self.current_palette = self.palettes[1]
+        #TODO: Use same palette as last time when closing as first palette
+        self.current_palette = self.palettes[0]
+        logger.log(f"Loaded {self.current_palette}")
 
 
     def create_palette(self, name: str, tiles_folder=None) -> str: 
@@ -63,7 +69,7 @@ class PaletteManager:
             shutil.rmtree(new_palette_folder)
         os.mkdir(new_palette_folder) #create tiles folder
     
-        if tiles_folder is None: return
+        if tiles_folder is None: return #if no tilesfolder, don't copy any tiles
 
         for png in glob.glob(tiles_folder+"\\*.png"): #copy tiles to tiles folder
             shutil.copy(png, new_palette_folder)
@@ -78,10 +84,11 @@ class PaletteManager:
                 dest_palette = palette
                 break
         else:
-            logger.error(f"No palette found at path: {palette_path}")
+            logger.error(f"No palette found at path: '{palette_path}', keeping old palette")
             return
 
         self.current_palette = dest_palette
+        logger.log(f"Loaded {dest_palette}")
         self.update_palette_change()
 
 
@@ -127,12 +134,12 @@ class PaletteManager:
                 if filecmp.cmp(tile, palette.path+"\\"+filename) == False:
                     break
             else:
-                logger.log(f"Changing palette to '{palette.path}'")
                 has_palette = True
                 new_palette_path = palette.path
                 break
 
         if not has_palette:
+            logger.warn(f"Didn't find a suitable palette in '{self.palettes_path}', creating a new one named 'Palette_{map_name}'")
             self.change_palette(self.create_palette(map_name, tiles_folder=tiles_dir))
             return
         

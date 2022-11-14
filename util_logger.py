@@ -1,9 +1,13 @@
+import os
 from datetime import datetime
 
 
 class Logger:
     def __init__(self):
         self.logs_folder = "Logs\\"
+        if not os.path.isdir(self.logs_folder):
+            os.mkdir(self.logs_folder)
+
         self.log_file = "latest.log"
         self.reset_logs_file()
 
@@ -16,7 +20,7 @@ class Logger:
         self.log_to_file("DEBUG", msg)
 
     def log(self, msg: str):
-        self.log_to_file("LOGGING", msg)
+        self.log_to_file("INFO", msg)
 
     def warn(self, msg: str):
         self.log_to_file("WARNING", msg)
@@ -33,6 +37,6 @@ class Logger:
         now = now.strftime("%H:%M:%S")
 
         with open(self.logs_folder+self.log_file, "a") as f:
-            f.write(f"{now} - {level}: {msg}\n")
+            f.write(f"{now} - [{level}] {msg}\n")
 
 logger = Logger()
