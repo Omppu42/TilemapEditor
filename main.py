@@ -1,6 +1,7 @@
 import pygame, sys
 from util_logger import logger
 from ui import UI
+import atexit
 pygame.init()
 
 #TODO: in tile selection, make it possible to drag tiles around
@@ -9,6 +10,14 @@ pygame.init()
 #TODO: in paint mode, preview of where tile will be placed
 #TODO: more pages for tiles to prevent overflow
 #TODO: add 'add tile' button
+
+
+def on_exit(ui):
+    with open("Data\\palette_to_load.txt", "w") as f:
+        f.write(ui.manager.palette_manager.current_palette.path)
+
+    logger.log("Exited")
+
 
 def main():
     logger.log("Starting...")
@@ -24,8 +33,10 @@ def main():
     ui = UI((SCR_W, SCR_H), screen, CELL_SIZE)
     bg_color = 100
 
+    atexit.register(on_exit, ui)
     logger.log("Finished initializing")
     while True:
+
         screen.fill((bg_color, bg_color, bg_color))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -48,6 +59,9 @@ def main():
         screen.blit(fps, (10,10))
         pygame.display.update()
         clock.tick(500)
+    
+
+
 
 if __name__ == "__main__":
     main()

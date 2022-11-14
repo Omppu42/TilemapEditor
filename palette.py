@@ -56,8 +56,23 @@ class PaletteManager:
             self.palettes.append(Palette(ui, path))
 
         #TODO: Use same palette as last time when closing as first palette
-        self.current_palette = self.palettes[0]
+        with open("Data\\palette_to_load.txt", "r") as f:
+            target_palette = self.get_palette_at_path(f.readline())
+            if not target_palette is None:
+                self.current_palette = target_palette
+            else:
+                self.current_palette = self.palettes[0]
+
         logger.log(f"Loaded {self.current_palette}")
+
+
+    def get_palette_at_path(self, path: str) -> Palette:
+        for palette in self.palettes: #check if path is valid
+            if path == palette.path:
+                return palette
+        else:
+            logger.error(f"No palette found at path: '{path}', keeping old palette")
+            return None
 
 
     def create_palette(self, name: str, tiles_folder=None) -> str: 
@@ -80,13 +95,8 @@ class PaletteManager:
 
     def change_palette(self, palette_path: str) -> bool:
         """Returns True if changed palette succesfully, False if invalid path"""
-        for palette in self.palettes: #check if path is valid
-            if palette_path == palette.path:
-                dest_palette = palette
-                break
-        else:
-            logger.error(f"No palette found at path: '{palette_path}', keeping old palette")
-            return False
+        dest_palette = self.get_palette_at_path(palette_path)
+        if dest_palette is None: return False
 
         self.current_palette = dest_palette
         logger.log(f"Loaded {dest_palette}")
@@ -109,7 +119,6 @@ class PaletteManager:
         dest_folder = filedialog.askdirectory(title="Select folder with palette to load.", initialdir="Assets\\Palettes")
         root.destroy()
         if dest_folder == "": return #pressed cancel when selecting 
-        #TODO: Finish this, not called anywhere
         dest_folder = os.path.relpath(dest_folder, os.getcwd())
 
         #check if dest path is current palette
