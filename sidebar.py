@@ -19,7 +19,7 @@ class Sidebar:
                         "ExportButton" : button.TextButton((915, 550), (128, 16), self.screen, "EXPORT MAP", 20, hover_col=(190,190,190)),
                         "ImportButton" : button.TextButton((915, 575), (128, 16), self.screen, "IMPORT MAP", 20, hover_col=(190,190,190)),
                         "ExportPaletteButton" : button.TextButton((1060, 550), (128, 16), self.screen, "EXPORT PALETTE", 20, hover_col=(200,200,200)),
-                        "ImportPaletteButton" : button.TextButton((1060, 575), (128, 16), self.screen, "IMPORT PALETTE", 20, hover_col=(200,200,200))}
+                        "LoadPaletteButton" : button.TextButton((1060, 575), (128, 16), self.screen, "LOAD PALETTE", 20, hover_col=(200,200,200))}
                         #TODO: make new buttons functional
 
         self.buttons["BrushButton"].set_state(1) #set brush to be on

@@ -141,8 +141,8 @@ class ToolButton(Button):
 
 
 class TextButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, text: str, text_size: int, can_toggle=False, hover_col=None):
-        super().__init__(pos, size, screen, can_toggle_off=can_toggle, hover_col=hover_col)
+    def __init__(self, pos: tuple, size: tuple, screen, text: str, text_size: int, can_toggle=False, hover_col=None, hover_text=None):
+        super().__init__(pos, size, screen, can_toggle_off=can_toggle, hover_col=hover_col, hover_text=hover_text)
         self.set_state(1)
         font = pygame.font.Font(None, text_size)
         self.text_surf = font.render(text, True, (0,0,0))

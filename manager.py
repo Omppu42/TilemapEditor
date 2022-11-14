@@ -25,11 +25,11 @@ class Manager:
 
         if self.state == State.BRUSH:
             block.tile_id = self.ui.tile_to_place_id
-            block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
+            self.update_block_surf(block)
 
         elif self.state == State.ERASE:
             block.tile_id = -1
-            block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
+            self.update_block_surf(block)
 
         elif self.state == State.COLOR_PICKER:
             if block.tile_id == -1: return #if clicked on air
@@ -55,3 +55,13 @@ class Manager:
     def change_state(self, state: State, button_to_activate):
         self.state = state
         button_to_activate.just_clicked = True
+    
+
+    def update_block_surf(self, block):
+        block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
+
+
+    def reset_map(self):
+        for block in self.ui.blocks:
+            block.tile_id = -1
+            self.update_block_surf(block)

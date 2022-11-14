@@ -78,18 +78,20 @@ class PaletteManager:
         return new_palette_folder
 
 
-    def change_palette(self, palette_path: str):
+    def change_palette(self, palette_path: str) -> bool:
+        """Returns True if changed palette succesfully, False if invalid path"""
         for palette in self.palettes: #check if path is valid
             if palette_path == palette.path:
                 dest_palette = palette
                 break
         else:
             logger.error(f"No palette found at path: '{palette_path}', keeping old palette")
-            return
+            return False
 
         self.current_palette = dest_palette
         logger.log(f"Loaded {dest_palette}")
         self.update_palette_change()
+        return True
 
 
     def update_palette_change(self):
@@ -108,6 +110,15 @@ class PaletteManager:
         root.destroy()
         if dest_folder == "": return #pressed cancel when selecting 
         #TODO: Finish this, not called anywhere
+        dest_folder = os.path.relpath(dest_folder, os.getcwd())
+
+        #check if dest path is current palette
+        if dest_folder == self.current_palette.path:
+            logger.log("While changing palette, selected current palette. Didn't changed palette or reset map")
+            return
+        if not self.change_palette(dest_folder): return
+
+        self.ui.manager.reset_map()
 
 
     def import_map_palette_change(self, directory: str):

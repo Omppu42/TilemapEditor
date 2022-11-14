@@ -46,6 +46,8 @@ class UI:
                     export.export_tilemap(self)
                 elif x == "ImportButton":
                     import_map.import_tilemap(self)
+                elif x == "LoadPaletteButton":
+                    self.manager.palette_manager.change_palette_ask()
 
         
         self.change_tile(mouse_pos)
