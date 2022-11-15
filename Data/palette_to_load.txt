@@ -1,1 +1,1 @@
-Assets\Palettes\Palette_1
+Assets\Palettes\Palette_0

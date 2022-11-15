@@ -40,6 +40,7 @@ class Button:
 
         self.screen.blit(self.btn_surf, self.rect)
         self.just_clicked = False
+        
 
     def check_clicked(self, mouse_pos: tuple) -> bool:
         if not pygame.mouse.get_pressed()[0]: return False
@@ -112,28 +113,17 @@ class ButtonGroup:  #only one button in the button group can be on at a time
         self.button_to_leave_on = None
 
 
-class GridButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen):
-        super().__init__(pos, size, screen, hover_text="Grid (G)")
-        self.set_state(1)
-        self.image = pygame.image.load("Assets\\grid_btn_img.png")
-        self.image = pygame.transform.scale(self.image, size)
-
-    def update(self):
-        super().update()
-        self.screen.blit(self.image, self.rect)
-
-
 class ToolButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, manager, state_when_clicked, image, hover_text=None):
-        super().__init__(pos, size, screen, can_toggle_off=False, hover_text=hover_text)
+    def __init__(self, pos: tuple, size: tuple, screen, manager, image, state_when_clicked=None, hover_text=None, init_state=0, can_toggle_off=True):
+        super().__init__(pos, size, screen, can_toggle_off=can_toggle_off, hover_text=hover_text)
         self.image = pygame.image.load(image)
         self.image = pygame.transform.scale(self.image, size)
         self.manager = manager
         self.state_when_clicked = state_when_clicked
+        self.set_state(init_state)
 
     def update(self):
-        if self.just_clicked:
+        if self.just_clicked and self.state_when_clicked is not None:
             self.manager.state = self.state_when_clicked
 
         super().update()

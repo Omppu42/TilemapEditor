@@ -1,8 +1,9 @@
-import pygame
+import pygame, tkinter
 from enum import Enum
 from util import get_cell_from_mousepos
 from palette import PaletteManager
 from util_logger import logger
+from tkinter import filedialog
 pygame.init()
 
 class State(Enum):
@@ -65,3 +66,11 @@ class Manager:
         for block in self.ui.blocks:
             block.tile_id = -1
             self.update_block_surf(block)
+    
+    
+    def ask_filedialog(self, initialdir: str = None) -> str:
+        root = tkinter.Tk()
+        root.withdraw()
+        dest_folder = filedialog.askdirectory(initialdir=initialdir)
+        root.destroy()
+        return dest_folder

@@ -8,12 +8,15 @@ class Palette:
         self.ui = ui
         self.path = path
         self.tile_size = ui.cell_size
-        self.tile_list = self.load_tiles()
-        self.palette_data = self.init_palette(ui.sidebar_pos)
-
+        self.load_sequence()
 
     def __str__(self):
         return f"palette '{os.path.split(self.path)[1]}' at '{self.path}'"
+
+
+    def load_sequence(self):
+        self.tile_list = self.load_tiles()
+        self.palette_data = self.init_palette()
 
 
     def load_tiles(self) -> list:
@@ -31,7 +34,7 @@ class Palette:
         return output
 
 
-    def init_palette(self, pos: tuple) -> list: #tiles list has dicts with image and xy pos
+    def init_palette(self) -> list: #tiles list has dicts with image and xy pos
         output = []
         img_per_row = 5
         j = 0
@@ -39,7 +42,7 @@ class Palette:
             if i % img_per_row == 0:
                 j += 1
 
-            output.append({"image" : self.tile_list[i], "pos" : (pos[0] + 30 + (50 * (i % img_per_row)), pos[1] + 50 * j)})
+            output.append({"image" : self.tile_list[i], "pos" : (self.ui.sidebar_pos[0] + 30 + (50 * (i % img_per_row)), self.ui.sidebar_pos[1] + 50 * j)})
         return output
 
 
@@ -55,13 +58,12 @@ class PaletteManager:
         for path in self.palette_directories:
             self.palettes.append(Palette(ui, path))
 
-        #TODO: Use same palette as last time when closing as first palette
         with open("Data\\palette_to_load.txt", "r") as f:
             target_palette = self.get_palette_at_path(f.readline())
             if not target_palette is None:
                 self.current_palette = target_palette
             else:
-                self.current_palette = self.palettes[0]
+                self.current_palette = self.palettes[0] #if no palette last time
 
         logger.log(f"Loaded {self.current_palette}")
 
@@ -114,10 +116,7 @@ class PaletteManager:
 
     
     def change_palette_ask(self):
-        root = tkinter.Tk()
-        root.withdraw()
-        dest_folder = filedialog.askdirectory(title="Select folder with palette to load.", initialdir="Assets\\Palettes")
-        root.destroy()
+        dest_folder = self.ui.manager.ask_filedialog(initialdir="Assets\\Palettes")
         if dest_folder == "": return #pressed cancel when selecting 
         dest_folder = os.path.relpath(dest_folder, os.getcwd())
 
@@ -164,3 +163,27 @@ class PaletteManager:
             return
         
         self.change_palette(new_palette_path)
+
+    
+    def add_tile(self):
+        root = tkinter.Tk()
+        root.withdraw()
+        pngs = filedialog.askopenfilenames(filetypes=[("PNG file", ".png")])
+        root.destroy()
+
+        if pngs == "": 
+            return
+
+        for png in pngs:
+            filename = os.path.split(png)[1]
+            filename = os.path.splitext(filename)[0]
+            new_filename = self.current_palette.path + "\\_" + filename
+
+            i = 1
+            while os.path.exists(new_filename+"-%s.png" % i):
+                i += 1
+            shutil.copy(png, new_filename+"-%s.png" % i)
+            #TODO: Always add to the end of tileselection
+        
+        self.current_palette.load_sequence()
+        self.update_palette_change()

@@ -9,7 +9,6 @@ pygame.init()
 #TODO: save tileset and create empty one 
 #TODO: in paint mode, preview of where tile will be placed
 #TODO: more pages for tiles to prevent overflow
-#TODO: add 'add tile' button
 
 
 def on_exit(ui):

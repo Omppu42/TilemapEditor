@@ -48,6 +48,8 @@ class UI:
                     import_map.import_tilemap(self)
                 elif x == "LoadPaletteButton":
                     self.manager.palette_manager.change_palette_ask()
+                elif x == "AddTileButton":
+                    self.manager.palette_manager.add_tile()
 
         
         self.change_tile(mouse_pos)
