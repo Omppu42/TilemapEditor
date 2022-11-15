@@ -34,11 +34,17 @@ class UI:
         for i in range(self.cells_r_c[1]):
             for j in range(self.cells_r_c[0]):
                 self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.manager.palette_manager))
+
+        self.detele_tiles = -1 #-1 off, 1 on
+        self.del_borders_w = 7
+        self.del_font = pygame.font.Font(None, 50)
         logger.log("Initialized UI")
                 
 
     def on_mouse_click(self):
         mouse_pos = pygame.mouse.get_pos()  
+        self.change_tile(mouse_pos)
+        self.detele_tiles = -1
 
         for x in self.sidebar.buttons:
             if self.sidebar.buttons[x].check_clicked(mouse_pos):
@@ -50,9 +56,10 @@ class UI:
                     self.manager.palette_manager.change_palette_ask()
                 elif x == "AddTileButton":
                     self.manager.palette_manager.add_tile()
+                elif x == "RemoveTileButton":
+                    self.detele_tiles *= -1
 
         
-        self.change_tile(mouse_pos)
         
 
     def change_tile(self, mouse_pos):
@@ -64,12 +71,30 @@ class UI:
 
             for _id, value in enumerate(self.current_palette.palette_data):
                 if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
-                    self.tile_to_place_id = _id
+                    if self.detele_tiles == -1:
+                        self.tile_to_place_id = _id
+                    elif self.detele_tiles == 1:
+                        self.manager.palette_manager.remove_tile(_id)
 
 
     def update(self):
         self.draw_blocks()
         self.sidebar.update()
+
+        if self.detele_tiles == 1:
+            pygame.draw.rect(self.screen, (255,0,0), (0,0, self.scr_w, self.del_borders_w))
+            pygame.draw.rect(self.screen, (255,0,0), (0,0, self.del_borders_w, self.scr_h))
+            pygame.draw.rect(self.screen, (255,0,0), (self.scr_w-self.del_borders_w, 0, self.del_borders_w, self.scr_h))
+            pygame.draw.rect(self.screen, (255,0,0), (0, self.scr_h-self.del_borders_w, self.scr_w, self.del_borders_w))
+
+            text = self.del_font.render("CLICK TILE TO DELETE", True, (255,0,0))
+            text_shadow = pygame.font.Font(None, 50).render("CLICK TILE TO DELETE", True, (0,0,0))
+            
+            text_rect = text.get_rect(center=(self.scr_w//2, self.scr_h//2))
+            text_shadow_rect = text_shadow.get_rect(center=(self.scr_w//2-3, self.scr_h//2+2))
+
+            self.screen.blit(text_shadow, text_shadow_rect)
+            self.screen.blit(text, text_rect)
 
 
     def draw_blocks(self):

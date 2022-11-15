@@ -1,5 +1,6 @@
 import pygame, os, glob, filecmp, tkinter, shutil
 from tkinter import filedialog
+from tkinter.messagebox import askyesno
 from util_logger import logger
 pygame.init()
 
@@ -21,12 +22,12 @@ class Palette:
 
     def load_tiles(self) -> list:
         output = []
-        png_images = []
+        self.img_paths = []
 
         for f in glob.glob(self.path+"\\*.png"): #get all png images
-            png_images.append(f)
+            self.img_paths.append(f)
 
-        for image_path in png_images:                               #load all images to tiles
+        for image_path in self.img_paths:                               #load all images to tiles
             sprite = pygame.image.load(image_path)
             sprite = pygame.transform.scale(sprite, (self.tile_size, self.tile_size))
             output.append(sprite)
@@ -183,7 +184,24 @@ class PaletteManager:
             while os.path.exists(new_filename+"-%s.png" % i):
                 i += 1
             shutil.copy(png, new_filename+"-%s.png" % i)
+            logger.log(f"Added '_{filename}-{i}.png' to {self.current_palette}")
             #TODO: Always add to the end of tileselection
         
+        self.current_palette.load_sequence()
+        self.update_palette_change()
+
+
+    def remove_tile(self, index: int):
+        root = tkinter.Tk()
+        root.withdraw()
+        if not askyesno("Confirm", "Are you sure you want to delete this tile?\nThis action cannot be reversed."):
+            root.destroy()  
+            self.ui.detele_tiles = -1
+            return
+
+        root.destroy()
+        self.ui.detele_tiles = -1
+        os.remove(self.current_palette.img_paths[index])
+
         self.current_palette.load_sequence()
         self.update_palette_change()

@@ -24,6 +24,8 @@ class Manager:
         block = get_cell_from_mousepos(self.ui, mouse_pos)
         if block is None: return
 
+        self.ui.detele_tiles = -1
+
         if self.state == State.BRUSH:
             block.tile_id = self.ui.tile_to_place_id
             self.update_block_surf(block)

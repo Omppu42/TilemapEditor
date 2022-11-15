@@ -39,7 +39,7 @@ class Sidebar:
         self.brushes_group.update() #Brush buttons
 
         for x in self.buttons:
-            self.buttons[x].update() #Brush and grid buttons
+            self.buttons[x].update()
         
         mousepos = pygame.mouse.get_pos()
         for x in self.buttons.values():
