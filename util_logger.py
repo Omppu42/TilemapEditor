@@ -22,7 +22,7 @@ class Logger:
     def log(self, msg: str):
         self.log_to_file("INFO", msg)
 
-    def warn(self, msg: str):
+    def warning(self, msg: str):
         self.log_to_file("WARNING", msg)
 
     def error(self, msg: str):

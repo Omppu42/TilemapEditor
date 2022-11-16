@@ -1,6 +1,6 @@
 import pygame, os, glob, filecmp, tkinter, shutil
 from tkinter import filedialog
-from tkinter.messagebox import askyesno
+from tkinter.messagebox import askyesno, askokcancel, WARNING
 from util_logger import logger
 pygame.init()
 
@@ -53,8 +53,11 @@ class PaletteManager:
         self.ui = ui
         self.palettes_path = "Assets\\Palettes\\"
         self.palette_directories = [self.palettes_path+x for x in os.listdir(self.palettes_path) if os.path.isdir(self.palettes_path+x)]
-        #TODO: if no palettes in directory
         self.palettes = []
+        
+        if self.palette_directories == []:
+            logger.warning("No palette in palettes folder, creating empty one")
+            self.create_empty_palette(ask_confirm=False, update_palette=False)
 
         for path in self.palette_directories:
             self.palettes.append(Palette(ui, path))
@@ -64,6 +67,7 @@ class PaletteManager:
             if not target_palette is None:
                 self.current_palette = target_palette
             else:
+                logger.warning("Last used palette invalid, falling back to first palette")
                 self.current_palette = self.palettes[0] #if no palette last time
 
         logger.log(f"Loaded {self.current_palette}")
@@ -74,7 +78,7 @@ class PaletteManager:
             if path == palette.path:
                 return palette
         else:
-            logger.error(f"No palette found at path: '{path}', keeping old palette")
+            logger.warning(f"No palette found at path: '{path}', keeping old palette")
             return None
 
 
@@ -87,12 +91,12 @@ class PaletteManager:
             shutil.rmtree(new_palette_folder)
         os.mkdir(new_palette_folder) #create tiles folder
     
-        if tiles_folder is None: return #if no tilesfolder, don't copy any tiles
+        self.palettes.append(Palette(self.ui, new_palette_folder))
+        if tiles_folder is None: return new_palette_folder#if no tilesfolder, don't copy any tiles
 
         for png in glob.glob(tiles_folder+"\\*.png"): #copy tiles to tiles folder
             shutil.copy(png, new_palette_folder)
 
-        self.palettes.append(Palette(self.ui, new_palette_folder))
         return new_palette_folder
 
 
@@ -159,7 +163,7 @@ class PaletteManager:
                 break
 
         if not has_palette:
-            logger.warn(f"Didn't find a suitable palette in '{self.palettes_path}', creating a new one named 'Palette_{map_name}'")
+            logger.warning(f"Didn't find a suitable palette in '{self.palettes_path}', creating a new one named 'Palette_{map_name}'")
             self.change_palette(self.create_palette(map_name, tiles_folder=tiles_dir))
             return
         
@@ -178,14 +182,13 @@ class PaletteManager:
         for png in pngs:
             filename = os.path.split(png)[1]
             filename = os.path.splitext(filename)[0]
-            new_filename = self.current_palette.path + "\\_" + filename
+            new_filename = self.current_palette.path + "\\_%s-" + filename + ".png"
 
             i = 1
-            while os.path.exists(new_filename+"-%s.png" % i):
+            while os.path.exists(new_filename % i):
                 i += 1
-            shutil.copy(png, new_filename+"-%s.png" % i)
-            logger.log(f"Added '_{filename}-{i}.png' to {self.current_palette}")
-            #TODO: Always add to the end of tileselection
+            shutil.copy(png, new_filename % i)
+            logger.log(f"Added '_{i}-{filename}.png' to {self.current_palette}")
         
         self.current_palette.load_sequence()
         self.update_palette_change()
@@ -194,14 +197,36 @@ class PaletteManager:
     def remove_tile(self, index: int):
         root = tkinter.Tk()
         root.withdraw()
-        if not askyesno("Confirm", "Are you sure you want to delete this tile?\nThis action cannot be reversed."):
+        if not askokcancel("Confirm", "By deleting this tile, all it's instances will removed.\nThis action cannot be undone.", icon=WARNING):
             root.destroy()  
             self.ui.detele_tiles = -1
             return
 
         root.destroy()
         self.ui.detele_tiles = -1
-        os.remove(self.current_palette.img_paths[index])
+        remove_path = self.current_palette.img_paths[index]
+        os.remove(remove_path)
 
         self.current_palette.load_sequence()
         self.update_palette_change()
+        self.ui.manager.remove_index_map(index)
+        logger.log(f"Deleted '{os.path.split(remove_path)[1]}' from {self.current_palette}")
+
+
+    def create_empty_palette(self, ask_confirm=True, update_palette=True):
+        if ask_confirm:
+            root = tkinter.Tk()
+            root.withdraw()
+            if not askokcancel("Confirm", "When you create a new palette, your map will reset.\nMake sure to save before continuing.", icon=WARNING):
+                root.destroy()
+                return
+
+            root.destroy()
+
+        num = len(self.palettes)
+        logger.log(f"Creating new palette 'Palette_{num}'")
+        new_palette = self.create_palette(str(num))
+
+        if update_palette:
+            self.change_palette(new_palette)
+            self.ui.manager.reset_map()

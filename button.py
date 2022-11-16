@@ -21,7 +21,7 @@ class Button:
         self.can_toggle_off = can_toggle_off
 
         self.hover_text = str(hover_text)
-        self.hover_delay: float = 0.3
+        self.hover_delay: float = 0
         self.hover_start_time = 0
         self.hovering: bool = False
         self.hover_col = hover_col

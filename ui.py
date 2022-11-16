@@ -3,7 +3,7 @@ from block import Block
 from manager import Manager, State
 from sidebar import Sidebar
 from util_logger import logger
-import export, import_map
+
 
 pygame.init()
 
@@ -46,20 +46,7 @@ class UI:
         self.change_tile(mouse_pos)
         self.detele_tiles = -1
 
-        for x in self.sidebar.buttons:
-            if self.sidebar.buttons[x].check_clicked(mouse_pos):
-                if x == "ExportButton":
-                    export.export_tilemap(self)
-                elif x == "ImportButton":
-                    import_map.import_tilemap(self)
-                elif x == "LoadPaletteButton":
-                    self.manager.palette_manager.change_palette_ask()
-                elif x == "AddTileButton":
-                    self.manager.palette_manager.add_tile()
-                elif x == "RemoveTileButton":
-                    self.detele_tiles *= -1
-
-        
+        self.sidebar.on_mouse_click(mouse_pos)
         
 
     def change_tile(self, mouse_pos):

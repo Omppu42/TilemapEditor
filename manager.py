@@ -26,7 +26,7 @@ class Manager:
 
         self.ui.detele_tiles = -1
 
-        if self.state == State.BRUSH:
+        if len(self.ui.manager.palette_manager.current_palette.tile_list) > 0 and self.state == State.BRUSH:
             block.tile_id = self.ui.tile_to_place_id
             self.update_block_surf(block)
 
@@ -66,6 +66,14 @@ class Manager:
 
     def reset_map(self):
         for block in self.ui.blocks:
+            block.tile_id = -1
+            self.update_block_surf(block)
+
+    
+    def remove_index_map(self, index: int):
+        for block in self.ui.blocks:
+            if not block.tile_id is index: continue
+            
             block.tile_id = -1
             self.update_block_surf(block)
     

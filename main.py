@@ -4,12 +4,10 @@ from ui import UI
 import atexit
 pygame.init()
 
-#TODO: in tile selection, make it possible to drag tiles around
 #TODO: change mouse to hand when hovering over tile in tile selection and over buttons
-#TODO: save tileset and create empty one 
 #TODO: in paint mode, preview of where tile will be placed
 #TODO: more pages for tiles to prevent overflow
-
+#TODO: Move deleted tiles to 'deleted_tiles' folder instead of deleting permanently
 
 def on_exit(ui):
     with open("Data\\palette_to_load.txt", "w") as f:
