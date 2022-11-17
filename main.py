@@ -5,7 +5,6 @@ from dropdown import create_lists
 pygame.init()
 
 #TODO: more pages for tiles to prevent overflow
-#TODO: Move deleted tiles to 'deleted_tiles' folder instead of deleting permanently
 
 # If there is time:
 #TODO: in paint mode, preview of where tile will be placed

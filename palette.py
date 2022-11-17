@@ -204,20 +204,34 @@ class PaletteManager:
     def remove_tile(self, index: int):
         root = tkinter.Tk()
         root.withdraw()
-        if not askokcancel("Confirm", "By deleting this tile, all it's instances will removed.\nThis action cannot be undone.", icon=WARNING):
-            root.destroy()  
+        if not askokcancel("Confirm", "By deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
+            root.destroy()
             self.ui.detele_tiles = -1
             return
 
         root.destroy()
         self.ui.detele_tiles = -1
         remove_path = self.current_palette.img_paths[index]
-        os.remove(remove_path)
+        
+        name = os.path.split(remove_path)[1]
+        name = os.path.splitext(name)[0]+"(%s).png"
+
+        full_path = "Deleted_tiles\\"+name
+
+        i = 1
+        while os.path.exists(full_path % i):
+            i += 1
+
+        deleted_tiles_path = "Deleted_tiles"
+        if not os.path.isdir(deleted_tiles_path):
+            os.mkdir(deleted_tiles_path)
+        shutil.move(remove_path, deleted_tiles_path+"\\"+name % i)
 
         self.current_palette.load_sequence()
         self.update_palette_change()
         self.ui.manager.remove_index_map(index)
-        logger.log(f"Deleted '{os.path.split(remove_path)[1]}' from {self.current_palette}")
+
+        logger.log(f"Moved '{os.path.split(remove_path)[1]}' from '{self.current_palette.name}' to 'Deleted_tiles' folder")
 
 
     def create_empty_palette(self, ask_confirm=True, update_palette=True, num=None):
