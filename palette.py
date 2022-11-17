@@ -52,15 +52,8 @@ class PaletteManager:
     def __init__(self, ui):
         self.ui = ui
         self.palettes_path = "Assets\\Palettes\\"
-        self.palette_directories = [self.palettes_path+x for x in os.listdir(self.palettes_path) if os.path.isdir(self.palettes_path+x)]
-        self.palettes = []
-        
-        if self.palette_directories == []:
-            logger.warning("No palette in palettes folder, creating empty one")
-            self.create_empty_palette(ask_confirm=False, update_palette=False)
 
-        for path in self.palette_directories:
-            self.palettes.append(Palette(ui, path))
+        self.init_palettes()
 
         with open("Data\\palette_to_load.txt", "r") as f:
             target_palette = self.get_palette_at_path(f.readline())
@@ -68,9 +61,22 @@ class PaletteManager:
                 self.current_palette = target_palette
             else:
                 logger.warning("Last used palette invalid, falling back to first palette")
-                self.current_palette = self.palettes[0] #if no palette last time
+                self.current_palette = self.palettes[0]
 
         logger.log(f"Loaded {self.current_palette}")
+
+    
+    def init_palettes(self):
+        self.palette_directories = [self.palettes_path+x for x in os.listdir(self.palettes_path) if os.path.isdir(self.palettes_path+x)]
+
+        if self.palette_directories == []:
+            logger.warning("No palette in palettes folder, creating empty one")
+            self.create_empty_palette(ask_confirm=False, update_palette=False)
+
+        self.palettes = []
+        for path in self.palette_directories:
+            self.palettes.append(Palette(self.ui, path))
+
 
 
     def get_palette_at_path(self, path: str) -> Palette:
@@ -85,11 +91,11 @@ class PaletteManager:
     def create_palette(self, name: str, tiles_folder=None) -> str: 
         """WARNING: will overwrite palette's folder if folder with same name already exists\n
         Returns path to new folder."""
-        new_palette_folder = str(self.palettes_path+"Palette_"+name)
+        new_palette_folder = str(self.palettes_path+name)
 
         if os.path.isdir(new_palette_folder): #if already exists, delete old one
-            shutil.rmtree(new_palette_folder)
-        os.mkdir(new_palette_folder) #create tiles folder
+            self.delete_palette(ask_confirm=False, dest_folder=new_palette_folder)
+        os.mkdir(new_palette_folder)
     
         self.palettes.append(Palette(self.ui, new_palette_folder))
         if tiles_folder is None: return new_palette_folder#if no tilesfolder, don't copy any tiles
@@ -164,7 +170,7 @@ class PaletteManager:
 
         if not has_palette:
             logger.warning(f"Didn't find a suitable palette in '{self.palettes_path}', creating a new one named 'Palette_{map_name}'")
-            self.change_palette(self.create_palette(map_name, tiles_folder=tiles_dir))
+            self.change_palette(self.create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
             return
         
         self.change_palette(new_palette_path)
@@ -213,7 +219,7 @@ class PaletteManager:
         logger.log(f"Deleted '{os.path.split(remove_path)[1]}' from {self.current_palette}")
 
 
-    def create_empty_palette(self, ask_confirm=True, update_palette=True):
+    def create_empty_palette(self, ask_confirm=True, update_palette=True, num=None):
         if ask_confirm:
             root = tkinter.Tk()
             root.withdraw()
@@ -223,10 +229,63 @@ class PaletteManager:
 
             root.destroy()
 
-        num = len(self.palettes)
+        if num is None:
+            num = len(self.palettes)
         logger.log(f"Creating new palette 'Palette_{num}'")
-        new_palette = self.create_palette(str(num))
+        new_palette = self.create_palette("Palette_"+str(num))
 
         if update_palette:
             self.change_palette(new_palette)
             self.ui.manager.reset_map()
+
+
+    def delete_palette(self, ask_confirm=True, dest_folder=None):
+        if dest_folder is None:
+            dest_folder = self.ui.manager.ask_filedialog(initialdir="Assets\\Palettes")
+            if dest_folder == "":return
+
+        allowed_path = os.path.abspath("Assets\\Palettes")  #reformat paths
+        allowed_path = os.path.normpath(allowed_path)
+        
+        dest_folder = os.path.abspath(dest_folder)
+        dest_folder = os.path.normpath(dest_folder)
+
+        if not os.path.commonprefix([dest_folder, allowed_path]) == allowed_path: #check if in palettes folder
+            logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Assets\\Palettes'")
+            return
+
+        if dest_folder == allowed_path:
+            logger.error("Deleting palette: You cant select 'Assets\\Palettes' folder. You have to select one of it's child folders")
+            return
+
+        if ask_confirm:
+            root = tkinter.Tk()
+            root.withdraw()
+            if not askokcancel("Confirm", "Are you sure you want to delete this palette?\nThis action cannot be undone.", icon=WARNING):
+                root.destroy()
+                return
+
+            root.destroy()
+
+        for file in os.listdir(dest_folder):
+            if not file.endswith(".png"):
+                logger.warning("Deleting palette: Not all file were '.png' files. Can't delete such folder")
+                return
+        
+        logger.log("Deleting palette: Deleting pngs..")
+        for f in glob.glob(dest_folder+"\\*.png"):
+            os.remove(f)
+    
+        if not os.listdir(dest_folder) == []:
+            logger.error("Deleting palette: Directory isn't empty. This should never happen")
+            return
+
+        logger.log("Deleting palette: Deleting folder")
+        os.rmdir(dest_folder)
+
+        if os.listdir("Assets\\Palettes") == []:
+            self.create_empty_palette(ask_confirm=False, num=0)
+        
+        self.init_palettes()
+        self.current_palette = self.palettes[0]
+        self.update_palette_change()

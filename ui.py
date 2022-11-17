@@ -20,6 +20,7 @@ class UI:
         self.sidebar = Sidebar(self, self.scr_size, self.sidebar_pos, self.viewport_w, self.screen)
         self.blocks = []
         self.total_mouse_change: tuple = (0, 0)
+        self.dropdown_lists = None
 
         self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*self.cell_size, 1))
         self.grid_bot_surf.fill((0,0,0))
@@ -114,3 +115,7 @@ class UI:
                 return (0,0)
             rel = pygame.mouse.get_rel()
             return rel
+
+    
+    def toggle_delete(self):
+        self.detele_tiles *= -1

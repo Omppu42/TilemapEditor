@@ -19,6 +19,10 @@ class Manager:
         logger.log("Initialized Manager")
 
     def mouse_update(self, mouse_pos: tuple):
+        for dropdown in self.ui.dropdown_lists:
+            if dropdown.drawing:
+                return   #if hovering on any dropdowns
+
         if mouse_pos[0] > self.ui.viewport_w: return
 
         block = get_cell_from_mousepos(self.ui, mouse_pos)

@@ -28,8 +28,8 @@ class Logger:
     def error(self, msg: str):
         self.log_to_file("ERROR", msg)
     
-    def critical(self, msg: str):
-        self.log_to_file("CRITICAL", msg)
+    def fatal(self, msg: str):
+        self.log_to_file("FATAL", msg)
 
 
     def log_to_file(self, level: str, msg: str):
