@@ -13,9 +13,9 @@ class Sidebar:
         self.screen = screen
 
         self.buttons = {"GridButton" : button.ToolButton((1150, 550), (32, 32), self.screen, ui.manager, "Assets\\grid_button.png", hover_text="Grid (G)", init_state=1), 
-                        "BrushButton" : button.ToolButton((920, 550), (32, 32), self.screen, ui.manager, "Assets\\brush.png", state_when_clicked=State.BRUSH,  hover_text="Paint (P)", can_toggle_off=False, init_state=1),
-                        "EraserButton" : button.ToolButton((960, 550), (32, 32), self.screen, ui.manager, "Assets\\eraser.png", state_when_clicked=State.ERASE, hover_text="Eraser (E)", can_toggle_off=False),
-                        "ColorPickButton" : button.ToolButton((1000, 550), (32, 32), self.screen, ui.manager, "Assets\\color_picker.png", state_when_clicked=State.COLOR_PICKER, hover_text="Color Picker (O)", can_toggle_off=False)}
+                        "BrushButton" : button.ToolButton((931, 550), (32, 32), self.screen, ui.manager, "Assets\\brush.png", state_when_clicked=State.BRUSH,  hover_text="Paint (P)", can_toggle_off=False, init_state=1),
+                        "EraserButton" : button.ToolButton((971, 550), (32, 32), self.screen, ui.manager, "Assets\\eraser.png", state_when_clicked=State.ERASE, hover_text="Eraser (E)", can_toggle_off=False),
+                        "ColorPickButton" : button.ToolButton((1011, 550), (32, 32), self.screen, ui.manager, "Assets\\color_picker.png", state_when_clicked=State.COLOR_PICKER, hover_text="Color Picker (O)", can_toggle_off=False)}
 
         self.brushes_group = button.ButtonGroup([self.buttons["BrushButton"], self.buttons["EraserButton"], self.buttons["ColorPickButton"]])
 
@@ -47,6 +47,8 @@ class Sidebar:
 
         if len(self.ui.manager.palette_manager.current_palette.tile_list) == 0:
             self.draw_empty_palette()
+
+        self.ui.manager.palette_manager.current_palette_text()
 
         for _id, val in enumerate(self.ui.current_palette.palette_data):
             if _id == self.ui.tile_to_place_id: #Tile selection highlighting

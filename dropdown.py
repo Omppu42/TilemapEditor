@@ -69,8 +69,8 @@ def create_lists(ui) -> list:
     5, 0, 140, 30, 
     pygame.font.Font(None, 25), 
     "Tilemap", 
-    ["Export Tilemap", "Import Tilemap"],
-    [(export.export_tilemap, [ui]), (import_map.import_tilemap, [ui])]))  #funcs, args, kwargs
+    ["Load", "Export"],
+    [(import_map.import_tilemap, [ui]), (export.export_tilemap, [ui])]))  #funcs, args, kwargs
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -87,7 +87,7 @@ def create_lists(ui) -> list:
     280, 0, 125, 30, 
     pygame.font.Font(None, 25), 
     "Tiles", 
-    ["Add Tile", "Remove Tile"],
+    ["Add", "Remove"],
     [(ui.manager.palette_manager.add_tile), (ui.toggle_delete)]))  #funcs, args, kwargs
     
     return lists

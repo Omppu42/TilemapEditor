@@ -1,6 +1,6 @@
 import pygame, os, glob, filecmp, tkinter, shutil
 from tkinter import filedialog
-from tkinter.messagebox import askyesno, askokcancel, WARNING
+from tkinter.messagebox import askokcancel, WARNING
 from util_logger import logger
 pygame.init()
 
@@ -8,6 +8,7 @@ class Palette:
     def __init__(self, ui, path: str):
         self.ui = ui
         self.path = path
+        self.name = os.path.split(self.path)[1]
         self.tile_size = ui.cell_size
         self.load_sequence()
 
@@ -289,3 +290,10 @@ class PaletteManager:
         self.init_palettes()
         self.current_palette = self.palettes[0]
         self.update_palette_change()
+
+
+    def current_palette_text(self):
+        font = pygame.font.Font(None, 35)
+        text = font.render(self.current_palette.name, True, (150,150,150))
+        text_rect = text.get_rect(center=(self.ui.sidebar.pos[0]+self.ui.sidebar.size[0]//2, 25))
+        self.ui.screen.blit(text, text_rect)

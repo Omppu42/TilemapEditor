@@ -1,16 +1,16 @@
-import pygame, sys
+import pygame, sys, atexit
 from util_logger import logger
 from ui import UI
 from dropdown import create_lists
-
-import atexit
 pygame.init()
 
-#TODO: change mouse to hand when hovering over tile in tile selection and over buttons
-#TODO: in paint mode, preview of where tile will be placed
 #TODO: more pages for tiles to prevent overflow
 #TODO: Move deleted tiles to 'deleted_tiles' folder instead of deleting permanently
-#TODO: show current palette onscreen
+
+# If there is time:
+#TODO: in paint mode, preview of where tile will be placed
+#TODO: change mouse to hand when hovering over tile in tile selection and over buttons
+#TODO: Save tilemap as png
 
 def on_exit(ui):
     with open("Data\\palette_to_load.txt", "w") as f:
