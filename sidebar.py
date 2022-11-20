@@ -108,6 +108,6 @@ class Sidebar:
 
     def draw_page_num(self):
         text = self.font.render(f"{self.tiles_page + 1}", True, (150,150,150))
-        text_rect = text.get_rect(center=(self.size[0]//2+self.pos[0], 510))
+        text_rect = text.get_rect(center=(self.size[0]//2+self.pos[0]-8, 510))
 
         self.screen.blit(text, text_rect)

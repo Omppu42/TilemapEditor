@@ -45,6 +45,7 @@ def create_explanations_dict(ui) -> dict:
     for i, path in enumerate(png_images):
         output[i] = path
 
+    output["GridSize"] = ui.cells_r_c
     return output
 
 

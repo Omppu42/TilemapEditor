@@ -83,9 +83,9 @@ class Manager:
             self.update_block_surf(block)
     
     
-    def ask_filedialog(self, initialdir: str = None) -> str:
+    def ask_filedialog(self, initialdir: str = None, title: str = None) -> str:
         root = tkinter.Tk()
         root.withdraw()
-        dest_folder = filedialog.askdirectory(initialdir=initialdir)
+        dest_folder = filedialog.askdirectory(initialdir=initialdir, title=title)
         root.destroy()
         return dest_folder

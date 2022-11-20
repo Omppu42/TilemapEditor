@@ -1,4 +1,4 @@
-import pygame, os, glob, filecmp, tkinter, shutil
+import pygame, os, glob, filecmp, tkinter, shutil, json
 from tkinter import filedialog
 from tkinter.messagebox import askokcancel, WARNING
 from util_logger import logger
@@ -68,13 +68,23 @@ class PaletteManager:
 
         self.init_palettes()
 
-        with open("Data\\palette_to_load.txt", "r") as f:
-            target_palette = self.get_palette_at_path(f.readline())
-            if not target_palette is None:
-                self.current_palette = target_palette
-            else:
-                logger.warning("Last used palette invalid, falling back to first palette")
+        json_data = {}
+        if os.path.isfile("last_session_data.json"):
+            with open("last_session_data.json", "r") as f:
+                data = f.readlines()
+                json_data = json.loads("".join(data))
+
+        #Load palette
+        if not "palette" in json_data:
+            logger.warning("Last used palette invalid, falling back to first palette")
+            self.current_palette = self.palettes[0]
+
+        else:
+            target_palette = self.get_palette_at_path(json_data["palette"])
+            if target_palette is None:
                 self.current_palette = self.palettes[0]
+            else:
+                self.current_palette = target_palette
 
         logger.log(f"Loaded {self.current_palette}")
 
@@ -149,7 +159,9 @@ class PaletteManager:
         if dest_folder == self.current_palette.path:
             logger.log("While changing palette, selected current palette. Didn't changed palette or reset map")
             return
-        if not self.change_palette(dest_folder): return
+        if not self.change_palette(dest_folder): 
+            self.change_palette_ask()
+            return
 
         self.ui.manager.reset_map()
 

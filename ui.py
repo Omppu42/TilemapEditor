@@ -1,4 +1,4 @@
-import pygame, time
+import pygame, json, os
 from block import Block
 from manager import Manager, State
 from sidebar import Sidebar
@@ -15,26 +15,26 @@ class UI:
         self.sidebar_pos = (self.viewport_w, 0)
         self.cell_size: int = cell_size
         self.manager = Manager(self)
-        self.cells_r_c: tuple = (200, 30)
         self.screen = screen
         self.sidebar = Sidebar(self, self.scr_size, self.sidebar_pos, self.viewport_w, self.screen)
-        self.blocks = []
+        
         self.total_mouse_change: tuple = (0, 0)
         self.dropdown_lists = None
 
-        self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*self.cell_size, 1))
-        self.grid_bot_surf.fill((0,0,0))
+        json_data = {}
+        if os.path.isfile("last_session_data.json"):
+            with open("last_session_data.json", "r") as f:
+                data = f.readlines()
+                json_data = json.loads("".join(data))
 
-        self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*self.cell_size))
-        self.grid_right_surf.fill((0,0,0))
+        if "GridSize" in json_data:
+            self.set_gridsize(json_data["GridSize"])
+        else:
+            self.set_gridsize((16,16))
 
         self.current_palette = self.manager.palette_manager.current_palette #if changing this, check palette change_palette function
         self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.current_palette.palette_data[self.sidebar.tiles_page]] #make sidebar tiles' rects
         self.tile_to_place_id = 0
-
-        for i in range(self.cells_r_c[1]):
-            for j in range(self.cells_r_c[0]):
-                self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.manager.palette_manager))
 
         self.detele_tiles = -1 #-1 off, 1 on
         self.del_borders_w = 7
@@ -42,6 +42,25 @@ class UI:
         logger.log("Initialized UI")
                 
 
+
+    def set_gridsize(self, grid_size):
+        self.cells_r_c = grid_size
+        logger.log(f"Set grid size to '{grid_size[0]}x{grid_size[1]}'")
+        self.total_mouse_change = (0, 0)
+
+        self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*self.cell_size, 1))
+        self.grid_bot_surf.fill((0,0,0))
+
+        self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*self.cell_size))
+        self.grid_right_surf.fill((0,0,0))
+
+        self.blocks = []
+
+        for i in range(self.cells_r_c[1]):
+            for j in range(self.cells_r_c[0]):
+                self.blocks.append(Block((j, i), self.cell_size, self.screen, self.sidebar.buttons["GridButton"].is_clicked(), self.manager.palette_manager))
+  
+  
     def on_mouse_click(self):
         mouse_pos = pygame.mouse.get_pos()  
         self.change_tile(mouse_pos)

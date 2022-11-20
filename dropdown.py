@@ -1,5 +1,5 @@
 import pygame
-import export, import_map
+import export, import_map, grid_resize
 pygame.init()
 
 class DropDown():
@@ -70,7 +70,7 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Tilemap", 
     ["Load", "Export"],
-    [(import_map.import_tilemap, [ui]), (export.export_tilemap, [ui])]))  #funcs, args, kwargs
+    [(import_map.import_tilemap, [ui]), (export.export_tilemap, [ui])]))  #funcs, args
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -79,7 +79,7 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Palette", 
     ["Load", "New", "Delete"],
-    [(ui.manager.palette_manager.change_palette_ask), (ui.manager.palette_manager.create_empty_palette), (ui.manager.palette_manager.delete_palette)]))  #funcs, args, kwargs
+    [(ui.manager.palette_manager.change_palette_ask), (ui.manager.palette_manager.create_empty_palette), (ui.manager.palette_manager.delete_palette)]))
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -88,6 +88,15 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Tiles", 
     ["Add", "Remove"],
-    [(ui.manager.palette_manager.add_tile), (ui.toggle_delete)]))  #funcs, args, kwargs
+    [(ui.manager.palette_manager.add_tile), (ui.toggle_delete)]))
+
+    lists.append( DropDown(
+    [COLOR_INACTIVE, COLOR_ACTIVE],
+    [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
+    410, 0, 125, 30, 
+    pygame.font.Font(None, 25), 
+    "Grid", 
+    ["Resize"],
+    [(grid_resize.set_gridsize_ask, [ui])]))
     
     return lists

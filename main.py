@@ -1,4 +1,4 @@
-import pygame, sys, atexit
+import pygame, sys, atexit, json
 from util_logger import logger
 from ui import UI
 from dropdown import create_lists
@@ -6,9 +6,12 @@ pygame.init()
 
 
 def on_exit(ui):
-    with open("Data\\palette_to_load.txt", "w") as f:
-        f.write(ui.manager.palette_manager.current_palette.path)
+    json_obj = {"palette" : ui.manager.palette_manager.current_palette.path,
+                "GridSize" : ui.cells_r_c}
 
+    with open("last_session_data.json", "w") as f:
+        f.write(json.dumps(json_obj, indent=4))
+    
     logger.log("Exited")
 
 
@@ -21,7 +24,6 @@ def main():
     screen = pygame.display.set_mode((SCR_W,SCR_H))
     pygame.display.set_caption("Tilemap Editor")
     clock = pygame.time.Clock()
-    font = pygame.font.Font(None, 32)
 
     ui = UI((SCR_W, SCR_H), screen, CELL_SIZE)
     bg_color = 100
@@ -54,9 +56,6 @@ def main():
 
         ui.update()
 
-        fps = font.render(str(round(clock.get_fps())), True, (255,0,0))
-        screen.blit(fps, (10,10))
-
         for x in lists:  #update dropdown lists
             x.draw(screen)
             selected_option = x.update(event_list)
@@ -67,7 +66,7 @@ def main():
 
                 x.functions[selected_option][0](*x.functions[selected_option][1])
         pygame.display.update()
-        clock.tick(500)
+        clock.tick(200)
     
 
 if __name__ == "__main__":

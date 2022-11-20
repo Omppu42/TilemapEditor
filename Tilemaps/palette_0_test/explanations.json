@@ -34,5 +34,24 @@
     "32": "tile032.png",
     "33": "tile033.png",
     "34": "tile034.png",
-    "35": "tile035.png"
+    "35": "tile035.png",
+    "36": "_1-tile000.png",
+    "37": "_1-tile001.png",
+    "38": "_1-tile002.png",
+    "39": "_1-tile006.png",
+    "40": "_1-tile007.png",
+    "41": "_1-tile008.png",
+    "42": "_1-tile009.png",
+    "43": "_1-tile010.png",
+    "44": "_1-tile012.png",
+    "45": "_1-tile014.png",
+    "46": "_1-tile015.png",
+    "47": "_1-tile016.png",
+    "48": "_1-tile017.png",
+    "49": "_1-tile018.png",
+    "50": "_1-tile020.png",
+    "GridSize": [
+        20,
+        30
+    ]
 }
