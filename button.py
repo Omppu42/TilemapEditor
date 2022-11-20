@@ -140,7 +140,7 @@ class TextButton(Button):
 
         self.click_time_start = 0
         self.click_color_time: float = 0.15
-        self.click_color = (self.col_on[0] - 100, self.col_on[1] - 100, self.col_on[2] - 100)
+        self.click_color = (self.col_on[0] - 50, self.col_on[1] - 50, self.col_on[2] - 50)
 
     def update(self):
         super().update()

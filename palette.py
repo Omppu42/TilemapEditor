@@ -10,6 +10,7 @@ class Palette:
         self.path = path
         self.name = os.path.split(self.path)[1]
         self.tile_size = ui.cell_size
+        self.page_size = 45
         self.load_sequence()
 
     def __str__(self):
@@ -38,13 +39,24 @@ class Palette:
 
     def init_palette(self) -> list: #tiles list has dicts with image and xy pos
         output = []
+        sublist = []
         img_per_row = 5
         j = 0
+        self.pages = 1
+
         for i in range(len(self.tile_list)):
+            if i % self.page_size == 0 and not sublist == []:
+                output.append(sublist)
+                sublist = []
+                j = 0
+                self.pages += 1
+
             if i % img_per_row == 0:
                 j += 1
 
-            output.append({"image" : self.tile_list[i], "pos" : (self.ui.sidebar_pos[0] + 30 + (50 * (i % img_per_row)), self.ui.sidebar_pos[1] + 50 * j)})
+            sublist.append({"id" : i, "image" : self.tile_list[i], "pos" : (self.ui.sidebar_pos[0] + 30 + (50 * (i % img_per_row)), self.ui.sidebar_pos[1] + 50 * j)})
+
+        output.append(sublist)
         return output
 
 
@@ -112,6 +124,7 @@ class PaletteManager:
         dest_palette = self.get_palette_at_path(palette_path)
         if dest_palette is None: return False
 
+        self.ui.sidebar.tiles_page = 0
         self.current_palette = dest_palette
         logger.log(f"Loaded {dest_palette}")
         self.update_palette_change()
@@ -120,7 +133,7 @@ class PaletteManager:
 
     def update_palette_change(self):
         self.ui.current_palette = self.current_palette
-        self.ui.tile_selection_rects = [pygame.Rect(x["pos"], (self.ui.cell_size, self.ui.cell_size)) for x in self.current_palette.palette_data] #make sidebar tiles' rects
+        self.ui.tile_selection_rects = [pygame.Rect(x["pos"], (self.ui.cell_size, self.ui.cell_size)) for x in self.current_palette.palette_data[self.ui.sidebar.tiles_page]] #make sidebar tiles' rects
         self.ui.tile_to_place_id = 0
 
         for x in self.ui.blocks:
@@ -180,6 +193,13 @@ class PaletteManager:
     def add_tile(self):
         root = tkinter.Tk()
         root.withdraw()
+        if not askokcancel("Confirm", "Please create a backup before adding tiles to palette.\nThis action can mess up your tile ids.", icon=WARNING):
+            root.destroy()
+            return
+        root.destroy()
+
+        root = tkinter.Tk()
+        root.withdraw()
         pngs = filedialog.askopenfilenames(filetypes=[("PNG file", ".png")])
         root.destroy()
 
@@ -204,7 +224,7 @@ class PaletteManager:
     def remove_tile(self, index: int):
         root = tkinter.Tk()
         root.withdraw()
-        if not askokcancel("Confirm", "By deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
+        if not askokcancel("Confirm", "Please backup before deleting tiles.\n This action can mess up your tile ids.\n\nBy deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
             root.destroy()
             self.ui.detele_tiles = -1
             return
@@ -273,10 +293,15 @@ class PaletteManager:
             logger.error("Deleting palette: You cant select 'Assets\\Palettes' folder. You have to select one of it's child folders")
             return
 
+        palette = self.get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
+        if palette is None:
+            logger.error("Deleting palette: No palette found.")
+            return
+
         if ask_confirm:
             root = tkinter.Tk()
             root.withdraw()
-            if not askokcancel("Confirm", "Are you sure you want to delete this palette?\nThis action cannot be undone.", icon=WARNING):
+            if not askokcancel("Confirm", f"Are you sure you want to delete {palette.name}?\nThis action cannot be undone.", icon=WARNING):
                 root.destroy()
                 return
 
@@ -304,6 +329,7 @@ class PaletteManager:
         self.init_palettes()
         self.current_palette = self.palettes[0]
         self.update_palette_change()
+        logger.log(f"Deleting palette: Deleted '{palette.name}'")
 
 
     def current_palette_text(self):

@@ -4,12 +4,6 @@ from ui import UI
 from dropdown import create_lists
 pygame.init()
 
-#TODO: more pages for tiles to prevent overflow
-
-# If there is time:
-#TODO: in paint mode, preview of where tile will be placed
-#TODO: change mouse to hand when hovering over tile in tile selection and over buttons
-#TODO: Save tilemap as png
 
 def on_exit(ui):
     with open("Data\\palette_to_load.txt", "w") as f:
@@ -71,14 +65,7 @@ def main():
                     x.functions[selected_option]()
                     continue
 
-                match len(x.functions[selected_option]):
-                    case 2:
-                        x.functions[selected_option][0](*x.functions[selected_option][1])
-                    case 3:
-                        x.functions[selected_option][0](*x.functions[selected_option][1], **x.functions[selected_option][2])
-                    case _:
-                        logger.error(f"Error with executing function {x.functions[selected_option]}")
-
+                x.functions[selected_option][0](*x.functions[selected_option][1])
         pygame.display.update()
         clock.tick(500)
     

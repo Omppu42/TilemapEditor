@@ -40,6 +40,7 @@ class Manager:
 
         elif self.state == State.COLOR_PICKER:
             if block.tile_id == -1: return #if clicked on air
+            self.update_block_surf(block)
             self.ui.tile_to_place_id = block.tile_id
 
 
