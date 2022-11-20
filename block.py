@@ -1,4 +1,4 @@
-import pygame, random, operator
+import pygame, operator, math
 pygame.init()
 
 class Block:
@@ -22,7 +22,8 @@ class Block:
     def update_surf(self, grid: bool):
         self.surf.fill((120,120,120))
         if self.tile_id != -1:
-            self.surf.blit(self.palette_data[self.tile_id]["image"], (0, 0))
+            current_palette = self.palette_manager.current_palette
+            self.surf.blit(self.palette_data[math.floor(self.tile_id/current_palette.page_size)][self.tile_id % current_palette.page_size]["image"], (0, 0))
         if grid:
             pygame.draw.lines(self.surf, (0,0,0), False, ((0, self.size), (0, 0), (self.size, 0)))
 

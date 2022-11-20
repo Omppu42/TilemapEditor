@@ -20,6 +20,7 @@ class UI:
         self.sidebar = Sidebar(self, self.scr_size, self.sidebar_pos, self.viewport_w, self.screen)
         self.blocks = []
         self.total_mouse_change: tuple = (0, 0)
+        self.dropdown_lists = None
 
         self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*self.cell_size, 1))
         self.grid_bot_surf.fill((0,0,0))
@@ -28,7 +29,7 @@ class UI:
         self.grid_right_surf.fill((0,0,0))
 
         self.current_palette = self.manager.palette_manager.current_palette #if changing this, check palette change_palette function
-        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.current_palette.palette_data] #make sidebar tiles' rects
+        self.tile_selection_rects = [pygame.Rect(x["pos"], (self.cell_size, self.cell_size)) for x in self.current_palette.palette_data[self.sidebar.tiles_page]] #make sidebar tiles' rects
         self.tile_to_place_id = 0
 
         for i in range(self.cells_r_c[1]):
@@ -56,12 +57,14 @@ class UI:
             if self.manager.state is not State.BRUSH: #select brush when clicking any tile from selection
                 self.manager.change_state(State.BRUSH, self.sidebar.buttons["BrushButton"])
 
-            for _id, value in enumerate(self.current_palette.palette_data):
+            #update tiletoplaceid
+            for value in self.current_palette.palette_data[self.sidebar.tiles_page]:
                 if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
                     if self.detele_tiles == -1:
-                        self.tile_to_place_id = _id
+                        self.tile_to_place_id = value["id"]
                     elif self.detele_tiles == 1:
-                        self.manager.palette_manager.remove_tile(_id)
+                        self.manager.palette_manager.remove_tile(value["id"])
+            
 
 
     def update(self):
@@ -114,3 +117,7 @@ class UI:
                 return (0,0)
             rel = pygame.mouse.get_rel()
             return rel
+
+    
+    def toggle_delete(self):
+        self.detele_tiles *= -1

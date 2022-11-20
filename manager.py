@@ -19,6 +19,10 @@ class Manager:
         logger.log("Initialized Manager")
 
     def mouse_update(self, mouse_pos: tuple):
+        for dropdown in self.ui.dropdown_lists:
+            if dropdown.drawing:
+                return   #if hovering on any dropdowns
+
         if mouse_pos[0] > self.ui.viewport_w: return
 
         block = get_cell_from_mousepos(self.ui, mouse_pos)
@@ -36,6 +40,7 @@ class Manager:
 
         elif self.state == State.COLOR_PICKER:
             if block.tile_id == -1: return #if clicked on air
+            self.update_block_surf(block)
             self.ui.tile_to_place_id = block.tile_id
 
 
