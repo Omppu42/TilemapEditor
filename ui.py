@@ -25,7 +25,8 @@ class UI:
         if os.path.isfile("last_session_data.json"):
             with open("last_session_data.json", "r") as f:
                 data = f.readlines()
-                json_data = json.loads("".join(data))
+                if not data == []:
+                    json_data = json.loads("".join(data))
 
         if "GridSize" in json_data:
             self.set_gridsize(json_data["GridSize"])

@@ -11,6 +11,8 @@ class Palette:
         self.name = os.path.split(self.path)[1]
         self.tile_size = ui.cell_size
         self.page_size = 45
+        self.added_tiles = {}
+        print(self.added_tiles)
         self.load_sequence()
 
     def __str__(self):
@@ -72,7 +74,14 @@ class PaletteManager:
         if os.path.isfile("last_session_data.json"):
             with open("last_session_data.json", "r") as f:
                 data = f.readlines()
-                json_data = json.loads("".join(data))
+                if not data == []:
+                    json_data = json.loads("".join(data))
+
+        for palette in self.palettes:
+            key = palette.path+"_added_tiles"
+            if key in json_data:
+                palette.added_tiles = json_data[key]
+
 
         #Load palette
         if not "palette" in json_data:
@@ -86,6 +95,7 @@ class PaletteManager:
             else:
                 self.current_palette = target_palette
 
+        print(self.current_palette.added_tiles)
         logger.log(f"Loaded {self.current_palette}")
 
     
@@ -205,13 +215,6 @@ class PaletteManager:
     def add_tile(self):
         root = tkinter.Tk()
         root.withdraw()
-        if not askokcancel("Confirm", "Please create a backup before adding tiles to palette.\nThis action can mess up your tile ids.", icon=WARNING):
-            root.destroy()
-            return
-        root.destroy()
-
-        root = tkinter.Tk()
-        root.withdraw()
         pngs = filedialog.askopenfilenames(filetypes=[("PNG file", ".png")])
         root.destroy()
 
@@ -219,15 +222,19 @@ class PaletteManager:
             return
 
         for png in pngs:
+            number = 0
+            if self.current_palette.added_tiles:
+                number = list(self.current_palette.added_tiles.values())[-1] + 1
+            number = str(number).zfill(3)
             filename = os.path.split(png)[1]
-            filename = os.path.splitext(filename)[0]
-            new_filename = self.current_palette.path + "\\_%s-" + filename + ".png"
+            filename = f"_{number}-"+os.path.splitext(filename)[0]
+            
+            new_filename = self.current_palette.path + "\\" + filename + ".png"
 
-            i = 1
-            while os.path.exists(new_filename % i):
-                i += 1
-            shutil.copy(png, new_filename % i)
-            logger.log(f"Added '_{i}-{filename}.png' to {self.current_palette}")
+            shutil.copy(png, new_filename)
+            self.current_palette.added_tiles[filename] = int(number)
+            
+            logger.log(f"Added '{filename}.png' to {self.current_palette}")
         
         self.current_palette.load_sequence()
         self.update_palette_change()
@@ -245,8 +252,9 @@ class PaletteManager:
         self.ui.detele_tiles = -1
         remove_path = self.current_palette.img_paths[index]
         
-        name = os.path.split(remove_path)[1]
-        name = os.path.splitext(name)[0]+"(%s).png"
+        org_name = os.path.split(remove_path)[1]
+        org_name = os.path.splitext(org_name)[0]
+        name = org_name+"(%s).png"
 
         full_path = "Deleted_tiles\\"+name
 
@@ -257,6 +265,12 @@ class PaletteManager:
         deleted_tiles_path = "Deleted_tiles"
         if not os.path.isdir(deleted_tiles_path):
             os.mkdir(deleted_tiles_path)
+
+        if org_name in self.current_palette.added_tiles:
+            self.current_palette.added_tiles.pop(org_name, None)
+        
+        print(self.current_palette.added_tiles)
+
         shutil.move(remove_path, deleted_tiles_path+"\\"+name % i)
 
         self.current_palette.load_sequence()

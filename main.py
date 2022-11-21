@@ -6,8 +6,12 @@ pygame.init()
 
 
 def on_exit(ui):
-    json_obj = {"palette" : ui.manager.palette_manager.current_palette.path,
+    palette_manager = ui.manager.palette_manager
+    json_obj = {"palette" : palette_manager.current_palette.path,
                 "GridSize" : ui.cells_r_c}
+
+    for palette in palette_manager.palettes:
+        json_obj[palette.path+"_added_tiles"] = palette.added_tiles
 
     with open("last_session_data.json", "w") as f:
         f.write(json.dumps(json_obj, indent=4))
