@@ -12,7 +12,6 @@ class Palette:
         self.tile_size = ui.cell_size
         self.page_size = 45
         self.added_tiles = {}
-        print(self.added_tiles)
         self.load_sequence()
 
     def __str__(self):
@@ -95,7 +94,6 @@ class PaletteManager:
             else:
                 self.current_palette = target_palette
 
-        print(self.current_palette.added_tiles)
         logger.log(f"Loaded {self.current_palette}")
 
     
@@ -268,8 +266,6 @@ class PaletteManager:
 
         if org_name in self.current_palette.added_tiles:
             self.current_palette.added_tiles.pop(org_name, None)
-        
-        print(self.current_palette.added_tiles)
 
         shutil.move(remove_path, deleted_tiles_path+"\\"+name % i)
 
