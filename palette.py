@@ -182,6 +182,8 @@ class PaletteManager:
 
         for x in glob.glob(tiles_dir+"\\*.png"): #check that all tiles match in current palette and imported palette
             filename = os.path.split(x)[1]
+            if not os.path.exists(self.current_palette.path+"\\"+filename):
+                break
 
             #if one of the tiles doesn't match, tilemaps are different
             if filecmp.cmp(x, self.current_palette.path+"\\"+filename) == False:
