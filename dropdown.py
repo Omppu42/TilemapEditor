@@ -1,5 +1,6 @@
 import pygame
 import export, import_map, grid_resize
+from tkinter_opener import tkinter_opener_instance
 pygame.init()
 
 class DropDown():
@@ -61,6 +62,10 @@ COLOR_LIST_INACTIVE = (180, 180, 180)
 COLOR_LIST_ACTIVE = (220, 220, 220)
 
 def create_lists(ui) -> list:
+    # for multiple args into function, wrap them into ()
+    # (tkinter_opener_instance.queue_function, [import_map.import_tilemap, ui])             --- 1 arg to the import_map.import_tilemap function: ui
+    # (tkinter_opener_instance.queue_function, [import_map.import_tilemap, (ui, example)])  --- 2 arg to the import_map.import_tilemap function: (ui, example)
+    
     lists = []
 
     lists.append( DropDown(
@@ -70,7 +75,8 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Tilemap", 
     ["Load", "Export"],
-    [(import_map.import_tilemap, [ui]), (export.export_tilemap, [ui])]))  #funcs, args
+    [(tkinter_opener_instance.queue_function, [import_map.import_tilemap, ui]), 
+     (tkinter_opener_instance.queue_function, [export.export_tilemap, ui])]))  #funcs, args
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -79,7 +85,9 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Palette", 
     ["Load", "New", "Delete"],
-    [(ui.manager.palette_manager.change_palette_ask), (ui.manager.palette_manager.create_empty_palette), (ui.manager.palette_manager.delete_palette)]))
+    [(tkinter_opener_instance.queue_function, [ui.manager.palette_manager.change_palette_ask]), 
+     (tkinter_opener_instance.queue_function, [ui.manager.palette_manager.create_empty_palette]), 
+     (tkinter_opener_instance.queue_function, [ui.manager.palette_manager.delete_palette])]))
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -88,7 +96,7 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Tiles", 
     ["Add", "Remove"],
-    [(ui.manager.palette_manager.add_tile), (ui.toggle_delete)]))
+    [(tkinter_opener_instance.queue_function, [ui.manager.palette_manager.add_tile]), (ui.toggle_delete) ]))
 
     lists.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
@@ -97,6 +105,6 @@ def create_lists(ui) -> list:
     pygame.font.Font(None, 25), 
     "Grid", 
     ["Resize"],
-    [(grid_resize.set_gridsize_ask, [ui])]))
+    [ (tkinter_opener_instance.queue_function, [grid_resize.set_gridsize_ask, ui]) ]))
     
     return lists

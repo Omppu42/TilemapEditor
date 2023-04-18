@@ -2,8 +2,8 @@ import pygame, sys, atexit, json
 from util_logger import logger
 from ui import UI
 from dropdown import create_lists
+from tkinter_opener import tkinter_opener_instance
 pygame.init()
-
 
 def on_exit(ui):
     palette_manager = ui.manager.palette_manager
@@ -57,20 +57,26 @@ def main():
             if pygame.mouse.get_pressed()[0]:
                 ui.manager.mouse_update(pygame.mouse.get_pos())
                 
-
+        tkinter_opener_instance.update()
         ui.update()
 
         for x in lists:  #update dropdown lists
             x.draw(screen)
             selected_option = x.update(event_list)
-            if selected_option >= 0:
-                if not isinstance(x.functions[selected_option], tuple):
-                    x.functions[selected_option]()
-                    continue
 
-                x.functions[selected_option][0](*x.functions[selected_option][1])
+            if selected_option >= 0:
+                selected = x.functions[selected_option]
+
+                if not isinstance(selected, tuple): # no tuple = no args
+                    selected()
+                    continue
+                
+                # has args
+                selected[0](*selected[1])
+
+
         pygame.display.update()
-        clock.tick(200)
+        clock.tick(60)
     
 
 if __name__ == "__main__":
