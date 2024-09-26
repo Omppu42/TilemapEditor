@@ -8,14 +8,17 @@ import settings
 import ui
 import sidebar
 import manager
+import data
 
 pygame.init()
 
 class Palette:
     TILES_PER_PAGE = 45
+    TILES_PER_ROW = 5
     def __init__(self, path: str):
         self.tile_list = None
         self.palette_data = None
+        self.pages = 1
 
         self.path = path
         self.name = os.path.split(self.path)[1]
@@ -50,12 +53,12 @@ class Palette:
         return output
 
 
-    def __init_palette(self) -> list: #tiles list has dicts with image and xy pos
+    def __init_palette(self) -> list: #tiles list has dicts with id, image and xy pos
+        self.pages = 1
+
         output = []
         sublist = []
-        img_per_row = 5
         j = 0
-        self.pages = 1
 
         for i in range(len(self.tile_list)):
             if i % Palette.TILES_PER_PAGE == 0 and not sublist == []:
@@ -64,10 +67,12 @@ class Palette:
                 j = 0
                 self.pages += 1
 
-            if i % img_per_row == 0:
+            if i % Palette.TILES_PER_ROW == 0:
                 j += 1
 
-            sublist.append({"id" : i, "image" : self.tile_list[i], "pos" : (sidebar.s_obj.pos[0] + 30 + (50 * (i % img_per_row)), sidebar.s_obj.pos[1] + 50 * j)})
+            sublist.append({"id" : i, 
+                            "image" : self.tile_list[i], 
+                            "pos" : (sidebar.s_obj.pos[0] + 30 + (50 * (i % Palette.TILES_PER_ROW)), sidebar.s_obj.pos[1] + 50 * j)})
 
         output.append(sublist)
         return output
@@ -81,6 +86,7 @@ class PaletteManager:
         
         self.current_palette = None
         self.all_palettes = []
+        self.selected_tile_id = 0
 
         self.__init_palettes()
 
@@ -100,11 +106,11 @@ class PaletteManager:
 
         #Load palette
         if not "palette" in json_data:
-            logger.warning("Last used palette invalid, falling back to first palette")
+            logger.warning("No last used palette field found, falling back to first palette")
             self.current_palette = self.all_palettes[0]
 
         else:
-            target_palette = self.get_palette_at_path(json_data["palette"])
+            target_palette = self.__get_palette_at_path(json_data["palette"])
             if target_palette is None:
                 self.current_palette = self.all_palettes[0]
             else:
@@ -119,7 +125,8 @@ class PaletteManager:
         return self.current_palette.tile_list
 
     def get_data(self) -> list:
-        """Returns current_palette.palette_data"""
+        """Returns current_palette.palette_data\n
+        Data is of format [[ {"id":1, "image":pygame.Surf, "pos":[950, 50]}, ...]]"""
         return self.current_palette.palette_data
 
 
@@ -133,8 +140,7 @@ class PaletteManager:
             self.all_palettes.append(Palette(path))
 
 
-    # PUBLIC ----------------------------------------------------------------
-    def get_palette_at_path(self, path: str) -> Palette:
+    def __get_palette_at_path(self, path: str) -> Palette:
         for palette in self.all_palettes: #check if path is valid
             if path == palette.path:
                 return palette
@@ -143,7 +149,7 @@ class PaletteManager:
             return None
 
 
-    def create_palette(self, name: str, tiles_folder=None) -> str: 
+    def __create_palette(self, name: str, tiles_folder=None) -> str: 
         """WARNING: will overwrite palette's folder if folder with same name already exists\n
         Returns path to new folder."""
         new_palette_folder = str(settings.PALETTES_PATH+name)
@@ -161,24 +167,34 @@ class PaletteManager:
         return new_palette_folder
 
 
-    def change_palette(self, palette_path: str) -> bool:
+    def __change_palette(self, palette_path: str) -> bool:
         """Returns True if changed palette succesfully, False if invalid path"""
-        dest_palette = self.get_palette_at_path(palette_path)
+        dest_palette = self.__get_palette_at_path(palette_path)
         if dest_palette is None: return False
 
         sidebar.s_obj.tiles_page = 0
         self.current_palette = dest_palette
         logger.log(f"Loaded {dest_palette}")
-        self.update_palette_change()
+        self.__update_palette_change()
         return True
+    
 
-
-    def update_palette_change(self):
+    def __update_palette_change(self):
+        self.current_palette.load_sequence()
+        
         ui.ui_obj.current_palette = self.current_palette
         ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
-        ui.ui_obj.tile_to_place_id = 0
-
+        self.selected_tile_id = 0
+        sidebar.s_obj.update_page_arrows()
     
+
+
+    # PUBLIC ----------------------------------------------------------------
+    def select_nth_tile_on_page(self, tile_index: int) -> None:
+        """Selects the nth tile on the current page of the tile selection. Tile_index 0 is the first tile"""
+        self.selected_tile_id = self.current_palette.palette_data[sidebar.s_obj.tiles_page][tile_index]["id"]
+
+
     def change_palette_ask(self):
         dest_folder = manager.m_obj.ask_filedialog(initialdir="Assets\\Palettes")
         if dest_folder == "": return #pressed cancel when selecting 
@@ -188,7 +204,7 @@ class PaletteManager:
         if dest_folder == self.current_palette.path:
             logger.log("While changing palette, selected current palette. Didn't changed palette or reset map")
             return
-        if not self.change_palette(dest_folder): 
+        if not self.__change_palette(dest_folder): 
             self.change_palette_ask()
             return
 
@@ -227,10 +243,10 @@ class PaletteManager:
 
         if not has_palette:
             logger.warning(f"Didn't find a suitable palette in '{settings.PALETTES_PATH}', creating a new one named 'Palette_{map_name}'")
-            self.change_palette(self.create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
+            self.__change_palette(self.__create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
             return
         
-        self.change_palette(new_palette_path)
+        self.__change_palette(new_palette_path)
 
     
     def add_tile(self):
@@ -257,8 +273,8 @@ class PaletteManager:
             
             logger.log(f"Added '{filename}.png' to {self.current_palette}")
         
-        self.current_palette.load_sequence()
-        self.update_palette_change()
+
+        self.__update_palette_change()
 
 
     def remove_tile(self, index: int):
@@ -293,8 +309,8 @@ class PaletteManager:
 
         shutil.move(remove_path, deleted_tiles_path+"\\"+name % i)
 
-        self.current_palette.load_sequence()
-        self.update_palette_change()
+        
+        self.__update_palette_change()
         manager.m_obj.remove_index_map(index)
 
         logger.log(f"Moved '{os.path.split(remove_path)[1]}' from '{self.current_palette.name}' to 'Deleted_tiles' folder")
@@ -313,10 +329,10 @@ class PaletteManager:
         if num is None:
             num = len(self.all_palettes)
         logger.log(f"Creating new palette 'Palette_{num}'")
-        new_palette = self.create_palette("Palette_"+str(num))
+        new_palette = self.__create_palette("Palette_"+str(num))
 
         if update_palette:
-            self.change_palette(new_palette)
+            self.__change_palette(new_palette)
             manager.m_obj.reset_map()
 
 
@@ -339,7 +355,7 @@ class PaletteManager:
             logger.error("Deleting palette: You cant select 'Assets\\Palettes' folder. You have to select one of it's child folders")
             return
 
-        palette = self.get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
+        palette = self.__get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
         if palette is None:
             logger.error("Deleting palette: No palette found.")
             return
@@ -374,13 +390,12 @@ class PaletteManager:
         
         self.init_palettes()
         self.current_palette = self.all_palettes[0]
-        self.update_palette_change()
+        self.__update_palette_change()
         logger.log(f"Deleting palette: Deleted '{palette.name}'")
 
 
-    def current_palette_text(self):
-        font = pygame.font.Font(None, 35)
-        text = font.render(self.current_palette.name, True, (150,150,150))
+    def draw_current_palette_text(self):
+        text = data.font_35.render(self.current_palette.name, True, (150,150,150))
         text_rect = text.get_rect(center=(sidebar.s_obj.pos[0]+sidebar.s_obj.size[0]//2, 25))
         ui.ui_obj.screen.blit(text, text_rect)
 

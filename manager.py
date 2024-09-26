@@ -29,48 +29,49 @@ class Manager:
 
         if mouse_pos[0] > settings.VIEWPORT_W: return
 
-        block = block_file.Block.get_cell_from_mousepos(mouse_pos)
-        if block is None: return
+        _block = block_file.Block.get_cell_from_mousepos(mouse_pos)
+        if _block is None: return
 
         ui.ui_obj.detele_tiles = -1
 
-        if len(palette.pm_obj.current_palette.tile_list) > 0 and self.state == State.BRUSH:
-            block.tile_id = ui.ui_obj.tile_to_place_id
-            self.update_block_surf(block)
+        match (self.state):
+            case State.BRUSH:
+                if len(palette.pm_obj.current_palette.tile_list) == 0: return  #check that there are tiles in the palette
+                _block.tile_id = palette.pm_obj.selected_tile_id
+                self.update_block_surf(_block)
+            
+            case State.ERASE:
+                _block.tile_id = -1
+                self.update_block_surf(_block)
 
-        elif self.state == State.ERASE:
-            block.tile_id = -1
-            self.update_block_surf(block)
-
-        elif self.state == State.COLOR_PICKER:
-            if block.tile_id == -1: return #if clicked on air
-            self.update_block_surf(block)
-            ui.ui_obj.tile_to_place_id = block.tile_id
-
-
-    def handle_tool_hotkeys(self, event):
-        if event.key == pygame.K_p:
-            self.change_state(State.BRUSH, sidebar.s_obj.buttons["BrushButton"])
-
-        elif event.key == pygame.K_o:
-            self.change_state(State.COLOR_PICKER, sidebar.s_obj.buttons["ColorPickButton"])
-
-        elif event.key == pygame.K_e:
-            self.change_state(State.ERASE, sidebar.s_obj.buttons["EraserButton"])
-
-        elif event.key == pygame.K_g:
-            sidebar.s_obj.buttons["GridButton"].clicked *= -1
-            sidebar.s_obj.buttons["GridButton"].set_color(sidebar.s_obj.buttons["GridButton"].clicked)
-            sidebar.s_obj.buttons["GridButton"].just_clicked = True
+            case State.COLOR_PICKER:
+                if _block.tile_id == -1: return #if clicked on air
+                palette.pm_obj.selected_tile_id = _block.tile_id
+                self.equip_brush()
 
 
-    def change_state(self, state: State, button_to_activate):
-        self.state = state
-        button_to_activate.just_clicked = True
+    # KEY EVENTS -------------
+    def equip_brush(self) -> None:
+        self.state = State.BRUSH
+        sidebar.s_obj.buttons_dict["BrushButton"].just_clicked = True
+
+    def equip_eraser(self) -> None:
+        self.state = State.ERASE
+        sidebar.s_obj.buttons_dict["EraserButton"].just_clicked = True
+
+    def equip_color_picker(self) -> None:
+        self.state = State.COLOR_PICKER
+        sidebar.s_obj.buttons_dict["ColorPickButton"].just_clicked = True
+
+    def toggle_grid(self) -> None:
+        sidebar.s_obj.buttons_dict["GridButton"].clicked *= -1
+        sidebar.s_obj.buttons_dict["GridButton"].set_color(sidebar.s_obj.buttons_dict["GridButton"].clicked)
+        sidebar.s_obj.buttons_dict["GridButton"].just_clicked = True
+
     
 
     def update_block_surf(self, block):
-        block.update_surf(sidebar.s_obj.buttons["GridButton"].is_clicked())
+        block.update_surf(sidebar.s_obj.buttons_dict["GridButton"].is_clicked())
 
 
     def reset_map(self):

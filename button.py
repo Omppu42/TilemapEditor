@@ -1,7 +1,7 @@
 import pygame, time
-from manager import State
 
 import manager
+import data
 
 pygame.init()
 
@@ -28,13 +28,17 @@ class Button:
         self.hovering: bool = False
         self.hover_col = hover_col
 
-        font = pygame.font.Font(None, 25)
-        self.hover_text_render = font.render(self.hover_text, True, (150,150,150))
+        self.hover_text_render = data.font_25.render(self.hover_text, True, (150,150,150))
         self.hover_text_rect = self.hover_text_render.get_rect(center=(self.pos[0]+self.size[0]//2, self.pos[1]+self.size[1]//2-35))
+
+        # Disabling removes the ability to click and to render
+        self.disabled = False
         
         self.set_color(self.clicked)
 
     def update(self):
+        if self.disabled: return
+
         self.update_color()
 
         if self.has_border:
@@ -45,6 +49,8 @@ class Button:
         
 
     def check_clicked(self, mouse_pos: tuple) -> bool:
+        if self.disabled: return
+        
         if not pygame.mouse.get_pressed()[0]: return False
         if self.rect.collidepoint(mouse_pos):
             if self.can_toggle_off:
@@ -58,6 +64,8 @@ class Button:
         return False
             
     def set_color(self, clicked: int):
+        if self.disabled: return
+
         if self.hovering and self.hover_col is not None:
             self.btn_surf.fill(self.hover_col)
             return
@@ -68,9 +76,13 @@ class Button:
             self.btn_surf.fill(self.col_off)
 
     def update_color(self):
+        if self.disabled: return
+
         self.set_color(self.clicked)
 
     def update_hover(self, mouse_pos):
+        if self.disabled: return
+
         if not self.rect.collidepoint(mouse_pos): #not hovering
             self.hovering = False  
             self.hover_start_time = 0 
@@ -84,10 +96,14 @@ class Button:
             self.screen.blit(self.hover_text_render, self.hover_text_rect)
 
     def set_state(self, state: int): #1 = on, -1 = off
+        if self.disabled: return
+
         self.clicked = state
         self.set_color(self.clicked)
 
     def is_clicked(self) -> bool:
+        if self.disabled: return
+
         if self.clicked == 1:
             return True
         return False
@@ -124,6 +140,8 @@ class ToolButton(Button):
         self.set_state(init_state)
 
     def update(self):
+        if self.disabled: return
+
         if self.just_clicked and self.state_when_clicked is not None:
             manager.m_obj.state = self.state_when_clicked
 
@@ -144,6 +162,8 @@ class TextButton(Button):
         self.click_color = (self.col_on[0] - 50, self.col_on[1] - 50, self.col_on[2] - 50)
 
     def update(self):
+        if self.disabled: return
+
         super().update()
         rect = self.text_surf.get_rect(center=(self.pos[0] + self.size[0] // 2, self.pos[1] + self.size[1] // 2))
 
@@ -155,6 +175,8 @@ class TextButton(Button):
         self.screen.blit(self.text_surf, rect)
 
     def check_clicked(self, mouse_pos) -> bool:
+        if self.disabled: return
+        
         clicked = super().check_clicked(mouse_pos)
         if not clicked: return False
 

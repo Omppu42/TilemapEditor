@@ -63,4 +63,4 @@ def update_tiles(tile_ids):
             if i >= len(tile_ids) or j >= len(tile_ids[0]):
                 continue
             ui.ui_obj.blocks[total].tile_id = tile_ids[i][j]
-            ui.ui_obj.blocks[total].update_surf(sidebar.s_obj.buttons["GridButton"].is_clicked())
+            ui.ui_obj.blocks[total].update_surf(sidebar.s_obj.buttons_dict["GridButton"].is_clicked())
