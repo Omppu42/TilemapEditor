@@ -31,7 +31,7 @@ class Block:
         self.surf.fill((120,120,120))
         if self.tile_id != -1:
             current_palette = palette.pm_obj.current_palette
-            self.surf.blit(palette.pm_obj.get_data()[math.floor(self.tile_id/current_palette.page_size)][self.tile_id % current_palette.page_size]["image"], (0, 0))
+            self.surf.blit(palette.pm_obj.get_data()[math.floor(self.tile_id/palette.Palette.TILES_PER_PAGE)][self.tile_id % palette.Palette.TILES_PER_PAGE]["image"], (0, 0))
         if grid:
             pygame.draw.lines(self.surf, (0,0,0), False, ((0, self.size), (0, 0), (self.size, 0)))
 
