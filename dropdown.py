@@ -1,6 +1,10 @@
 import pygame
 import export, import_map, grid_resize
-from tkinter_opener import tkinter_opener_instance
+from tkinter_opener import tk_util
+
+import ui
+import palette
+
 pygame.init()
 
 class DropDown():
@@ -61,50 +65,53 @@ COLOR_ACTIVE = (240, 240, 240)
 COLOR_LIST_INACTIVE = (180, 180, 180)
 COLOR_LIST_ACTIVE = (220, 220, 220)
 
-def create_lists(ui) -> list:
+def create_dropdowns() -> list:
     # for multiple args into function, wrap them into ()
-    # (tkinter_opener_instance.queue_function, [import_map.import_tilemap, ui])             --- 1 arg to the import_map.import_tilemap function: ui
-    # (tkinter_opener_instance.queue_function, [import_map.import_tilemap, (ui, example)])  --- 2 arg to the import_map.import_tilemap function: (ui, example)
+    # (tk_util.queue_func, [import_map.import_tilemap, ui])             --- 1 arg to the import_map.import_tilemap function: ui
+    # (tk_util.queue_func, [import_map.import_tilemap, (ui, example)])  --- 2 arg to the import_map.import_tilemap function: (ui, example)
     
-    lists = []
+    #TODO: Set some values as defaluts to avoid repeated code
 
-    lists.append( DropDown(
+    dropdowns = []
+
+    dropdowns.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
     [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
     5, 0, 140, 30, 
     pygame.font.Font(None, 25), 
     "Tilemap", 
     ["Load", "Export"],
-    [(tkinter_opener_instance.queue_function, [import_map.import_tilemap, ui]), 
-     (tkinter_opener_instance.queue_function, [export.export_tilemap, ui])]))  #funcs, args
+    [(tk_util.queue_func, [import_map.import_tilemap]), 
+     (tk_util.queue_func, [export.export_tilemap])]))  #funcs, args
 
-    lists.append( DropDown(
+    dropdowns.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
     [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
     150, 0, 125, 30, 
     pygame.font.Font(None, 25), 
     "Palette", 
     ["Load", "New", "Delete"],
-    [(tkinter_opener_instance.queue_function, [ui.manager.palette_manager.change_palette_ask]), 
-     (tkinter_opener_instance.queue_function, [ui.manager.palette_manager.create_empty_palette]), 
-     (tkinter_opener_instance.queue_function, [ui.manager.palette_manager.delete_palette])]))
+    [(tk_util.queue_func, [palette.pm_obj.change_palette_ask]), 
+     (tk_util.queue_func, [palette.pm_obj.create_empty_palette]), 
+     (tk_util.queue_func, [palette.pm_obj.delete_palette])]))
 
-    lists.append( DropDown(
+    dropdowns.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
     [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
     280, 0, 125, 30, 
     pygame.font.Font(None, 25), 
     "Tiles", 
-    ["Add", "Remove"],
-    [(tkinter_opener_instance.queue_function, [ui.manager.palette_manager.add_tile]), (ui.toggle_delete) ]))
+    ["New Tile", "Remove"],
+    [(tk_util.queue_func, [palette.pm_obj.add_tile]), 
+     (ui.ui_obj.toggle_delete)]))
 
-    lists.append( DropDown(
+    dropdowns.append( DropDown(
     [COLOR_INACTIVE, COLOR_ACTIVE],
     [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
     410, 0, 125, 30, 
     pygame.font.Font(None, 25), 
     "Grid", 
     ["Resize"],
-    [ (tkinter_opener_instance.queue_function, [grid_resize.set_gridsize_ask, ui]) ]))
+    [ (tk_util.queue_func, [grid_resize.set_gridsize_ask]) ]))
     
-    return lists
+    return dropdowns

@@ -17,7 +17,7 @@ class TkinterOpener:
         if not self.function is None:
             self.timer += 1
 
-    def queue_function(self, function, args=None) -> None:
+    def queue_func(self, function, args=None) -> None:
         """Add the tkinter opening function to the queue to open, if no other function is already queued"""
         if self.function is None:
             self.function = function
@@ -39,4 +39,4 @@ class TkinterOpener:
         
 
 
-tkinter_opener_instance = TkinterOpener()
+tk_util = TkinterOpener()

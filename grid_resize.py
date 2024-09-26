@@ -1,6 +1,7 @@
 import tkinter
+import ui
 
-def set_gridsize_ask(ui):
+def set_gridsize_ask():
     window = tkinter.Tk(className="grid settings")
     window.geometry("300x200")
     window.resizable(False, False)
@@ -23,10 +24,10 @@ def set_gridsize_ask(ui):
         h = height.get()
         if w == "" or h == "":
             window.destroy()
-            set_gridsize_ask(ui)
+            set_gridsize_ask()
             return
 
-        ui.set_gridsize((int(w), int(h)))
+        ui.ui_obj.set_gridsize((int(w), int(h)))
         window.destroy()
 
     vcmd = (window.register(validate), '%P')

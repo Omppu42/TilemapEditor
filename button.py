@@ -1,6 +1,8 @@
 import pygame, time
 from manager import State
 
+import manager
+
 pygame.init()
 
 class Button:
@@ -114,17 +116,16 @@ class ButtonGroup:  #only one button in the button group can be on at a time
 
 
 class ToolButton(Button):
-    def __init__(self, pos: tuple, size: tuple, screen, manager, image, state_when_clicked=None, hover_text=None, init_state=0, can_toggle_off=True):
+    def __init__(self, pos: tuple, size: tuple, screen, image, state_when_clicked=None, hover_text=None, init_state=0, can_toggle_off=True):
         super().__init__(pos, size, screen, can_toggle_off=can_toggle_off, hover_text=hover_text)
         self.image = pygame.image.load(image)
         self.image = pygame.transform.scale(self.image, size)
-        self.manager = manager
         self.state_when_clicked = state_when_clicked
         self.set_state(init_state)
 
     def update(self):
         if self.just_clicked and self.state_when_clicked is not None:
-            self.manager.state = self.state_when_clicked
+            manager.m_obj.state = self.state_when_clicked
 
         super().update()
         self.screen.blit(self.image, self.rect)

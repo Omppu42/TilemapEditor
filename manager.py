@@ -1,9 +1,15 @@
 import pygame, tkinter
 from enum import Enum
-from util import get_cell_from_mousepos
-from palette import PaletteManager
 from util_logger import logger
 from tkinter import filedialog
+
+import block as block_file
+import palette
+import settings
+import data
+import ui
+import sidebar
+
 pygame.init()
 
 class State(Enum):
@@ -12,26 +18,24 @@ class State(Enum):
     COLOR_PICKER = 2
 
 class Manager:
-    def __init__(self, ui):
-        self.ui = ui
+    def __init__(self):
         self.state = State.BRUSH
-        self.palette_manager = PaletteManager(ui)
         logger.log("Initialized Manager")
 
     def mouse_update(self, mouse_pos: tuple):
-        for dropdown in self.ui.dropdown_lists:
+        for dropdown in data.dropdowns:
             if dropdown.drawing:
                 return   #if hovering on any dropdowns
 
-        if mouse_pos[0] > self.ui.viewport_w: return
+        if mouse_pos[0] > settings.VIEWPORT_W: return
 
-        block = get_cell_from_mousepos(self.ui, mouse_pos)
+        block = block_file.Block.get_cell_from_mousepos(mouse_pos)
         if block is None: return
 
-        self.ui.detele_tiles = -1
+        ui.ui_obj.detele_tiles = -1
 
-        if len(self.ui.manager.palette_manager.current_palette.tile_list) > 0 and self.state == State.BRUSH:
-            block.tile_id = self.ui.tile_to_place_id
+        if len(palette.pm_obj.current_palette.tile_list) > 0 and self.state == State.BRUSH:
+            block.tile_id = ui.ui_obj.tile_to_place_id
             self.update_block_surf(block)
 
         elif self.state == State.ERASE:
@@ -41,23 +45,23 @@ class Manager:
         elif self.state == State.COLOR_PICKER:
             if block.tile_id == -1: return #if clicked on air
             self.update_block_surf(block)
-            self.ui.tile_to_place_id = block.tile_id
+            ui.ui_obj.tile_to_place_id = block.tile_id
 
 
     def handle_tool_hotkeys(self, event):
         if event.key == pygame.K_p:
-            self.change_state(State.BRUSH, self.ui.sidebar.buttons["BrushButton"])
+            self.change_state(State.BRUSH, sidebar.s_obj.buttons["BrushButton"])
 
         elif event.key == pygame.K_o:
-            self.change_state(State.COLOR_PICKER, self.ui.sidebar.buttons["ColorPickButton"])
+            self.change_state(State.COLOR_PICKER, sidebar.s_obj.buttons["ColorPickButton"])
 
         elif event.key == pygame.K_e:
-            self.change_state(State.ERASE, self.ui.sidebar.buttons["EraserButton"])
+            self.change_state(State.ERASE, sidebar.s_obj.buttons["EraserButton"])
 
         elif event.key == pygame.K_g:
-            self.ui.sidebar.buttons["GridButton"].clicked *= -1
-            self.ui.sidebar.buttons["GridButton"].set_color(self.ui.sidebar.buttons["GridButton"].clicked)
-            self.ui.sidebar.buttons["GridButton"].just_clicked = True
+            sidebar.s_obj.buttons["GridButton"].clicked *= -1
+            sidebar.s_obj.buttons["GridButton"].set_color(sidebar.s_obj.buttons["GridButton"].clicked)
+            sidebar.s_obj.buttons["GridButton"].just_clicked = True
 
 
     def change_state(self, state: State, button_to_activate):
@@ -66,17 +70,17 @@ class Manager:
     
 
     def update_block_surf(self, block):
-        block.update_surf(self.ui.sidebar.buttons["GridButton"].is_clicked())
+        block.update_surf(sidebar.s_obj.buttons["GridButton"].is_clicked())
 
 
     def reset_map(self):
-        for block in self.ui.blocks:
+        for block in ui.ui_obj.blocks:
             block.tile_id = -1
             self.update_block_surf(block)
 
     
     def remove_index_map(self, index: int):
-        for block in self.ui.blocks:
+        for block in ui.ui_obj.blocks:
             if not block.tile_id is index: continue
             
             block.tile_id = -1
@@ -89,3 +93,10 @@ class Manager:
         dest_folder = filedialog.askdirectory(initialdir=initialdir, title=title)
         root.destroy()
         return dest_folder
+    
+
+
+m_obj: Manager = None
+def create_manager() -> None:
+    global m_obj
+    m_obj = Manager()

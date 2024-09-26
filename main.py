@@ -1,16 +1,23 @@
-import pygame, sys, atexit, json
+import pygame, atexit, json
+
+from tkinter_opener import tk_util
 from util_logger import logger
-from ui import UI
-from dropdown import create_lists
-from tkinter_opener import tkinter_opener_instance
+
+import ui
+import event_manager
+import data
+import settings
+import sidebar
+import palette
+import manager
+
 pygame.init()
 
-def on_exit(ui):
-    palette_manager = ui.manager.palette_manager
-    json_obj = {"palette" : palette_manager.current_palette.path,
-                "GridSize" : ui.cells_r_c}
+def on_exit(palette_manager_obj):
+    json_obj = {"palette" : palette_manager_obj.current_palette.path,
+                "GridSize" : ui.ui_obj.cells_r_c}
 
-    for palette in palette_manager.palettes:
+    for palette in palette_manager_obj.all_palettes:
         json_obj[palette.path+"_added_tiles"] = palette.added_tiles
 
     with open("last_session_data.json", "w") as f:
@@ -21,58 +28,34 @@ def on_exit(ui):
 
 def main():
     logger.log("Starting...")
-    SCR_W = 1200
-    SCR_H = 600
-    CELL_SIZE = 32
+    
 
-    screen = pygame.display.set_mode((SCR_W,SCR_H))
+    screen = pygame.display.set_mode((settings.SCR_W, settings.SCR_H))
     pygame.display.set_caption("Tilemap Editor")
     clock = pygame.time.Clock()
 
-    ui = UI((SCR_W, SCR_H), screen, CELL_SIZE)
-    bg_color = 100
 
-    lists = create_lists(ui)
-    ui.dropdown_lists = lists
+    # ORDER OF CREATION IS IMPORTANT!
+    manager.create_manager()
+    sidebar.create_sidebar(screen)
+    palette.create_palette_manager()
+    ui.create_ui(screen)
 
-    atexit.register(on_exit, ui)
+    data.init_data()
+
+    atexit.register(on_exit, palette.pm_obj)
     logger.log("Finished initializing")
 
     while True:
-        screen.fill((bg_color, bg_color, bg_color))
+        screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))
         event_list = pygame.event.get()
-        for event in event_list:
-            if event.type == pygame.QUIT:
-                sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                ui.manager.handle_tool_hotkeys(event)
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.mouse.get_rel()  #reset rel pos
-
-                if pygame.mouse.get_pressed()[0]:
-                    ui.on_mouse_click()
-            
-            if pygame.mouse.get_pressed()[0]:
-                ui.manager.mouse_update(pygame.mouse.get_pos())
+        event_manager.manage_events(event_list)
                 
-        tkinter_opener_instance.update()
-        ui.update()
+        tk_util.update()
+        ui.ui_obj.update()
 
-        for x in lists:  #update dropdown lists
-            x.draw(screen)
-            selected_option = x.update(event_list)
-
-            if selected_option >= 0:
-                selected = x.functions[selected_option]
-
-                if not isinstance(selected, tuple): # no tuple = no args
-                    selected()
-                    continue
-                
-                # has args
-                selected[0](*selected[1])
+        event_manager.update_dropdowns(screen, event_list)
 
 
         pygame.display.update()
