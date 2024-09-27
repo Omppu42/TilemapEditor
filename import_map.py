@@ -23,7 +23,7 @@ def import_tilemap():
     with open(dest_folder+"\\explanations.json", "r") as f:
         data = f.readlines()
         json_obj = json.loads("".join(data))
-        grid_size = json_obj["GridSize"]
+        grid_size = json_obj["grid_size"]
 
     msg = "Your grid is bigger than the tilemap.\nDo you want to scale your grid to fit the tilemap?"
     if ui.ui_obj.cells_r_c[0] < grid_size[0] or ui.ui_obj.cells_r_c[1] < grid_size[1]:

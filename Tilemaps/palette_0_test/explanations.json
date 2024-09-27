@@ -50,7 +50,7 @@
     "48": "_1-tile017.png",
     "49": "_1-tile018.png",
     "50": "_1-tile020.png",
-    "GridSize": [
+    "grid_size": [
         20,
         30
     ]

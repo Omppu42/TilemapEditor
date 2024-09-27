@@ -20,19 +20,25 @@ class State(Enum):
 class Manager:
     def __init__(self):
         self.state = State.BRUSH
-        logger.log("Initialized Manager")
+
+        # When selecting Tile > Remove tile, turns to True. When True and clicked on a tile from tile selection, remove the tile
+        self.remove_palette_tiles = False 
+
+        logger.debug("Initialized Manager")
 
     def mouse_update(self, mouse_pos: tuple):
         for dropdown in data.dropdowns:
-            if dropdown.drawing:
-                return   #if hovering on any dropdowns
+            # If hovering on any dropdowns, return
+            if dropdown.drawing: return   
 
+        # If clicked on the sidebar
         if mouse_pos[0] > settings.VIEWPORT_W: return
 
         _block = block_file.Block.get_cell_from_mousepos(mouse_pos)
         if _block is None: return
 
-        ui.ui_obj.detele_tiles = -1
+        # If clicked on canvas, toggle remove_palette_tiles to False
+        self.remove_palette_tiles = False
 
         match (self.state):
             case State.BRUSH:
@@ -52,6 +58,8 @@ class Manager:
 
     # KEY EVENTS -------------
     def equip_brush(self) -> None:
+        if self.state == State.BRUSH: return
+
         self.state = State.BRUSH
         sidebar.s_obj.buttons_dict["BrushButton"].just_clicked = True
 
@@ -69,6 +77,14 @@ class Manager:
         sidebar.s_obj.buttons_dict["GridButton"].just_clicked = True
 
     
+    def on_tile_deleted(self, index: int) -> None:
+        """When deleting a tile from tile selection, block id's don't shift accordingly.Index is the index of the block that was deleted, taken from the order list."""
+        for block in ui.ui_obj.blocks:
+            if block.tile_id > index:
+                block.tile_id -= 1
+
+            self.update_block_surf(block)
+
 
     def update_block_surf(self, block):
         block.update_surf(sidebar.s_obj.buttons_dict["GridButton"].is_clicked())

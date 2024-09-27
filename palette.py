@@ -1,9 +1,10 @@
 import pygame, os, glob, filecmp, tkinter, shutil, json
 from tkinter import filedialog
 from tkinter.messagebox import askokcancel, WARNING
+
 from util_logger import logger
 
-
+import util
 import settings
 import ui
 import sidebar
@@ -13,16 +14,17 @@ import data
 pygame.init()
 
 class Palette:
-    TILES_PER_PAGE = 45
-    TILES_PER_ROW = 5
+    ORDER_JSON_FILENAME = "_order.json"
     def __init__(self, path: str):
-        self.tile_list = None
-        self.palette_data = None
+        self.tile_list: list = []
+        self.palette_data: list = []
+        self.tiles_order: list = []
         self.pages = 1
 
         self.path = path
         self.name = os.path.split(self.path)[1]
-        self.added_tiles = {}
+
+        self.__init_tiles_order()
 
         self.load_sequence()
 
@@ -32,21 +34,61 @@ class Palette:
         return f"palette '{os.path.split(self.path)[1]}' at '{self.path}'"
 
 
-
-    # PRIVATE ----------------------------------
     def load_sequence(self):
         self.tile_list = self.__load_tiles()
         self.palette_data = self.__init_palette()
 
+    
+    def export_tiles_order(self) -> None:
+        order_json_path = self.path + "\\" + Palette.ORDER_JSON_FILENAME
+        with open(order_json_path, "w") as f:
+            json.dump(self.tiles_order, f, indent=4)
+
+
+
+    # PRIVATE ----------------------------------
+    def __init_tiles_order(self) -> None:
+        """Load the tile order that has been saved"""
+        order_json_path = self.path + "\\" + Palette.ORDER_JSON_FILENAME
+        last_tiles_order = []
+
+        # If tile order already exists
+        if os.path.isfile(order_json_path):
+            with open(order_json_path, "r") as f:
+                last_tiles_order = json.load(f)
+                logger.debug(f"Loaded Palette '{self.name}' order from last session")
+        else:
+            logger.debug(f"No last session order found for palette '{self.name}'. Creating from file order")
+
+        # PNG present now
+        present_tiles = []
+        # Get all png images
+        for _png in glob.glob(self.path+"\\*.png"): 
+            # Get the filename only
+            _tail = os.path.split(_png)[1]
+            present_tiles.append(_tail)
+
+        # Check which tiles have been deleted between sessions
+        # Add tiles which are still present first
+        for _tile in last_tiles_order:
+            if _tile in present_tiles:
+                self.tiles_order.append(_tile)
+
+        # Check which tiles are new
+        for _tile in present_tiles:
+            if not _tile in last_tiles_order:
+                self.tiles_order.append(_tile)
+
+        # Old tiles first, new ones last
+        self.export_tiles_order()
+
+
     def __load_tiles(self) -> list:
         output = []
-        self.img_paths = []
 
-        for f in glob.glob(self.path+"\\*.png"): #get all png images
-            self.img_paths.append(f)
-
-        for image_path in self.img_paths:                               #load all images to tiles
-            sprite = pygame.image.load(image_path)
+        # load all images to tiles
+        for image_path in self.tiles_order:    
+            sprite = pygame.image.load(self.path + "\\" + image_path)
             sprite = pygame.transform.scale(sprite, (settings.CELL_SIZE, settings.CELL_SIZE))
             output.append(sprite)
 
@@ -61,18 +103,18 @@ class Palette:
         j = 0
 
         for i in range(len(self.tile_list)):
-            if i % Palette.TILES_PER_PAGE == 0 and not sublist == []:
+            if i % settings.TILES_PER_PAGE == 0 and not sublist == []:
                 output.append(sublist)
                 sublist = []
                 j = 0
                 self.pages += 1
 
-            if i % Palette.TILES_PER_ROW == 0:
+            if i % settings.TILES_PER_ROW == 0:
                 j += 1
 
             sublist.append({"id" : i, 
                             "image" : self.tile_list[i], 
-                            "pos" : (sidebar.s_obj.pos[0] + 30 + (50 * (i % Palette.TILES_PER_ROW)), sidebar.s_obj.pos[1] + 50 * j)})
+                            "pos" : (sidebar.s_obj.pos[0] + 30 + (50 * (i % settings.TILES_PER_ROW)), sidebar.s_obj.pos[1] + 50 * j)})
 
         output.append(sublist)
         return output
@@ -89,35 +131,10 @@ class PaletteManager:
         self.selected_tile_id = 0
 
         self.__init_palettes()
-
-        #TODO: Clear this mess somewhere
-        json_data = {}
-        if os.path.isfile("last_session_data.json"):
-            with open("last_session_data.json", "r") as f:
-                data = f.readlines()
-                if not data == []:
-                    json_data = json.loads("".join(data))
-
-        for palette in self.all_palettes:
-            key = palette.path+"_added_tiles"
-            if key in json_data:
-                palette.added_tiles = json_data[key]
-
-
-        #Load palette
-        if not "palette" in json_data:
-            logger.warning("No last used palette field found, falling back to first palette")
-            self.current_palette = self.all_palettes[0]
-
-        else:
-            target_palette = self.__get_palette_at_path(json_data["palette"])
-            if target_palette is None:
-                self.current_palette = self.all_palettes[0]
-            else:
-                self.current_palette = target_palette
+        self.__init_load_last_session_data()
 
         logger.log(f"Loaded {self.current_palette}")
-
+        logger.debug("Initialized PaletteManager")
 
     # GETTERS ----------------------------------------------------------------
     def get_current_tiles(self) -> list:
@@ -128,7 +145,11 @@ class PaletteManager:
         """Returns current_palette.palette_data\n
         Data is of format [[ {"id":1, "image":pygame.Surf, "pos":[950, 50]}, ...]]"""
         return self.current_palette.palette_data
-
+    
+    def get_data_current_page(self) -> list:
+        """Returns current_palette.palette_data[current_page]\n
+        Data is of format [ {"id":1, "image":pygame.Surf, "pos":[950, 50]}, ...]"""
+        return self.current_palette.palette_data[sidebar.s_obj.tiles_page]
 
     # PRIVATE ----------------------------------------------------------------
     def __init_palettes(self):
@@ -138,6 +159,22 @@ class PaletteManager:
 
         for path in self.PALETTE_DIRS:
             self.all_palettes.append(Palette(path))
+
+
+    def __init_load_last_session_data(self) -> None:
+        # Default to the first palette, change to the last session palette if found
+        self.current_palette = self.all_palettes[0]
+
+        last_session_data = util.load_json_data_dict("last_session_data.json")
+
+        if last_session_data == {}:
+            logger.warning("No last session data found, returning to defaults")
+            return
+
+        #Load palette
+        target_palette = self.__get_palette_at_path(last_session_data["palette"])
+        if target_palette:
+            self.current_palette = target_palette
 
 
     def __get_palette_at_path(self, path: str) -> Palette:
@@ -184,12 +221,18 @@ class PaletteManager:
         
         ui.ui_obj.current_palette = self.current_palette
         ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
-        self.selected_tile_id = 0
+        self.selected_tile_id = 0 + sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
+        
         sidebar.s_obj.update_page_arrows()
     
 
 
     # PUBLIC ----------------------------------------------------------------
+    def export_all_palette_tile_orders(self) -> None:
+        for _palette in self.all_palettes:
+            _palette.export_tiles_order()
+            
+
     def select_nth_tile_on_page(self, tile_index: int) -> None:
         """Selects the nth tile on the current page of the tile selection. Tile_index 0 is the first tile"""
         self.selected_tile_id = self.current_palette.palette_data[sidebar.s_obj.tiles_page][tile_index]["id"]
@@ -258,62 +301,56 @@ class PaletteManager:
         if pngs == "": 
             return
 
-        for png in pngs:
-            number = 0
-            if self.current_palette.added_tiles:
-                number = list(self.current_palette.added_tiles.values())[-1] + 1
-            number = str(number).zfill(3)
+        for png in pngs: 
             filename = os.path.split(png)[1]
-            filename = f"_{number}-"+os.path.splitext(filename)[0]
-            
-            new_filename = self.current_palette.path + "\\" + filename + ".png"
+            destination = self.current_palette.path + "\\" + filename
 
-            shutil.copy(png, new_filename)
-            self.current_palette.added_tiles[filename] = int(number)
+            # Add file (1) if needed
+            destination = util.prevent_existing_file_overlap(destination)
+            filename = os.path.split(destination)[1]
+            
+            shutil.copy(png, destination)
+            self.current_palette.tiles_order.append(filename)
             
             logger.log(f"Added '{filename}.png' to {self.current_palette}")
-        
+
+                
 
         self.__update_palette_change()
 
 
     def remove_tile(self, index: int):
+        """Run after selecting a tile to remove from the palette"""
+        # Stop from deleting more tiles
+        manager.m_obj.remove_palette_tiles = False
+
         root = tkinter.Tk()
         root.withdraw()
         if not askokcancel("Confirm", "Please backup before deleting tiles.\n This action can mess up your tile ids.\n\nBy deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
+            # Clicked "No"
             root.destroy()
-            ui.ui_obj.detele_tiles = -1
             return
 
+        # "Yes"
         root.destroy()
-        ui.ui_obj.detele_tiles = -1
-        remove_path = self.current_palette.img_paths[index]
-
         
-        org_name = os.path.split(remove_path)[1]
-        org_name = os.path.splitext(org_name)[0]
-        name = org_name+"(%s).png"
-
-        full_path = "Deleted_tiles\\"+name
-
-        i = 1
-        while os.path.exists(full_path % i):
-            i += 1
-
-        deleted_tiles_path = "Deleted_tiles"
-        if not os.path.isdir(deleted_tiles_path):
-            os.mkdir(deleted_tiles_path)
-
-        if org_name in self.current_palette.added_tiles:
-            self.current_palette.added_tiles.pop(org_name, None)
-
-        shutil.move(remove_path, deleted_tiles_path+"\\"+name % i)
-
+        if not os.path.isdir("Deleted_tiles"):
+            os.mkdir("Deleted_tiles")
         
+        tile_to_remove_path = self.current_palette.path + "\\" + self.current_palette.tiles_order[index]
+        
+        deleted_tile_path = "Deleted_tiles\\"+self.current_palette.tiles_order[index]
+        deleted_tile_path = util.prevent_existing_file_overlap(deleted_tile_path)
+
+
+        shutil.move(tile_to_remove_path, deleted_tile_path)
+        self.current_palette.tiles_order.remove(os.path.split(tile_to_remove_path)[1]) # Remove the filename
+
         self.__update_palette_change()
         manager.m_obj.remove_index_map(index)
+        manager.m_obj.on_tile_deleted(index)
 
-        logger.log(f"Moved '{os.path.split(remove_path)[1]}' from '{self.current_palette.name}' to 'Deleted_tiles' folder")
+        logger.log(f"Moved '{os.path.split(tile_to_remove_path)[1]}' from '{self.current_palette.name}' to 'Deleted_tiles' folder")
 
 
     def create_empty_palette(self, ask_confirm=True, update_palette=True, num=None):
@@ -371,7 +408,7 @@ class PaletteManager:
 
         for file in os.listdir(dest_folder):
             if not file.endswith(".png"):
-                logger.warning("Deleting palette: Not all file were '.png' files. Can't delete such folder")
+                logger.warning("Deleting palette: Not all files were '.png' files. Can't delete such folder")
                 return
         
         logger.log("Deleting palette: Deleting pngs..")

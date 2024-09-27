@@ -50,8 +50,9 @@ class Button:
 
     def check_clicked(self, mouse_pos: tuple) -> bool:
         if self.disabled: return
-        
         if not pygame.mouse.get_pressed()[0]: return False
+        
+        # Check if mouse overlaps the button's rect
         if self.rect.collidepoint(mouse_pos):
             if self.can_toggle_off:
                 self.clicked *= -1

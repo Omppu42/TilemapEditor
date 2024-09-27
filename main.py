@@ -21,6 +21,13 @@ pygame.init()
 # TODO: Automated testing
 # TODO: Support screen resizes
 # TODO: Layers
+# TODO: Rearrange tiles selection by dragging 
+
+# TODO: Autosave
+
+# TODO: In grid resize tell the current grid size
+
+# FIXME: Color picking a tile that is on a different page doesn't change the page.
 
 def main():
     logger.log("Starting...")
@@ -36,11 +43,11 @@ def main():
     ui.create_ui(screen)
 
     # POST_INIT UPDATES
-    sidebar.s_obj.update_page_arrows()
+    sidebar.s_obj.post_init()
     data.init_data()
     atexit.register(event_manager.on_exit, palette.pm_obj)
 
-    logger.log("Finished initializing")
+    logger.log("Initialized successfully")
 
     while True:
         screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))

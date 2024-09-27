@@ -17,9 +17,6 @@ class DropDown():
         self.font = font
         self.main = main
         self.options = options
-        #self.options = list(options.keys())
-        # self.functions = list(options.values())
-
 
         self.draw_menu = False
         self.menu_active = False

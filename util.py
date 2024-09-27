@@ -1,4 +1,4 @@
-import time, os
+import time, os, json
 from util_logger import logger
 from functools import wraps
 
@@ -21,3 +21,35 @@ def timer(func):
         return rv
     
     return wrapper
+
+
+def load_json_data_dict(path: str) -> dict:
+    if not os.path.isfile(path): 
+        logger.warning(f"Trying to open file at path {path}, which was not found")
+        return {}
+
+    with open(path, "r") as f:
+        data_str = "".join(f.readlines())
+        if data_str == "": return {}
+        
+    return json.loads(data_str)
+
+
+def prevent_existing_file_overlap(filepath: str) -> str:
+    """Returns a path that is valid, fixing conflicts by adding (1) or (2) depending on many conflicts there are"""
+    if not os.path.isfile(filepath):
+        return filepath
+
+    _filepath, _filename = os.path.split(filepath)
+    _file, _extension = os.path.splitext(_filename)
+
+    new_filename = _file + " (%s)" + _extension
+    new_filepath = _filepath + "\\" + new_filename
+    # _filename (%s).png
+
+    i = 1
+    # find a free name
+    while os.path.isfile(new_filepath % i):
+        i += 1
+
+    return new_filepath % i

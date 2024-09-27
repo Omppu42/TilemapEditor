@@ -2,7 +2,7 @@ import pygame, json, os
 from block import Block
 from manager import State
 from util_logger import logger
-from tkinter_opener import tk_util
+
 
 import settings
 import manager
@@ -24,22 +24,18 @@ class UI:
                 if not data == []:
                     json_data = json.loads("".join(data))
 
-        if "GridSize" in json_data:
-            self.set_gridsize(json_data["GridSize"])
+        if "grid_size" in json_data:
+            self.set_gridsize(json_data["grid_size"])
         else:
             self.set_gridsize((16,16))
 
-        self.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in palette.pm_obj.get_data()[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
-
-        self.detele_tiles = -1 #-1 off, 1 on
         self.del_borders_w = 7
-        logger.log("Initialized UI")
+        logger.debug("Initialized UI")
                 
 
 
     def set_gridsize(self, grid_size):
         self.cells_r_c = grid_size
-        logger.log(f"Set grid size to '{grid_size[0]}x{grid_size[1]}'")
         self.total_mouse_change = (0, 0)
 
         self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*settings.CELL_SIZE, 1))
@@ -54,36 +50,15 @@ class UI:
             for j in range(self.cells_r_c[0]):
                 self.blocks.append(Block((j, i), settings.CELL_SIZE, self.screen, sidebar.s_obj.buttons_dict["GridButton"].is_clicked()))
   
+        logger.log(f"Grid size set to '{grid_size[0]}x{grid_size[1]}'")
   
-    def on_mouse_click(self):
-        mouse_pos = pygame.mouse.get_pos()  
-        self.change_tile(mouse_pos)
-        self.detele_tiles = -1
-        
-
-    def change_tile(self, mouse_pos):
-        for x in self.tile_selection_rects:
-            if not x.collidepoint(mouse_pos): continue
-
-            if manager.m_obj.state != State.BRUSH: #select brush when clicking any tile from selection
-                manager.m_obj.equip_brush()
-
-            #update tiletoplaceid
-            for value in palette.pm_obj.get_data()[sidebar.s_obj.tiles_page]:
-                if x[0] == value["pos"][0] and x[1] == value["pos"][1]: #Get id of block clicked on
-                    if self.detele_tiles == -1:
-                        palette.pm_obj.selected_tile_id = value["id"]
-                    elif self.detele_tiles == 1:
-                        tk_util.queue_func(palette.pm_obj.remove_tile, value["id"])
-                        #palette.pm_obj.remove_tile(value["id"])
-            
 
 
     def update(self):
         self.draw_blocks()
         sidebar.s_obj.update()
 
-        if self.detele_tiles == 1:
+        if manager.m_obj.remove_palette_tiles:
             pygame.draw.rect(self.screen, (255,0,0), (0,0, settings.SCR_W, self.del_borders_w))
             pygame.draw.rect(self.screen, (255,0,0), (0,0, self.del_borders_w, settings.SCR_H))
             pygame.draw.rect(self.screen, (255,0,0), (settings.SCR_W-self.del_borders_w, 0, self.del_borders_w, settings.SCR_H))
@@ -104,8 +79,8 @@ class UI:
         self.total_mouse_change = (self.total_mouse_change[0]+movement_vec[0], self.total_mouse_change[1]+movement_vec[1])
         blocks_to_update = [x for x in self.blocks if x.org_pos[0]+self.total_mouse_change[0] > -100 and x.org_pos[0]+self.total_mouse_change[0] < settings.VIEWPORT_W+100
                                                      and x.org_pos[1]+self.total_mouse_change[1] > -100 and x.org_pos[1]+self.total_mouse_change[1] < settings.SCR_H+100]
-        for x in blocks_to_update:
-            x.update(self.total_mouse_change) #draw blocks
+        for _block in blocks_to_update:
+            _block.update(self.total_mouse_change) #draw blocks
 
         if sidebar.s_obj.buttons_dict["GridButton"].just_clicked:
             if sidebar.s_obj.buttons_dict["GridButton"].is_clicked():
@@ -132,7 +107,7 @@ class UI:
 
     
     def toggle_delete(self):
-        self.detele_tiles *= -1
+        manager.m_obj.remove_palette_tiles = not manager.m_obj.remove_palette_tiles
 
 
 

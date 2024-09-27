@@ -8,11 +8,10 @@ import data
 import sidebar
 
 def on_exit(palette_manager_obj):
-    json_obj = {"palette" : palette_manager_obj.current_palette.path,
-                "GridSize" : ui.ui_obj.cells_r_c}
+    palette_manager_obj.export_all_palette_tile_orders()
 
-    for palette in palette_manager_obj.all_palettes:
-        json_obj[palette.path+"_added_tiles"] = palette.added_tiles
+    json_obj = {"palette" : palette_manager_obj.current_palette.path,
+                "grid_size" : ui.ui_obj.cells_r_c}
 
     with open("last_session_data.json", "w") as f:
         f.write(json.dumps(json_obj, indent=4))
@@ -45,8 +44,7 @@ def manage_events(event_list) -> None:
 
             # CLICK LEFT CLICK ----------
             if pygame.mouse.get_pressed()[0]:
-                ui.ui_obj.on_mouse_click()
-                sidebar.s_obj.on_mouse_click()
+                sidebar.s_obj.on_left_mouse_click()
         
         # HOLD LEFT CLICK ---------
         if pygame.mouse.get_pressed()[0]: 

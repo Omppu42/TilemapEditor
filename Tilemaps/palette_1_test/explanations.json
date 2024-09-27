@@ -15,7 +15,7 @@
     "13": "tile017.png",
     "14": "tile018.png",
     "15": "tile020.png",
-    "GridSize": [
+    "grid_size": [
         20,
         30
     ]
