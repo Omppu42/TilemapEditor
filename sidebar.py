@@ -4,6 +4,7 @@ from manager import State
 from tkinter_opener import tk_util
 from util_logger import logger
 
+import util
 import button
 import manager
 import settings
@@ -106,6 +107,70 @@ class Sidebar:
 
 
     # PUBLIC ---------------------
+    def select_tile_row_col(self, col: int, row: int) -> None:
+        """Row and col should go from from 0 to TILES_PER_ROW - 1"""
+        _total_tiles = palette.pm_obj.get_tiles_count()
+
+        new_id = (col + row * settings.TILES_PER_ROW) + self.tiles_page * settings.TILES_PER_PAGE
+
+        # Make sure no invalid IDs
+        if new_id >= _total_tiles:
+            new_id = _total_tiles - 1
+
+        palette.pm_obj.selected_tile_id = new_id
+
+
+    def arrowkeys_tile_selection_move(self, event) -> None:
+        _total_pages = palette.pm_obj.get_total_pages() - 1  # from 0 
+        _selected_row = util.get_tile_row_from_index(palette.pm_obj.selected_tile_id) # from 0 to TILES_PER_ROW - 1
+        _selected_col = util.get_tile_column_from_index(palette.pm_obj.selected_tile_id) # from 0 to TILES_PER_COL - 1
+        manager.m_obj.equip_brush()
+
+        match (event.key):
+            case (pygame.K_LEFT):
+                # On first page left edge
+                if self.tiles_page <= 0 and _selected_col <= 0: return
+
+                # Not on first page and on left edge
+                if _selected_col <= 0:
+                    # Flip page -1 and select the tile on same col but on opposite edge
+                    self.set_tile_selection_page(self.tiles_page - 1) 
+                    self.select_tile_row_col(settings.TILES_PER_ROW - 1, _selected_row)
+                    return
+                
+                palette.pm_obj.selected_tile_id -= 1
+
+            case (pygame.K_RIGHT):
+                # On last page right edge
+                if self.tiles_page >= _total_pages and _selected_col >= settings.TILES_PER_ROW - 1: return
+                # If the next tile is outside the tile count
+                if palette.pm_obj.selected_tile_id + 1 >= palette.pm_obj.get_tiles_count(): return
+
+                # If on the edge
+                if _selected_col >= settings.TILES_PER_ROW - 1:
+                    # Flip page +1 and select the tile on same col but on opposite edge
+                    self.set_tile_selection_page(self.tiles_page + 1) 
+                    self.select_tile_row_col(0, _selected_row)
+                    return
+
+                palette.pm_obj.selected_tile_id += 1
+
+
+            case (pygame.K_UP):
+                # If on the top row
+                if _selected_row <= 0: return
+
+                palette.pm_obj.selected_tile_id -= settings.TILES_PER_ROW
+
+            case (pygame.K_DOWN):
+                # If on the bottom row
+                if _selected_row >= settings.TILES_PER_COL - 1: return
+                # If there is no tile below
+                if palette.pm_obj.selected_tile_id + settings.TILES_PER_ROW >= palette.pm_obj.get_tiles_count(): return
+
+                palette.pm_obj.selected_tile_id += settings.TILES_PER_ROW
+
+
     def post_init(self) -> None:
         self.create_tile_selection_rects()
         self.update_page_arrows()

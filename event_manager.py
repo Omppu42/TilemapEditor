@@ -7,6 +7,11 @@ import manager
 import data
 import sidebar
 
+ARROW_KEYS = [pygame.K_LEFT, 
+              pygame.K_RIGHT, 
+              pygame.K_UP, 
+              pygame.K_DOWN]
+
 def on_exit(palette_manager_obj):
     palette_manager_obj.export_all_palette_tile_orders()
 
@@ -37,6 +42,10 @@ def manage_events(event_list) -> None:
                 case pygame.K_g:
                     manager.m_obj.toggle_grid()
 
+                # If any of the arrow keys were pressed
+                case _key if _key in ARROW_KEYS:
+                    sidebar.s_obj.arrowkeys_tile_selection_move(event)
+            
         
         # ANY MOUSE BUTTON -----------
         if event.type == pygame.MOUSEBUTTONDOWN:

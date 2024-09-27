@@ -156,6 +156,9 @@ class PaletteManager:
     
     def get_tiles_order(self) -> list:
         return self.current_palette.tiles_order
+    
+    def get_tiles_count(self) -> int:
+        return len(self.current_palette.tiles_order)
 
 
     # PRIVATE ----------------------------------------------------------------
@@ -333,7 +336,7 @@ class PaletteManager:
 
         root = tkinter.Tk()
         root.withdraw()
-        if not askokcancel("Confirm", "Please backup before deleting tiles.\n This action can mess up your tile ids.\n\nBy deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
+        if not askokcancel("Confirm", "Please backup before deleting tiles.\n\nBy deleting this tile, all it's instances will deleted.\nYou can recover the tile from deleted tiles folder.", icon=WARNING):
             # Clicked "No"
             root.destroy()
             return

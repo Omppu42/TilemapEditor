@@ -63,3 +63,11 @@ def get_tile_page_from_index(index: int) -> int:
 def get_tile_index_on_page(index: int) -> int:
     """Get the index of the tile on it's page"""
     return index % settings.TILES_PER_PAGE
+
+def get_tile_column_from_index(index: int) -> int:
+    """From 0 to TILES_PER_ROW-1"""
+    return index % settings.TILES_PER_ROW
+
+def get_tile_row_from_index(index: int) -> int:
+    """From 0 to TILES_PER_COL-1"""
+    return math.floor((index % settings.TILES_PER_PAGE) / settings.TILES_PER_ROW)

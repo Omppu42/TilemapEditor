@@ -14,8 +14,6 @@ import manager
 pygame.init()
 
 
-# TODO: Move between tiles selection using arrow keys
-# TODO: Put window initializations somewhere else
 # TODO: Zooming
 # TODO: Move Buttons to data.py 
 # TODO: Automated testing
@@ -27,11 +25,11 @@ pygame.init()
 
 # TODO: In grid resize tell the current grid size
 
-# FIXME: Color picking a tile that is on a different page doesn't change the page.
 
 def main():
     logger.log("Starting...")
 
+    # DISPLAY
     screen = pygame.display.set_mode((settings.SCR_W, settings.SCR_H))
     pygame.display.set_caption("Tilemap Editor")
     clock = pygame.time.Clock()
