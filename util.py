@@ -1,4 +1,4 @@
-import time, os, json
+import time, os, json, math
 from util_logger import logger
 from functools import wraps
 
@@ -53,3 +53,13 @@ def prevent_existing_file_overlap(filepath: str) -> str:
         i += 1
 
     return new_filepath % i
+
+
+def get_tile_page_from_index(index: int) -> int:
+    """Get the page that the tile index is on"""
+    return math.floor(index / settings.TILES_PER_PAGE)
+
+
+def get_tile_index_on_page(index: int) -> int:
+    """Get the index of the tile on it's page"""
+    return index % settings.TILES_PER_PAGE

@@ -2,7 +2,7 @@ import pygame, math
 
 from util_logger import logger
 
-import sidebar
+import util
 import palette
 import ui
 import settings
@@ -35,8 +35,9 @@ class Block:
     def update_surf(self, grid: bool):
         self.surf.fill((120,120,120))
         if self.tile_id != -1:
-            tile_page = math.floor(self.tile_id / settings.TILES_PER_PAGE)
-            tile_pos_on_page = self.tile_id % settings.TILES_PER_PAGE
+            
+            tile_page = util.get_tile_page_from_index(self.tile_id)
+            tile_pos_on_page = util.get_tile_index_on_page(self.tile_id)
 
             palette_data = palette.pm_obj.get_data()[tile_page]
 

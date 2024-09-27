@@ -51,6 +51,16 @@ class Sidebar:
         logger.debug("Initialized Sidebar")
 
 
+    # GETTERS AND SETTERS ---------
+    def set_tile_selection_page(self, page: int) -> None:
+        if palette.pm_obj.get_total_pages() - 1 < page or page < 0:
+            logger.error(f"Trying to set tile selection page to an invalid page ({page})")
+            return
+        
+        self.tiles_page = page
+        self.update_page_arrows()
+
+
     # PRIVATE --------------------
     def __check_click_buttons(self, mouse_pos) -> None:
         """Check each button to see if the button was clicked and execute code accordingly"""
@@ -60,12 +70,14 @@ class Sidebar:
 
             # Check if the button name matches
             if _name == "PageLeftButton":
-                self.tiles_page -= 1
+                # Make tiles_page wrap around to last page in case something went wrong to avoid errors  
+                self.tiles_page = (self.tiles_page - 1) if self.tiles_page > 0 else palette.pm_obj.get_total_pages() - 1
                 palette.pm_obj.select_nth_tile_on_page(0)
                 self.update_page_arrows()
 
             elif _name == "PageRightButton":
-                self.tiles_page += 1
+                # Make tiles_page wrap around to 0 in case something went wrong to avoid errors 
+                self.tiles_page = (self.tiles_page + 1) % palette.pm_obj.get_total_pages()
                 palette.pm_obj.select_nth_tile_on_page(0)
                 self.update_page_arrows()
 

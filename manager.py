@@ -9,6 +9,7 @@ import settings
 import data
 import ui
 import sidebar
+import util
 
 pygame.init()
 
@@ -53,6 +54,11 @@ class Manager:
             case State.COLOR_PICKER:
                 if _block.tile_id == -1: return #if clicked on air
                 palette.pm_obj.selected_tile_id = _block.tile_id
+
+                # Find the page that the tile is on
+                tile_page = util.get_tile_page_from_index(palette.pm_obj.selected_tile_id)
+                sidebar.s_obj.set_tile_selection_page(tile_page)
+                
                 self.equip_brush()
 
 

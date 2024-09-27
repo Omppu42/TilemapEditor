@@ -150,6 +150,13 @@ class PaletteManager:
         """Returns current_palette.palette_data[current_page]\n
         Data is of format [ {"id":1, "image":pygame.Surf, "pos":[950, 50]}, ...]"""
         return self.current_palette.palette_data[sidebar.s_obj.tiles_page]
+    
+    def get_total_pages(self) -> int:
+        return self.current_palette.pages
+    
+    def get_tiles_order(self) -> list:
+        return self.current_palette.tiles_order
+
 
     # PRIVATE ----------------------------------------------------------------
     def __init_palettes(self):
@@ -222,7 +229,7 @@ class PaletteManager:
         ui.ui_obj.current_palette = self.current_palette
         ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
         self.selected_tile_id = 0 + sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
-        
+
         sidebar.s_obj.update_page_arrows()
     
 
