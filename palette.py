@@ -27,11 +27,11 @@ class Palette:
         self.__init_tiles_order()
 
         self.load_sequence()
-
+        logger.debug(f"Initialized palette '{self.name}'")
 
     # PUBLIC ----------------------------------
     def __str__(self):
-        return f"palette '{os.path.split(self.path)[1]}' at '{self.path}'"
+        return f"'{os.path.split(self.path)[1]}' at '{self.path}'"
 
 
     def load_sequence(self):
@@ -56,7 +56,7 @@ class Palette:
         if os.path.isfile(order_json_path):
             with open(order_json_path, "r") as f:
                 last_tiles_order = json.load(f)
-                logger.debug(f"Loaded Palette '{self.name}' order from last session")
+                logger.debug(f"Palette _order.json loaded from last session. Palette '{self.name}'")
         else:
             logger.debug(f"No last session order found for palette '{self.name}'. Creating from file order")
 
@@ -133,7 +133,11 @@ class PaletteManager:
         self.__init_palettes()
         self.__init_load_last_session_data()
 
-        logger.log(f"Loaded {self.current_palette}")
+        if self.current_palette == None:
+            logger.fatal(f"Error in PaletteManager initialization: Palette loaded is 'None' for some reason. Something failed in the palette loading.")
+            return
+
+        logger.log(f"Loaded palette {self.current_palette}")
         logger.debug("Initialized PaletteManager")
 
     # GETTERS ----------------------------------------------------------------
@@ -183,8 +187,12 @@ class PaletteManager:
 
         #Load palette
         target_palette = self.__get_palette_at_path(last_session_data["palette"])
-        if target_palette:
-            self.current_palette = target_palette
+        if not target_palette:
+            _last_palette_path, _last_palette_name = os.path.split(last_session_data["palette"])
+            logger.warning(f"Trying to load the palette from last session ('{_last_palette_name}'), but it was not found in '{_last_palette_path}'. Selecting the default palette")
+            return
+        
+        self.current_palette = target_palette
 
 
     def __get_palette_at_path(self, path: str) -> Palette:
@@ -205,12 +213,21 @@ class PaletteManager:
             self.delete_palette(ask_confirm=False, dest_folder=new_palette_folder)
         os.mkdir(new_palette_folder)
     
-        self.all_palettes.append(Palette(new_palette_folder))
-        if tiles_folder is None: return new_palette_folder#if no tilesfolder, don't copy any tiles
+        # if no tilesfolder, don't copy any tiles
+        if tiles_folder is None: 
+            self.all_palettes.append(Palette(new_palette_folder))
+            return new_palette_folder 
 
-        for png in glob.glob(tiles_folder+"\\*.png"): #copy tiles to tiles folder
+        for png in glob.glob(tiles_folder+"\\*.png"): # copy tiles to tiles folder
             shutil.copy(png, new_palette_folder)
+        
+        if os.path.exists(tiles_folder + "\\_order.json"):
+            shutil.copy(tiles_folder + "\\_order.json", new_palette_folder)
+            logger.debug(f"Palette _order.json was copied from Tiles/ folder. Palette '{name}'")
+        else:
+            logger.warning(f"No _order.json was found in '{os.path.relpath(tiles_folder, os.getcwd())}' when creating a palette from tiles folder. Falling back to file order as the palette order")
 
+        self.all_palettes.append(Palette(new_palette_folder))
         return new_palette_folder
 
 
@@ -295,11 +312,12 @@ class PaletteManager:
                 break
 
         if not has_palette:
-            logger.warning(f"Didn't find a suitable palette in '{settings.PALETTES_PATH}', creating a new one named 'Palette_{map_name}'")
+            logger.warning(f"Didn't find a suitable palette for tilemap '{os.path.relpath(directory, os.getcwd())}' in '{settings.PALETTES_PATH}', creating a new one named 'Palette_{map_name}'")
             self.__change_palette(self.__create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
             return
         
         self.__change_palette(new_palette_path)
+
 
     
     def add_tile(self):

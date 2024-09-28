@@ -22,15 +22,10 @@ def export_map(dest_folder):
 
     create_tiles_folder(dest_folder)
 
-    with open(dest_folder + "\\explanations.json", "w") as f:
-        json_object = json.dumps(create_explanations_dict(), indent=4) #write json object to explanations.json
+    with open(dest_folder + "\\data.json", "w") as f:
+        json_object = json.dumps(create_data_json(), indent=None) #write json object to explanations.json
         f.write(json_object)
 
-    with open(dest_folder + "\\tile_ids.txt", "w") as f:
-        for i in create_tiles_list():
-            out = str(i).replace("[", "")
-            out = out.replace("]", "")
-            f.write(out + "\n")
 
 
 def create_tiles_folder(dest_folder: str):
@@ -44,17 +39,14 @@ def create_tiles_folder(dest_folder: str):
     for png in glob.glob(PALETTE_PATH+"\\*.png"): #copy tiles to tiles folder
         shutil.copy(png, TILE_FOLDER)
 
+    shutil.copy(PALETTE_PATH+"\\_order.json", TILE_FOLDER)
 
-def create_explanations_dict() -> dict:
-    PALETTE_PATH = palette.pm_obj.current_palette.path
+
+def create_data_json() -> dict:
     output = {}
 
-    png_images = [x for x in os.listdir(PALETTE_PATH) if x.endswith(".png")]
-
-    for i, path in enumerate(png_images):
-        output[i] = path
-
     output["grid_size"] = ui.ui_obj.cells_r_c
+    output["tile_ids"] = create_tiles_list()
     return output
 
 

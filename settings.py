@@ -17,4 +17,4 @@ VIEWPORT_W = SCR_W // 4 * 3   # 3/4 of screen width
 
 
 # DEBUG ----------
-DRAW_TILE_IDS = True
+DRAW_TILE_IDS = False

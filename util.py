@@ -17,7 +17,7 @@ def timer(func):
         caller_path = os.path.relpath(caller_path, os.getcwd()) #get path relative to cwd
         
         total_time = round(time.time() - start_time, 4)
-        logger.log(f"Running function '{func.__name__}' at '{caller_path}' in {total_time} seconds")
+        logger.debug(f"Running function '{func.__name__}' at '{caller_path}' in {total_time} seconds")
         return rv
     
     return wrapper

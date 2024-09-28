@@ -22,9 +22,11 @@ pygame.init()
 # TODO: Rearrange tiles selection by dragging 
 
 # TODO: Autosave
+# TODO: Give the tilemap a name when exporting to name the folder
 
 # TODO: In grid resize tell the current grid size
 
+# FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 
 def main():
     logger.log("Starting...")
