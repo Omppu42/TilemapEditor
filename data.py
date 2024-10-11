@@ -1,15 +1,13 @@
-import pygame
-import dropdown
+from enum import Enum
 
-dropdowns = None
+import pygame
 
 font_25 = pygame.font.Font(None, 25)
 font_30 = pygame.font.Font(None, 30)
 font_35 = pygame.font.Font(None, 35)
 font_50 = pygame.font.Font(None, 50)
 
-def init_data() -> None:
-    global dropdowns
-    dropdowns = dropdown.create_dropdowns()
-
-    #buttons = 
+class State(Enum):
+    BRUSH = 0
+    ERASE = 1
+    COLOR_PICKER = 2

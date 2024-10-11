@@ -3,11 +3,14 @@ from datetime import datetime
 from tkinter import filedialog
 from util import timer
 
+import settings
 import ui
 import palette
 import manager
 
 pygame.init()
+
+# TODO: Export GUI
 
 def export_tilemap():
     dest_folder = manager.m_obj.ask_filedialog(initialdir="Tilemaps")
@@ -45,8 +48,10 @@ def create_tiles_folder(dest_folder: str):
 def create_data_json() -> dict:
     output = {}
 
+    output["last_loaded"] = datetime.now().strftime(settings.EXPORT_TIME_FORMAT)
     output["grid_size"] = ui.ui_obj.cells_r_c
     output["tile_ids"] = create_tiles_list()
+
     return output
 
 

@@ -1,6 +1,7 @@
 import pygame
 
-from manager import State
+from data import State
+import mouse
 from tkinter_opener import tk_util
 from util_logger import logger
 
@@ -28,12 +29,18 @@ class Sidebar:
         self.sidebar_bg_surf.fill(Sidebar.BG_COLOR)
 
         # BUTTONS -------------
-        self.buttons_dict = {"GridButton" : button.ToolButton((1150, 550), (32, 32), self.screen, "Assets\\grid_button.png", hover_text="Grid (G)", init_state=1), 
-                            "BrushButton" : button.ToolButton((931, 550), (32, 32), self.screen, "Assets\\brush.png", state_when_clicked=State.BRUSH,  hover_text="Paint (P)", can_toggle_off=False, init_state=1),
-                           "EraserButton" : button.ToolButton((971, 550), (32, 32), self.screen, "Assets\\eraser.png", state_when_clicked=State.ERASE, hover_text="Eraser (E)", can_toggle_off=False),
-                        "ColorPickButton" : button.ToolButton((1011, 550), (32, 32), self.screen, "Assets\\color_picker.png", state_when_clicked=State.COLOR_PICKER, hover_text="Tile Picker (O)", can_toggle_off=False),
-                         "PageLeftButton" : button.TextButton((settings.SCR_W-self.size[0]+16, settings.SCR_H//2-56), (16, 48), self.screen, "<", 20, hover_col=(220,220,220)),
-                        "PageRightButton" : button.TextButton((settings.SCR_W-30, settings.SCR_H//2-56), (16, 48), self.screen,  ">", 20, hover_col=(220,220,220))}
+        self.buttons_dict = {"GridButton" : button.ToolButton(self.screen, (1150, 550), (32, 32), 
+                                                              "Assets\\grid_button.png", hover_text="Grid (G)", init_state=1), 
+                            "BrushButton" : button.ToolButton(self.screen, (931, 550), (32, 32),  
+                                                              "Assets\\brush.png", state_when_clicked=State.BRUSH,  hover_text="Paint (P)", can_toggle_off=False, init_state=1),
+                           "EraserButton" : button.ToolButton(self.screen, (971, 550), (32, 32),  
+                                                              "Assets\\eraser.png", state_when_clicked=State.ERASE, hover_text="Eraser (E)", can_toggle_off=False),
+                        "ColorPickButton" : button.ToolButton(self.screen, (1011, 550), (32, 32), 
+                                                              "Assets\\color_picker.png", state_when_clicked=State.COLOR_PICKER, hover_text="Tile Picker (O)", can_toggle_off=False),
+                         "PageLeftButton" : button.TextButton(self.screen, (settings.SCR_W-self.size[0]+16, settings.SCR_H//2-56), (16, 48),  
+                                                              "<", 20, hover_col=(220,220,220)),
+                        "PageRightButton" : button.TextButton(self.screen, (settings.SCR_W-30, settings.SCR_H//2-56), (16, 48),
+                                                              ">", 20, hover_col=(220,220,220))}
 
         self.brushes_group = button.ButtonGroup([self.buttons_dict["BrushButton"], self.buttons_dict["EraserButton"], self.buttons_dict["ColorPickButton"]])
 
@@ -67,7 +74,7 @@ class Sidebar:
         """Check each button to see if the button was clicked and execute code accordingly"""
         for _name, _button in self.buttons_dict.items():
             # If this button is not clicked, continue
-            if not _button.check_clicked(mouse_pos): continue
+            if not _button.check_clicked(): continue
 
             # Check if the button name matches
             if _name == "PageLeftButton":
@@ -181,7 +188,7 @@ class Sidebar:
 
 
     def on_left_mouse_click(self):
-        mouse_pos = pygame.mouse.get_pos()
+        mouse_pos = mouse.get_pos_override()
 
         self.__check_click_buttons(mouse_pos)
         self.__check_tile_change(mouse_pos)
@@ -194,10 +201,8 @@ class Sidebar:
 
         self.brushes_group.update() #Brush buttons
 
-        mousepos = pygame.mouse.get_pos()
         for _button in self.buttons_dict.values():
             _button.update()
-            _button.update_hover(mousepos)
 
         # Empty palette
         if len(palette.pm_obj.get_current_tiles()) == 0:

@@ -3,20 +3,20 @@ from enum import Enum
 from util_logger import logger
 from tkinter import filedialog
 
+from data import State
+
 import block as block_file
 import palette
 import settings
-import data
+import dropdown
 import ui
 import sidebar
 import util
+import mouse
 
 pygame.init()
 
-class State(Enum):
-    BRUSH = 0
-    ERASE = 1
-    COLOR_PICKER = 2
+
 
 class Manager:
     def __init__(self):
@@ -27,10 +27,11 @@ class Manager:
 
         logger.debug("Initialized Manager")
 
-    def mouse_update(self, mouse_pos: tuple):
-        for dropdown in data.dropdowns:
-            # If hovering on any dropdowns, return
-            if dropdown.drawing: return   
+    def mouse_update(self):
+        mouse_pos = mouse.get_pos_override()
+        # for _dropdown in dropdown.dropdowns:
+        #     # If hovering on any dropdowns, return
+        #     if _dropdown.drawing: return # TODO: Use the same trick as in popup drawing
 
         # If clicked on the sidebar
         if mouse_pos[0] > settings.VIEWPORT_W: return

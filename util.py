@@ -28,11 +28,8 @@ def load_json_data_dict(path: str) -> dict:
         logger.warning(f"Trying to open file at path {path}, which was not found")
         return {}
 
-    with open(path, "r") as f:
-        data_str = "".join(f.readlines())
-        if data_str == "": return {}
-        
-    return json.loads(data_str)
+    with open(path, "r") as f:        
+        return json.load(f)
 
 
 def prevent_existing_file_overlap(filepath: str) -> str:

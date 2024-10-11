@@ -5,6 +5,7 @@ from tkinter_opener import tk_util
 import ui
 import palette
 import data
+import mouse
 
 pygame.init()
 
@@ -16,7 +17,24 @@ class DropDown():
         self.rect = pygame.Rect(pos_size)
         self.font = font
         self.main = main
-        self.options = options
+
+        self.options = {}
+
+        for key, option in options.items():
+            # Only function given
+            if callable(option):
+                self.options[key] = (option, [], {})
+            # Function and args given
+            elif len(option) == 2:
+                self.options[key] = (option[0], option[1], {})
+            # Function, args and kwargs given
+            elif len(option) == 3:
+                self.options[key] = (option[0], option[1], option[2])
+            # Error
+            else:
+                assert False, f"Dropdown options dict had a value that was an invalid length ({len(option)})"
+
+
 
         self.draw_menu = False
         self.menu_active = False
@@ -39,27 +57,30 @@ class DropDown():
 
     def draw(self, surf):
         pygame.draw.rect(surf, self.color_menu[self.menu_active], self.rect, 0)
-        msg = self.font.render(self.main, True, (0, 0, 0))
-        surf.blit(msg, msg.get_rect(center = self.rect.center))
+        main_text = self.font.render(self.main, True, (0, 0, 0))
+        surf.blit(main_text, main_text.get_rect(center = self.rect.center))
 
         if self.draw_menu:
             for i, text in enumerate(self.options.keys()):
                 rect = self.rect.copy()
                 rect.y += (i+1) * self.rect.height
-                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect, 0)
-                msg = self.font.render(text, True, (0, 0, 0))
-                surf.blit(msg, msg.get_rect(center = rect.center))
+                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect)
+                main_text = self.font.render(text, True, (0, 0, 0))
+                surf.blit(main_text, main_text.get_rect(center = rect.center))
 
-    def update(self, event_list):
+
+    def check_clicked(self, event_list):
+        """Returns the index of which option was clicken. -1 If no option selected"""
         self.drawing = self.menu_active or self.draw_menu
-        mpos = pygame.mouse.get_pos()
-        self.menu_active = self.rect.collidepoint(mpos)
+
+        mouse_pos = mouse.get_pos_override()
+        self.menu_active = self.rect.collidepoint(mouse_pos)
         
         self.active_option = -1
         for i in range(len(self.options)):
             rect = self.rect.copy()
             rect.y += (i+1) * self.rect.height
-            if rect.collidepoint(mpos):
+            if rect.collidepoint(mouse_pos):
                 self.active_option = i
                 break
 
@@ -67,13 +88,29 @@ class DropDown():
             self.draw_menu = False
 
         for event in event_list:
-            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            if event.type == pygame.MOUSEBUTTONDOWN and mouse.get_pressed_override()[0]:
+                # If clicked on the topmost bar, open the dropdown
                 if self.menu_active:
+                    # Toggle draw_menu
                     self.draw_menu = not self.draw_menu
                 elif self.draw_menu and self.active_option >= 0:
+                    # If clicken on an option
                     self.draw_menu = False
                     return self.active_option
         return -1
+    
+
+    def update(self, event_list) -> None:
+        clicked_on_option = self.check_clicked(event_list)
+
+        if clicked_on_option == -1: return
+
+        # convert the values of a dict to list so we can access the nth value
+        option_func = list(self.options.values())[clicked_on_option]
+
+        # Run the function that was assigned to the option clicked on
+        option_func[0](*option_func[1], **option_func[2])
+
     
 
 
@@ -83,11 +120,6 @@ COLOR_LIST_INACTIVE = (180, 180, 180)
 COLOR_LIST_ACTIVE = (220, 220, 220)
 
 def create_dropdowns() -> list:
-    # for multiple args into function, wrap them into ()
-    # options={"Load"   : (tk_util.queue_func, [import_map.import_tilemap]),                    ---No args. Invoke function import_map.import_tilemap() using tk_util.queue_func [timer]
-    #          "Export" : (tk_util.queue_func, [export.export_tilemap, (1, 3)])} ))             ---2 args.  Invoke function export.export_tilemap(1, 3) using tk_util.queue_func [timer]
-    
-
     defaults = {"color_menu" : [COLOR_INACTIVE, COLOR_ACTIVE],
                 "color_option" : [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
                 "font" : data.font_25,}
@@ -99,7 +131,7 @@ def create_dropdowns() -> list:
         defaults,
         pos_size=(5, 0, 140, 30), 
         main="Tilemap", 
-        options={"Load"   : (tk_util.queue_func, [import_map.import_tilemap]), 
+        options={"Load"   : (import_map.i_obj.import_tilemap), 
                  "Export" : (tk_util.queue_func, [export.export_tilemap])} ))  #funcs, args
 
     dropdowns.append( DropDown.from_defaults(
@@ -124,3 +156,10 @@ def create_dropdowns() -> list:
         options={"Resize" : (tk_util.queue_func, [grid_resize.set_gridsize_ask])} ))
     
     return dropdowns
+
+
+dropdowns: "list[DropDown]" = []
+
+def init_dropdowns() -> None:
+    global dropdowns
+    dropdowns = create_dropdowns()

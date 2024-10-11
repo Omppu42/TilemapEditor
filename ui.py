@@ -1,6 +1,5 @@
 import pygame, json, os
 from block import Block
-from manager import State
 from util_logger import logger
 
 
@@ -9,6 +8,7 @@ import manager
 import palette
 import sidebar
 import data
+import mouse
 
 pygame.init()
 
@@ -94,11 +94,11 @@ class UI:
 
 
     def get_movement_vec(self): #get mouse movement from previous frame
-        if not pygame.mouse.get_pressed()[2]: 
+        if not mouse.get_pressed_override()[2]: 
             return (0, 0)
 
-        if pygame.mouse.get_pressed()[2]:
-            mouse_pos = pygame.mouse.get_pos()
+        if mouse.get_pressed_override()[2]:
+            mouse_pos = mouse.get_pos_override()
             if mouse_pos[0] == 0 or mouse_pos[1] == 0 or mouse_pos[0] > settings.VIEWPORT_W or mouse_pos[1] == settings.SCR_H-1: #if offscreen
                 pygame.mouse.get_rel()
                 return (0,0)

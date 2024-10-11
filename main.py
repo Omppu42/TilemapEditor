@@ -1,18 +1,22 @@
-import pygame, atexit, json
+import pygame
+pygame.init()
 
 from tkinter_opener import tk_util
 from util_logger import logger
 
+from window import Window
+
 import ui
-import event_manager
-import data
-import settings
-import sidebar
-import palette
-import manager
 
-pygame.init()
 
+
+
+# TODO: Export GUI with asking to name the tilemap. There could also be the slection of all current tilemaps to overwrite if needed
+#       Add also "Save as" and "Save" to update the tilemap that you've been working on, alternatively creating a new tilemap folder
+#       Add a "tilemap: {name}" indicating which tilemap is active right now.
+#       Figure out how to do ctrl+s to save
+
+# TODO: Add delete-icon to tkinter loader. Maybe load-icon too?
 
 # TODO: Zooming
 # TODO: Move Buttons to data.py 
@@ -29,39 +33,22 @@ pygame.init()
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 
 def main():
-    logger.log("Starting...")
-
     # DISPLAY
-    screen = pygame.display.set_mode((settings.SCR_W, settings.SCR_H))
-    pygame.display.set_caption("Tilemap Editor")
-    clock = pygame.time.Clock()
-
-    # ORDER OF CREATION IS IMPORTANT!
-    manager.create_manager()
-    sidebar.create_sidebar(screen)
-    palette.create_palette_manager()
-    ui.create_ui(screen)
-
-    # POST_INIT UPDATES
-    sidebar.s_obj.post_init()
-    data.init_data()
-    atexit.register(event_manager.on_exit, palette.pm_obj)
-
-    logger.log("Initialized successfully")
+    window = Window()
 
     while True:
-        screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))
-        event_list = pygame.event.get()
+        window.early_update()
 
-        event_manager.manage_events(event_list)
+        window.manage_events()
                 
-        tk_util.update()
+        tk_util.update() # TODO: Remove this after got rid of all TK functionality
         ui.ui_obj.update()
 
-        event_manager.update_dropdowns(screen, event_list)
+        window.draw_dropdowns()
+        window.draw_popups()
 
-        pygame.display.update()
-        clock.tick(60)
+        window.update_screen()
+
     
 
 if __name__ == "__main__":
