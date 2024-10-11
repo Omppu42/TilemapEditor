@@ -2,14 +2,15 @@ import pygame, os, glob, filecmp, tkinter, shutil, json
 from tkinter import filedialog
 from tkinter.messagebox import askokcancel, WARNING
 
-from util_logger import logger
+from util.util_logger import logger
+import util.util as util
+import settings.data as data
+import settings.settings as settings
 
-import util
-import settings
 import ui
 import sidebar
 import manager
-import data
+
 
 pygame.init()
 
@@ -266,7 +267,7 @@ class PaletteManager:
 
 
     def change_palette_ask(self):
-        dest_folder = manager.m_obj.ask_filedialog(initialdir="Assets\\Palettes")
+        dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
         if dest_folder == "": return #pressed cancel when selecting 
         dest_folder = os.path.relpath(dest_folder, os.getcwd())
 
@@ -403,21 +404,21 @@ class PaletteManager:
 
     def delete_palette(self, ask_confirm=True, dest_folder=None):
         if dest_folder is None:
-            dest_folder = manager.m_obj.ask_filedialog(initialdir="Assets\\Palettes")
+            dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
             if dest_folder == "":return
 
-        allowed_path = os.path.abspath("Assets\\Palettes")  #reformat paths
+        allowed_path = os.path.abspath("Data\\Palettes")  #reformat paths
         allowed_path = os.path.normpath(allowed_path)
         
         dest_folder = os.path.abspath(dest_folder)
         dest_folder = os.path.normpath(dest_folder)
 
         if not os.path.commonprefix([dest_folder, allowed_path]) == allowed_path: #check if in palettes folder
-            logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Assets\\Palettes'")
+            logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Data\\Palettes'")
             return
 
         if dest_folder == allowed_path:
-            logger.error("Deleting palette: You cant select 'Assets\\Palettes' folder. You have to select one of it's child folders")
+            logger.error("Deleting palette: You cant select 'Data\\Palettes' folder. You have to select one of it's child folders")
             return
 
         palette = self.__get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
@@ -450,7 +451,7 @@ class PaletteManager:
         logger.log("Deleting palette: Deleting folder")
         os.rmdir(dest_folder)
 
-        if os.listdir("Assets\\Palettes") == []:
+        if os.listdir("Data\\Palettes") == []:
             self.create_empty_palette(ask_confirm=False, num=0)
         
         self.init_palettes()

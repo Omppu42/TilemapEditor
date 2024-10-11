@@ -1,17 +1,18 @@
 import pygame, tkinter
 from enum import Enum
-from util_logger import logger
+from util.util_logger import logger
 from tkinter import filedialog
 
-from data import State
+from settings.data import State
 
+import util.util as util
+import GUI.dropdown as dropdown
 import block as block_file
+import settings.settings as settings
+
 import palette
-import settings
-import dropdown
 import ui
 import sidebar
-import util
 import mouse
 
 pygame.init()

@@ -1,19 +1,20 @@
 import atexit
 import pygame, sys, json, time
 
-from util_logger import logger
+from util.util_logger import logger
+
+import GUI.dropdown as dropdown
+import GUI.popup.popup_window as popup_window
+import settings.settings as settings
 
 import palette
 import ui
 import manager
-import data
 import sidebar
 import import_map
 import mouse
-import settings
-import dropdown
 
-import popup.popup_window as popup_window
+
 
 class Window:
     ARROW_KEYS = [pygame.K_LEFT, 
@@ -54,7 +55,7 @@ class Window:
         json_obj = {"palette" : palette_manager_obj.current_palette.path,
                     "grid_size" : ui.ui_obj.cells_r_c}
 
-        with open("last_session_data.json", "w") as f:
+        with open("Data\\last_session_data.json", "w") as f:
             f.write(json.dumps(json_obj, indent=4))
         
         logger.log("Exited")

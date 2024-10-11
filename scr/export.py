@@ -1,9 +1,9 @@
-import pygame, tkinter, os, shutil, glob, json
+import pygame, os, shutil, glob, json
 from datetime import datetime
-from tkinter import filedialog
-from util import timer
 
-import settings
+from util.util import timer
+import settings.settings as settings
+
 import ui
 import palette
 import manager

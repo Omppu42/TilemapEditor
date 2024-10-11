@@ -1,7 +1,7 @@
 import pygame, time
 
 import manager
-import data
+import settings.data as data
 import mouse
 
 pygame.init()

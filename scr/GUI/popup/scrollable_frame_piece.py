@@ -1,7 +1,7 @@
 import pygame
 
-import button
-import popup.scrollable_frame as scrollable_frame
+import GUI.button as button
+import GUI.popup.scrollable_frame as scrollable_frame
 
 class FramePiece:
     """An object that holds any other pygame objects. Think of it like a canvas that things can be added to and cofigured"""

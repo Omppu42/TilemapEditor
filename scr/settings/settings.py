@@ -5,9 +5,9 @@ CELL_SIZE = 32
 BG_COLOR = 100
 
 # PATHS ---------
-PALETTES_PATH = "Assets\\Palettes\\"
-TILEMAPS_EXPORT = "Tilemaps"
-DELETED_TILEMAPS_PATH = "Deleted_tilemaps"
+PALETTES_PATH = "Data\\Palettes\\"
+TILEMAPS_EXPORT = "Data\\Tilemaps"
+DELETED_TILEMAPS_PATH = "Data\\Deleted_tilemaps"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5

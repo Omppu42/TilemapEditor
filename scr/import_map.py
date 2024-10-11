@@ -2,24 +2,22 @@ import pygame, json, os, shutil
 import tkinter as tk
 
 from tkinter.messagebox import askyesno, WARNING
-from functools import partial
 from datetime import datetime
 
-import button
-import data
-from util import timer
-from util_logger import logger
+from util.util import timer
+from util.util_logger import logger
 
-import settings
+
+import GUI.button as button
+import GUI.popup.popup_window as popup_window
+import GUI.popup.scrollable_frame as scrollable_frame
+import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+
+import settings.data as data
+import settings.settings as settings
 import ui
 import palette
 import sidebar
-import manager
-
-import popup.popup_window as popup_window
-import popup.scrollable_frame as scrollable_frame
-import popup.scrollable_frame_piece as scrollable_frame_piece
-
 
 pygame.init()
 

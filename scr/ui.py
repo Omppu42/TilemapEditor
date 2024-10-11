@@ -1,13 +1,12 @@
 import pygame, json, os
 from block import Block
-from util_logger import logger
+from util.util_logger import logger
 
+import settings.data as data
+import settings.settings as settings
 
-import settings
 import manager
-import palette
 import sidebar
-import data
 import mouse
 
 pygame.init()
@@ -18,8 +17,8 @@ class UI:
         self.total_mouse_change: tuple = (0, 0)
 
         json_data = {}
-        if os.path.isfile("last_session_data.json"):
-            with open("last_session_data.json", "r") as f:
+        if os.path.isfile("Data\\last_session_data.json"):
+            with open("Data\\last_session_data.json", "r") as f:
                 data = f.readlines()
                 if not data == []:
                     json_data = json.loads("".join(data))

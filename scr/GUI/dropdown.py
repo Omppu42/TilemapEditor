@@ -1,10 +1,10 @@
 import pygame
 import export, import_map, grid_resize
-from tkinter_opener import tk_util
+from util.tkinter_opener import tk_util
 
 import ui
 import palette
-import data
+import settings.data as data
 import mouse
 
 pygame.init()

@@ -1,16 +1,17 @@
 import pygame
 
-from data import State
-import mouse
-from tkinter_opener import tk_util
-from util_logger import logger
+from util.tkinter_opener import tk_util
+from util.util_logger import logger
+from settings.data import State
 
-import util
-import button
+import settings.data as data
+import settings.settings as settings
+import util.util as util
+import GUI.button as button
+
+import mouse
 import manager
-import settings
 import palette
-import data
 
 
 pygame.init()

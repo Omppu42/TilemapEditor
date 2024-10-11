@@ -1,12 +1,14 @@
 import pygame, math
 
-from util_logger import logger
+from util.util_logger import logger
 
-import util
+import util.util as util
+import settings.data as data
+import settings.settings as settings
+
 import palette
 import ui
-import settings
-import data
+
 
 pygame.init()
 

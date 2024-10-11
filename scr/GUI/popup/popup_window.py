@@ -1,7 +1,7 @@
 import pygame, time, math
 
-import settings
-import button
+import settings.settings as settings
+import GUI.button as button
 
 class PopupWindow:
     TOP_BAR_H = 40
@@ -127,6 +127,7 @@ class PopupWindow:
             self.close_animation_playing = False
             self.active = False
             popup_m_obj.remove_popup(self)
+            pygame.mouse.get_rel() # Reset mouse movement
 
         self.pos = self.__anim_ease_pos(progress)
 

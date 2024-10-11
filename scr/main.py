@@ -1,8 +1,8 @@
 import pygame
 pygame.init()
 
-from tkinter_opener import tk_util
-from util_logger import logger
+from util.tkinter_opener import tk_util
+from util.util_logger import logger
 
 from window import Window
 
