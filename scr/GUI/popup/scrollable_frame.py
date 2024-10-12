@@ -3,11 +3,12 @@ import pygame
 import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
 import GUI.button as button
 
+from util.util_logger import logger
+
 import mouse
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse
-    # TODO: Add delete confirmation popup, make another popup for that?
 
     SCROLL_SPEED = 17
     def __init__(self, surface: pygame.Surface, parent_pos: tuple, pos: int, size: int) -> None:
@@ -201,10 +202,10 @@ class ScrollableFrame:
 
 
     def load_btn_onclick_test(map_path: str) -> None:
-        print("Load", map_path)
+        logger.debug("TEST: Load", map_path)
 
 
-    def on_mouse_buttondown(self, event: pygame.event.Event) -> None:
+    def on_mousebuttondown(self, event: pygame.event.Event) -> None:
         if not self.clickable: return
 
         if mouse.get_pressed_override()[0]:

@@ -6,10 +6,11 @@ from datetime import datetime
 
 from util.util import timer
 from util.util_logger import logger
-
+import util.util as util
 
 import GUI.button as button
 import GUI.popup.popup_window as popup_window
+import GUI.popup.popup_contents as popup_contents
 import GUI.popup.scrollable_frame as scrollable_frame
 import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
 
@@ -62,6 +63,14 @@ def import_tilemap_from_path(path: str) -> None:
     palette.pm_obj.import_map_palette_change(path)   
     
     update_tiles(tile_ids_lst)
+
+
+def delete_tilemap(tilemap_path: str) -> None:
+    if not os.path.isdir(settings.DELETED_TILEMAPS_PATH):
+        os.mkdir(settings.DELETED_TILEMAPS_PATH)
+
+    shutil.move(tilemap_path, settings.DELETED_TILEMAPS_PATH)
+    # TODO: Check if this tilemap was loaded and deload it if it was
 
 
 @timer
@@ -144,9 +153,6 @@ def get_data_data_or_explanations(tilemap_path: str) -> dict:
 
 
 
-# TODO: Remove Load button from below
-# TODO: Make every second line colored as a bit lighter
-
 
 class Importer():
     SELECTION_W = 500
@@ -160,6 +166,7 @@ class Importer():
     def __init__(self, screen: "pygame.Surface") -> None:
         self.popup = None
         self.scrollable = None
+        self.confirm_popup = None
         self.screen = screen
 
         logger.debug("Initialized importer")
@@ -171,7 +178,7 @@ class Importer():
         self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
         self.scrollable = scrollable_frame.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
         
-        popup_window.popup_m_obj.track_popup(self.popup, self.scrollable.update)
+        popup_window.popup_m_obj.track_popup(self.popup, self.scrollable.update, self.scrollable.on_mousebuttondown)
         self.popup.add_destroy_func(self.scrollable.deactivate)
 
         paths = self.__get_folders_to_selection()
@@ -184,21 +191,56 @@ class Importer():
         frame = scrollable_frame_piece.FramePiece(self.scrollable, (10,10), (480, 50))
 
         mapname = os.path.basename(path)
-        test_text = data.font_25.render(mapname, True, (0,0,0))
+        name_text = data.font_25.render(mapname, True, (0,0,0))
 
-        frame.add_surface(test_text, (0.55,0.5))
+        frame.add_surface(name_text, (0.55,0.5))
 
         load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
         frame.add_button(load_button, (0.015, 0.15), self.on_load_click, on_click_func_args=[path])
-        frame.add_button(trash_button, (0.915, 0.15), self.scrollable.delete_frame, on_click_func_args=[frame])
+        frame.add_button(trash_button, (0.915, 0.15), self.confirm_delete_frame, on_click_func_args=[frame, path])
 
         self.scrollable.add_frame(frame)
 
 
-    def on_load_click(self, path_to_tilemap: str) -> None:
-        print(path_to_tilemap)
+    def confirm_delete_frame(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+        popup_size = (400, 340)
+        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
+                     settings.SCR_H//2 - popup_size[1]//2)
 
+        self.confirm_popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+
+        frame = popup_contents.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
+
+        mapname = os.path.basename(map_path)
+        confirm_text_1 = util.pygame_different_color_text(data.font_25, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
+        confirm_text_2 = data.font_25.render(f"'{mapname}'?", True, (0,0,0))
+        confirm_text_3 = data.font_25.render(f"The tilemap can be recovered from", True, (0,0,0))
+        confirm_text_4 = data.font_25.render(f"'{settings.DELETED_TILEMAPS_PATH}'.", True, (0,0,0))
+
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Yes", 25, hover_col=(200,0,0))
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+
+        frame.add_surface(confirm_text_1, (0.5,0.2))
+        frame.add_surface(confirm_text_2, (0.5,0.3))
+
+        frame.add_surface(confirm_text_3, (0.5,0.5))
+        frame.add_surface(confirm_text_4, (0.5,0.6))
+
+        frame.add_button(yes_button, (0.1, 0.8), self.delete_tilemap_confirmed, on_click_func_args=[frame_to_delete, map_path])
+        frame.add_button(cancel_button, (0.65, 0.8), self.confirm_popup.close_popup)
+
+        popup_window.popup_m_obj.track_popup(self.confirm_popup, frame.update, frame.on_mousebuttondown)
+
+
+    def delete_tilemap_confirmed(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+        self.scrollable.delete_frame(frame_to_delete)
+        delete_tilemap(map_path)
+
+        self.confirm_popup.close_popup()
+
+
+    def on_load_click(self, path_to_tilemap: str) -> None:
         import_tilemap_from_path(path_to_tilemap)
         popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()
@@ -261,31 +303,6 @@ class Importer():
 
         return output
         
-
-    def __delete_selectable(self, path: str, index: int) -> None:
-        name = os.path.basename(path)
-
-        if not askyesno("Confirm", f"Are you sure you want to delete '{name}'?\nThe tilemap can be recovered from '{settings.DELETED_TILEMAPS_PATH}'."): return
-        
-        if not os.path.isfile(path + "\\data.json") and not os.path.isfile(path + "\\explanations.json"):
-            logger.error("When deleting a palette, no \\data.json nor \\explanations.json was found in the tilemap to remove. Aborting")
-            return
-
-        self.selection_frame.delete_frame(index)
-
-        if not os.path.isdir(settings.DELETED_TILEMAPS_PATH):
-            os.mkdir(settings.DELETED_TILEMAPS_PATH)
-
-        shutil.move(path, settings.DELETED_TILEMAPS_PATH)
-        logger.log(f"Tilemap '{name}' deleted successfully. This tilemap can be recovered from '{settings.DELETED_TILEMAPS_PATH}'")
-
-        
-    def __select_btn(self, path_to_folder: str, selection_btn_index: int) -> None:
-        self.selected_save["index"] = selection_btn_index
-        self.selected_save["path"] = path_to_folder
-
-        self.__confirm()
-
 
 i_obj: Importer = None
 def create_importer(screen) -> None:

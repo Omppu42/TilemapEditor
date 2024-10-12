@@ -8,7 +8,7 @@ pygame.init()
 
 class Button:
     def __init__(self, screen, pos: tuple, size: tuple, col_off=(100,100,100), col_on=(250,250,250), 
-                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20):
+                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20, tooltip_delay=0):
         self.pos = pos
         self.size = size
         self.col_off = col_off
@@ -33,18 +33,20 @@ class Button:
         self.can_toggle_off = can_toggle_off
 
         # HOVER
-        self.hover_text = str(hover_text)
-        self.hover_delay: float = 0  # TODO: Delete hover delay and hoverstarttime
         self.hover_start_time = 0
-        self.hovering: bool = False
+        self.hovering = False
 
         self.hover_col_off = None
         self.hover_col_on = None
 
         self.__init_hover_color(hover_col, hover_col_off, hover_col_on, hover_change)
 
-        self.hover_text_render = data.font_25.render(self.hover_text, True, (150,150,150))
-        self.hover_text_rect = self.hover_text_render.get_rect(center=(self.pos[0]+self.size[0]//2, self.pos[1]+self.size[1]//2-35))
+        # TOOLTIP
+        # Show tooltip after seconds
+        self.tooltip_delay = tooltip_delay
+        self.tooltip_text_surf = data.font_25.render(str(hover_text), True, (150,150,150))
+        self.tooltip_text_rect = self.tooltip_text_surf.get_rect(center=(self.pos[0]+self.size[0]//2, 
+                                                                       self.pos[1]+self.size[1]//2 - size[1]))
 
         # Disabling removes the ability to click and to render
         self.disabled = False
@@ -161,8 +163,9 @@ class Button:
         if self.hover_start_time == 0:
             self.hover_start_time = time.time() # Set hovering start time
         
-        if time.time() - self.hover_start_time >= self.hover_delay: # Hovered for hover_delay amount of time
-            self.screen.blit(self.hover_text_render, self.hover_text_rect)
+        # Tooltip
+        if time.time() - self.hover_start_time >= self.tooltip_delay: 
+            self.screen.blit(self.tooltip_text_surf, self.tooltip_text_rect)
 
 
     def set_state(self, state: int): #-1 = off, 1 = on

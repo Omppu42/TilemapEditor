@@ -4,6 +4,8 @@ from functools import wraps
 
 import settings.settings as settings
 
+import pygame
+
 
 
 
@@ -68,3 +70,20 @@ def get_tile_column_from_index(index: int) -> int:
 def get_tile_row_from_index(index: int) -> int:
     """From 0 to TILES_PER_COL-1"""
     return math.floor((index % settings.TILES_PER_PAGE) / settings.TILES_PER_ROW)
+
+
+def pygame_different_color_text(font: "pygame.font.Font", texts: "list[str]", colors: "list[tuple]") -> "pygame.Surface":
+    """Adds different color texts together. Each list index of texts list corresponds with list index colors list."""
+    _size = font.size("".join(texts))
+    surf = pygame.Surface(_size).convert_alpha()
+    surf.fill((255,255,255, 0))
+
+    filled_to_x = 0
+
+    for _text, _col in zip(texts, colors):
+        _render = font.render(_text, True, _col)
+        surf.blit(_render, (filled_to_x, 0))
+
+        filled_to_x += _render.get_rect().w
+
+    return surf

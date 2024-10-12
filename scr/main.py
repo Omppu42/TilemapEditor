@@ -2,13 +2,13 @@ import pygame
 pygame.init()
 
 from util.tkinter_opener import tk_util
-from util.util_logger import logger
 
 from window import Window
 
 import ui
 
 
+# TODO: Create popups for exporting, grid resizing, loading and exporting palettes
 
 
 # TODO: Export GUI with asking to name the tilemap. There could also be the slection of all current tilemaps to overwrite if needed
@@ -30,6 +30,8 @@ import ui
 
 # TODO: In grid resize tell the current grid size
 
+# TODO: Scrollable_frame_piece.py and popup_contents.py are almost same (one takes in scrollable frame, other popup window to extract parent position) Merge them somehow into one?
+
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 
 def main():
@@ -46,6 +48,7 @@ def main():
 
         window.draw_dropdowns()
         window.draw_popups()
+
 
         window.update_screen()
 

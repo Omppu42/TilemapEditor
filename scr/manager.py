@@ -30,9 +30,6 @@ class Manager:
 
     def mouse_update(self):
         mouse_pos = mouse.get_pos_override()
-        # for _dropdown in dropdown.dropdowns:
-        #     # If hovering on any dropdowns, return
-        #     if _dropdown.drawing: return # TODO: Use the same trick as in popup drawing
 
         # If clicked on the sidebar
         if mouse_pos[0] > settings.VIEWPORT_W: return

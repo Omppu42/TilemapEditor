@@ -7,7 +7,7 @@ BG_COLOR = 100
 # PATHS ---------
 PALETTES_PATH = "Data\\Palettes\\"
 TILEMAPS_EXPORT = "Data\\Tilemaps"
-DELETED_TILEMAPS_PATH = "Data\\Deleted_tilemaps"
+DELETED_TILEMAPS_PATH = "Data\\_Deleted_tilemaps"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5

@@ -82,10 +82,7 @@ class Window:
         # POPUPS ----------
         if popup_window.popup_m_obj.popups_exist():
             self.manage_popups()
-
-            # If popups are present, remove the button clicked status and mousepos to not allow clicking on other buttons
-            mouse.clear_pos_override()
-            mouse.clear_pressed_override()
+            # RESETS MOUSE CLICKED AND POS
 
 
         # DROPDOWNS -----------
@@ -120,10 +117,8 @@ class Window:
     def manage_popups(self):
         for event in self.event_list:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                import_map.i_obj.scrollable.on_mouse_buttondown(event)
-
-                if mouse.get_pressed_override()[0]:
-                    popup_window.popup_m_obj.on_left_mouse_click()
+                popup_window.popup_m_obj.on_mousebuttondown(event)
+                    
 
         popup_window.popup_m_obj.update_popups()
 
