@@ -15,6 +15,7 @@ import ui
 import sidebar
 import mouse
 
+
 pygame.init()
 
 
@@ -22,6 +23,7 @@ pygame.init()
 class Manager:
     def __init__(self):
         self.state = State.BRUSH
+        self.loaded_tilemap = None
 
         # When selecting Tile > Remove tile, turns to True. When True and clicked on a tile from tile selection, remove the tile
         self.remove_palette_tiles = False 

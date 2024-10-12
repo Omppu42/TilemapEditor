@@ -5,6 +5,7 @@ from util.util_logger import logger
 import settings.data as data
 import settings.settings as settings
 
+import import_map
 import manager
 import sidebar
 import mouse
@@ -15,6 +16,7 @@ class UI:
     def __init__(self, screen):
         self.screen = screen
         self.total_mouse_change: tuple = (0, 0)
+        self.del_borders_w = 7
 
         json_data = {}
         if os.path.isfile(settings.LAST_SESSION_DATA_JSON):
@@ -26,9 +28,13 @@ class UI:
         if "grid_size" in json_data:
             self.set_gridsize(json_data["grid_size"])
         else:
-            self.set_gridsize((16,16))
+            self.set_gridsize(settings.DEFAULT_GRID_SIZE)
 
-        self.del_borders_w = 7
+        if "loaded_tilemap" in json_data:
+            tilemap_path = json_data["loaded_tilemap"]
+            manager.m_obj.loaded_tilemap = tilemap_path
+                
+
         logger.debug("Initialized UI")
                 
 

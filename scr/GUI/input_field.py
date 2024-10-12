@@ -6,6 +6,7 @@ import mouse
 
 pygame.init()
 
+# TODO: Allow typing with keypad here
 
 class NumberInputField():
     EVENT_TO_INT = {
@@ -20,8 +21,6 @@ class NumberInputField():
             pygame.K_8: 8,
             pygame.K_9: 9,
         }
-    
-    NUMBERS_NO_ZERO = [1,2,3,4,5,6,7,8,9]
     
     def __init__(self, pos: tuple, size: tuple, max_chars, default_value, bg_color=(155,155,155),active_color=(200,200,200),
                 border_width=0, border_color=(0,0,0), empty="0", int_only=False, min_value=-1, max_value=-1, font=data.font_25):

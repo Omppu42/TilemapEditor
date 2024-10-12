@@ -132,7 +132,8 @@ def create_dropdowns() -> list:
         pos_size=(5, 0, 140, 30), 
         main="Tilemap", 
         options={"Load"   : (import_map.i_obj.import_tilemap), 
-                 "Export" : (tk_util.queue_func, [export.export_tilemap])} ))  #funcs, args
+                 "Export" : (tk_util.queue_func, [export.export_tilemap]),
+                 "New"    : (import_map.import_empty_map)} ))  #funcs, args
 
     dropdowns.append( DropDown.from_defaults(
         defaults,

@@ -17,6 +17,7 @@ TILES_PER_PAGE = TILES_PER_ROW * TILES_PER_COL
 
 # UI -----
 VIEWPORT_W = SCR_W // 4 * 3   # 3/4 of screen width
+DEFAULT_GRID_SIZE = (30, 20)
 
 # CONSTANTS ---------
 EXPORT_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"

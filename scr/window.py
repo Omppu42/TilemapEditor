@@ -1,11 +1,11 @@
-import atexit
-import pygame, sys, json, time
+import pygame, sys, json, time, atexit, os
 
 from util.util_logger import logger
 
 import GUI.dropdown as dropdown
 import GUI.popup.popup_window as popup_window
 import settings.settings as settings
+import settings.data as data
 
 import palette
 import ui
@@ -14,6 +14,7 @@ import sidebar
 import import_map
 import mouse
 import grid_resize
+
 
 
 
@@ -46,16 +47,20 @@ class Window:
         # POST_INIT UPDATES
         sidebar.s_obj.post_init()
         dropdown.init_dropdowns()
-        atexit.register(Window.__on_exit, palette.pm_obj)
+        atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
+
+        # Import map
+        import_map.import_tilemap_from_path(manager.m_obj.loaded_tilemap)
 
         logger.log("Initialized successfully")
     
 
-    def __on_exit(palette_manager_obj):
+    def __on_exit(palette_manager_obj, manager_obj):
         palette_manager_obj.export_all_palette_tile_orders()
 
         json_obj = {"palette" : palette_manager_obj.current_palette.path,
-                    "grid_size" : ui.ui_obj.grid_size_rows_cols}
+                    "grid_size" : ui.ui_obj.grid_size_rows_cols,
+                    "loaded_tilemap" : manager_obj.loaded_tilemap}
 
         with open(settings.LAST_SESSION_DATA_JSON, "w") as f:
             f.write(json.dumps(json_obj, indent=4))
@@ -69,6 +74,27 @@ class Window:
 
         self.event_list = pygame.event.get()
         mouse.frame_start_update()
+
+    def draw_info(self) -> None:
+        loaded_map = manager.m_obj.loaded_tilemap
+        if loaded_map:
+            loaded_map = os.path.basename(loaded_map)
+        else:
+            loaded_map = "Not Saved"
+
+        fps_render = data.font_20.render(f"FPS: {round(self.clock.get_fps(), 0)}", True, (0,0,0))
+        fps_rect = fps_render.get_rect(topright=(settings.VIEWPORT_W-10, 10))
+
+        loaded_map_render = data.font_20.render(f"Tilemap: {loaded_map}", True, (0,0,0))
+        loaded_map_rect = loaded_map_render.get_rect(topright=(settings.VIEWPORT_W-10, 25))
+
+        grid_size_render = data.font_20.render(f"Grid Size: {ui.ui_obj.grid_size_rows_cols[0]}x{ui.ui_obj.grid_size_rows_cols[1]}", True, (0,0,0))
+        grid_size_rect = grid_size_render.get_rect(topright=(settings.VIEWPORT_W-10, 40))
+
+        self.screen.blit(fps_render, fps_rect)
+        self.screen.blit(loaded_map_render, loaded_map_rect)
+        self.screen.blit(grid_size_render, grid_size_rect)
+
 
     def update_screen(self) -> None:
         pygame.display.update()

@@ -1,6 +1,5 @@
 import pygame
 import tkinter
-import ui
 
 import GUI.button as button
 import GUI.input_field as input_field
@@ -12,6 +11,10 @@ import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
 from util.util_logger import logger
 import settings.settings as settings
 import settings.data as data
+
+import ui
+import manager
+
 
 def set_gridsize_ask():
     window = tkinter.Tk(className="grid settings")
@@ -121,6 +124,7 @@ class GridResizer:
                                 y_size_getter()))
         
         self.popup.close_popup()
+        manager.m_obj.loaded_tilemap = None
 
 
 gr_obj: "GridResizer" = None

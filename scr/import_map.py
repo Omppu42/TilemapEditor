@@ -19,11 +19,15 @@ import settings.settings as settings
 import ui
 import palette
 import sidebar
+import manager
 
 pygame.init()
 
 
 def import_tilemap_from_path(path: str) -> None:
+    # Check that path isn't None and it points to a valid folder
+    if not path or not os.path.exists(path): return
+
     # If has explanations.json, will run deprecated data retrieving functions
     has_explanations_json = False
 
@@ -55,6 +59,8 @@ def import_tilemap_from_path(path: str) -> None:
     
     update_tiles(tile_ids_lst)
 
+    manager.m_obj.loaded_tilemap = path
+
 
 def delete_tilemap(tilemap_path: str) -> None:
     if not os.path.isdir(settings.DELETED_TILEMAPS_PATH):
@@ -63,6 +69,13 @@ def delete_tilemap(tilemap_path: str) -> None:
     shutil.move(tilemap_path, settings.DELETED_TILEMAPS_PATH)
     # TODO: Check if this tilemap was loaded and deload it if it was
     logger.log(f"Tilemap deleted at '{tilemap_path}'. Moved tilemap to '{settings.DELETED_TILEMAPS_PATH}\\'")
+
+
+def import_empty_map() -> None:
+    manager.m_obj.loaded_tilemap = None
+    ui.ui_obj.set_gridsize(settings.DEFAULT_GRID_SIZE)
+    
+    logger.log("Opened empty tilemap")
 
 
 @timer

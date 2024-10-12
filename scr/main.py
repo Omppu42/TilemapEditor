@@ -28,8 +28,8 @@ import ui
 # TODO: Autosave
 # TODO: Give the tilemap a name when exporting to name the folder
 
-# TODO: In grid resize tell the current grid size
-# TODO: Reopen the tilemap that was open last tilme
+# TODO: Save buttons: Save and Save As
+# TODO: Ask to save if closing tilemap without saving first
 
 # TODO: Scrollable_frame_piece.py and popup_contents.py are almost same (one takes in scrollable frame, other popup window to extract parent position) Merge them somehow into one?
 
@@ -51,6 +51,7 @@ def main():
         window.draw_dropdowns()
         window.draw_popups()
 
+        window.draw_info()
         window.update_screen()
 
     
