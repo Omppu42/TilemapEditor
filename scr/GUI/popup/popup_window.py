@@ -42,6 +42,10 @@ class PopupWindow:
         self.visible_pos = self.pos
         self.hidden_pos = (self.pos[0], -self.size[1] - (2 * self.border_w + self.backdrop_depth))
 
+        self.contents_draw_func: "function"            = None # Given in PopupManager track_popup()
+        self.contents_onmousebuttondown_func: "function" = None # Given in PopupManager track_popup()
+        self.contents_onkeydown_func: "function"         = None # Given in PopupManager track_popup()
+
         self.__start_animation()
         self.__redraw_surface()
         
@@ -136,13 +140,13 @@ class PopupWindow:
 
 
     # PUBLIC --------------------------------
-    def update(self, contents_update_func: "function") -> None:
+    def update(self) -> None:
         """contents_update_func being a function that draws the contents of the popup window"""
         if self.start_animation_playing: self.__start_animation()
         if self.close_animation_playing: self.__close_animation()
 
         self.__redraw_surface()
-        contents_update_func()
+        self.contents_draw_func()
 
         # Allow next code only after animations are finished
         if not self.active: return
@@ -168,44 +172,48 @@ class PopupWindow:
         # If close button clicked, disable interactions and start the closing animation
         if self.close_button.check_clicked():
             self.close_popup()
+            self.close_button.use_white_image = True
 
 
     def close_popup(self):
         self.active = False
         self.close_anim_start_time = time.time()
         self.close_animation_playing = True
-        self.close_button.use_white_image = True
 
 
 
 class PopupManager:
     def __init__(self) -> None:
-        self.popups: "list[tuple[PopupWindow, function]]" = []
+        self.popups: "list[PopupWindow]" = []
 
-    def track_popup(self, popup_obj: PopupWindow, contents_draw_func: "function", contents_on_mousebuttondown_func: "function") -> None:
+    def track_popup(self, popup_obj: PopupWindow, contents_draw_func: "function", contents_on_mousebuttondown_func: "function", contents_onkeydown_func: "function"=None) -> None:
         """Add a popup to track. \n
         Contents_draw_func being a function that draws the contents of the popup window. \n
         Contents_on_mousebuttondown_func being the function that handles events in pygame.MOUSEBUTTONDOWN. \n
         IMPORTANT: Contents_on_mousebuttondown_func has to take in event (pygame.event.Event)"""
 
-        self.popups.append((popup_obj, contents_draw_func, contents_on_mousebuttondown_func))
+        popup_obj.contents_draw_func = contents_draw_func
+        popup_obj.contents_onmousebuttondown_func = contents_on_mousebuttondown_func
+        popup_obj.contents_onkeydown_func = contents_onkeydown_func
+
+        self.popups.append(popup_obj)
 
     def remove_popup(self, popup_obj: PopupWindow) -> None:
-        for _obj, _func, _mouse_func in self.popups:
+        for _obj in self.popups:
             if _obj == popup_obj:
-                self.popups.remove((_obj, _func, _mouse_func))
+                self.popups.remove(_obj)
                 break
 
         
     def close_popup(self, popup_obj: PopupWindow):
-        for _obj, _, _ in self.popups:
+        for _obj in self.popups:
             if _obj == popup_obj:
                 _obj.close_popup()
                 break
 
     def update_popups(self) -> None:
-        for _popup, _contents_draw_func, _ in self.popups[::-1]:
-            _popup.update(_contents_draw_func)
+        for _popup in self.popups[::-1]:
+            _popup.update()
 
             # If popups are present, remove the button clicked status and mousepos to not allow clicking on other buttons
             mouse.clear_pos_override()
@@ -213,7 +221,7 @@ class PopupManager:
 
 
     def draw_popups(self) -> None:
-        for _popup, _, _ in self.popups:
+        for _popup in self.popups:
             _popup.draw()
 
 
@@ -222,9 +230,17 @@ class PopupManager:
         if len(self.popups) == 0: return
         
         if mouse.get_pressed_override()[0]:
-            self.popups[-1][0].on_left_mouse_click() # Update top popup leftclick
+            self.popups[-1].on_left_mouse_click() # Update top popup leftclick
         
-        self.popups[-1][2](event) # Update contents_on_mousebuttondown function
+        self.popups[-1].contents_onmousebuttondown_func(event) # Update contents_on_mousebuttondown function
+
+
+    def on_keydown(self, event: "pygame.event.Event") -> None:        
+        # Update only the top popup, which is the last popup in the list
+        if len(self.popups) == 0: return
+                
+        self.popups[-1].contents_onkeydown_func(event) # Update contents_on_mousebuttondown function
+
 
 
     def popups_exist(self) -> bool:

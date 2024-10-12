@@ -8,6 +8,7 @@ BG_COLOR = 100
 PALETTES_PATH = "Data\\Palettes\\"
 TILEMAPS_EXPORT = "Data\\Tilemaps"
 DELETED_TILEMAPS_PATH = "Data\\_Deleted_tilemaps"
+LAST_SESSION_DATA_JSON = "Data\\last_session_data.json"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5

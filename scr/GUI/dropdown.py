@@ -153,7 +153,7 @@ def create_dropdowns() -> list:
         defaults,
         pos_size=(410, 0, 125, 30), 
         main="Grid", 
-        options={"Resize" : (tk_util.queue_func, [grid_resize.set_gridsize_ask])} ))
+        options={"Resize" : (grid_resize.gr_obj.grid_resize_popup)} ))
     
     return dropdowns
 

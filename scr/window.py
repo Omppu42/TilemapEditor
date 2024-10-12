@@ -13,6 +13,7 @@ import manager
 import sidebar
 import import_map
 import mouse
+import grid_resize
 
 
 
@@ -32,6 +33,7 @@ class Window:
         self.clock = pygame.time.Clock()
 
         # NOT DEPENDENT ON ANYTHING ELSE
+        grid_resize.create_grid_resizer(self.screen)
         popup_window.create_popup_manager()
         import_map.create_importer(self.screen)
 
@@ -53,9 +55,9 @@ class Window:
         palette_manager_obj.export_all_palette_tile_orders()
 
         json_obj = {"palette" : palette_manager_obj.current_palette.path,
-                    "grid_size" : ui.ui_obj.cells_r_c}
+                    "grid_size" : ui.ui_obj.grid_size_rows_cols}
 
-        with open("Data\\last_session_data.json", "w") as f:
+        with open(settings.LAST_SESSION_DATA_JSON, "w") as f:
             f.write(json.dumps(json_obj, indent=4))
         
         logger.log("Exited")
@@ -118,7 +120,9 @@ class Window:
         for event in self.event_list:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 popup_window.popup_m_obj.on_mousebuttondown(event)
-                    
+
+            if event.type == pygame.KEYDOWN:
+                popup_window.popup_m_obj.on_keydown(event)
 
         popup_window.popup_m_obj.update_popups()
 

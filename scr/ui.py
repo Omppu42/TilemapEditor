@@ -17,8 +17,8 @@ class UI:
         self.total_mouse_change: tuple = (0, 0)
 
         json_data = {}
-        if os.path.isfile("Data\\last_session_data.json"):
-            with open("Data\\last_session_data.json", "r") as f:
+        if os.path.isfile(settings.LAST_SESSION_DATA_JSON):
+            with open(settings.LAST_SESSION_DATA_JSON, "r") as f:
                 data = f.readlines()
                 if not data == []:
                     json_data = json.loads("".join(data))
@@ -33,20 +33,20 @@ class UI:
                 
 
 
-    def set_gridsize(self, grid_size):
-        self.cells_r_c = grid_size
+    def set_gridsize(self, grid_size: tuple):
+        self.grid_size_rows_cols = grid_size
         self.total_mouse_change = (0, 0)
 
-        self.grid_bot_surf = pygame.Surface((self.cells_r_c[0]*settings.CELL_SIZE, 1))
+        self.grid_bot_surf = pygame.Surface((self.grid_size_rows_cols[0]*settings.CELL_SIZE, 1))
         self.grid_bot_surf.fill((0,0,0))
 
-        self.grid_right_surf = pygame.Surface((1, self.cells_r_c[1]*settings.CELL_SIZE))
+        self.grid_right_surf = pygame.Surface((1, self.grid_size_rows_cols[1]*settings.CELL_SIZE))
         self.grid_right_surf.fill((0,0,0))
 
         self.blocks = []
 
-        for i in range(self.cells_r_c[1]):
-            for j in range(self.cells_r_c[0]):
+        for i in range(self.grid_size_rows_cols[1]):
+            for j in range(self.grid_size_rows_cols[0]):
                 self.blocks.append(Block((j, i), settings.CELL_SIZE, self.screen, sidebar.s_obj.buttons_dict["GridButton"].is_clicked()))
   
         logger.log(f"Grid size set to '{grid_size[0]}x{grid_size[1]}'")
@@ -88,8 +88,8 @@ class UI:
                 [block.update_surf(False) for block in self.blocks]
 
         if sidebar.s_obj.buttons_dict["GridButton"].is_clicked():
-            self.screen.blit(self.grid_bot_surf, (self.total_mouse_change[0], self.cells_r_c[1]*settings.CELL_SIZE+self.total_mouse_change[1]))
-            self.screen.blit(self.grid_right_surf, (self.cells_r_c[0]*settings.CELL_SIZE+self.total_mouse_change[0], self.total_mouse_change[1]))
+            self.screen.blit(self.grid_bot_surf, (self.total_mouse_change[0], self.grid_size_rows_cols[1]*settings.CELL_SIZE+self.total_mouse_change[1]))
+            self.screen.blit(self.grid_right_surf, (self.grid_size_rows_cols[0]*settings.CELL_SIZE+self.total_mouse_change[0], self.total_mouse_change[1]))
 
 
     def get_movement_vec(self): #get mouse movement from previous frame

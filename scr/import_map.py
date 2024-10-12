@@ -30,9 +30,9 @@ def import_tilemap_from_path(path: str) -> None:
     if not os.path.isfile(path+"\\data.json"):
         if os.path.isfile(path+"\\explanations.json"):
             has_explanations_json = True
-            logger.debug(f"Old tilemap export system detected. Using the old map import function.")
+            logger.debug(f"Old tilemap export system detected. Using the old map import function")
         else:
-            logger.error("Invalid tilemap. Doesn't have data.json or deprecated explanations.json file.")
+            logger.error("Invalid tilemap. Doesn't have data.json or deprecated explanations.json file")
             return
     
 
@@ -49,16 +49,7 @@ def import_tilemap_from_path(path: str) -> None:
         update_last_loaded(path+"\\data.json")
 
 
-    msg = "Your grid is bigger than the tilemap.\nDo you want to scale your grid to fit the tilemap?"
-    if ui.ui_obj.cells_r_c[0] < grid_size[0] or ui.ui_obj.cells_r_c[1] < grid_size[1]:
-        msg = "Selected tilemap doesn't fit current grid size.\nDo you want to change it to fit?"
-
-    if not ui.ui_obj.cells_r_c == grid_size:
-        root = tk.Tk()
-        root.withdraw()
-        if askyesno("Change Grid Size", msg, icon=WARNING):
-            ui.ui_obj.set_gridsize(grid_size)
-        root.destroy()
+    ui.ui_obj.set_gridsize(grid_size)
     
     palette.pm_obj.import_map_palette_change(path)   
     
@@ -71,13 +62,14 @@ def delete_tilemap(tilemap_path: str) -> None:
 
     shutil.move(tilemap_path, settings.DELETED_TILEMAPS_PATH)
     # TODO: Check if this tilemap was loaded and deload it if it was
+    logger.log(f"Tilemap deleted at '{tilemap_path}'. Moved tilemap to '{settings.DELETED_TILEMAPS_PATH}\\'")
 
 
 @timer
 def update_tiles(tile_ids):
     total = -1
-    for i in range(ui.ui_obj.cells_r_c[1]):
-        for j in range(ui.ui_obj.cells_r_c[0]):
+    for i in range(ui.ui_obj.grid_size_rows_cols[1]):
+        for j in range(ui.ui_obj.grid_size_rows_cols[0]):
             total += 1
             if i >= len(tile_ids) or j >= len(tile_ids[0]):
                 continue
@@ -172,6 +164,7 @@ class Importer():
         logger.debug("Initialized importer")
 
     def import_tilemap(self) -> None:
+        logger.debug("Opening tilemap import popup")
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
 
@@ -184,6 +177,8 @@ class Importer():
         paths = self.__get_folders_to_selection()
         for _p in paths:
             self.create_frame(_p)
+
+        logger.debug("Tilemap import popup initialized successfully")
 
 
 
@@ -204,6 +199,7 @@ class Importer():
 
 
     def confirm_delete_frame(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+        logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
         popup_size = (400, 340)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
                      settings.SCR_H//2 - popup_size[1]//2)
@@ -218,7 +214,7 @@ class Importer():
         confirm_text_3 = data.font_25.render(f"The tilemap can be recovered from", True, (0,0,0))
         confirm_text_4 = data.font_25.render(f"'{settings.DELETED_TILEMAPS_PATH}'.", True, (0,0,0))
 
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Yes", 25, hover_col=(200,0,0))
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "DELETE", 25, hover_col=(200,0,0))
         cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
 
         frame.add_surface(confirm_text_1, (0.5,0.2))
@@ -231,9 +227,11 @@ class Importer():
         frame.add_button(cancel_button, (0.65, 0.8), self.confirm_popup.close_popup)
 
         popup_window.popup_m_obj.track_popup(self.confirm_popup, frame.update, frame.on_mousebuttondown)
+        logger.debug("Tilemap delete confirmation popup initialized successfully")
 
 
     def delete_tilemap_confirmed(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+        logger.debug(f"Confirmed tilemap deletion. Deleting tilemap at '{map_path}'...")
         self.scrollable.delete_frame(frame_to_delete)
         delete_tilemap(map_path)
 

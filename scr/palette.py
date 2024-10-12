@@ -180,7 +180,7 @@ class PaletteManager:
         # Default to the first palette, change to the last session palette if found
         self.current_palette = self.all_palettes[0]
 
-        last_session_data = util.load_json_data_dict("last_session_data.json")
+        last_session_data = util.load_json_data_dict(settings.LAST_SESSION_DATA_JSON)
 
         if last_session_data == {}:
             logger.warning("No last session data found, returning to defaults")

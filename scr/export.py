@@ -49,7 +49,7 @@ def create_data_json() -> dict:
     output = {}
 
     output["last_loaded"] = datetime.now().strftime(settings.EXPORT_TIME_FORMAT)
-    output["grid_size"] = ui.ui_obj.cells_r_c
+    output["grid_size"] = ui.ui_obj.grid_size_rows_cols
     output["tile_ids"] = create_tiles_list()
 
     return output
@@ -60,9 +60,9 @@ def create_tiles_list() -> list:
 
     #get id's of each block
     total = 0
-    for _ in range(ui.ui_obj.cells_r_c[1]):
+    for _ in range(ui.ui_obj.grid_size_rows_cols[1]):
         sublist = []
-        for _ in range(ui.ui_obj.cells_r_c[0]):
+        for _ in range(ui.ui_obj.grid_size_rows_cols[0]):
             sublist.append(ui.ui_obj.blocks[total].tile_id)
             total += 1
 

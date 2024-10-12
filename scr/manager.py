@@ -78,7 +78,7 @@ class Manager:
 
     def toggle_grid(self) -> None:
         sidebar.s_obj.buttons_dict["GridButton"].clicked *= -1
-        sidebar.s_obj.buttons_dict["GridButton"].set_color(sidebar.s_obj.buttons_dict["GridButton"].clicked)
+        sidebar.s_obj.buttons_dict["GridButton"].set_color()
         sidebar.s_obj.buttons_dict["GridButton"].just_clicked = True
 
     
