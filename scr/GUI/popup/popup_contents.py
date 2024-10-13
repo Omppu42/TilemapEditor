@@ -4,7 +4,7 @@ import GUI.button as button
 import GUI.input_field as input_field
 import GUI.popup.popup_window as popup_window
 
-import mouse
+import input_overrides
 
 class PopupContents:
     """An object that holds any other pygame objects. Think of it like a canvas that things can be added to and cofigured"""
@@ -70,7 +70,7 @@ class PopupContents:
     
     def on_mousebuttondown(self, event) -> None:
         if not self.parent.active: return
-        if not mouse.get_pressed_override()[0]: return
+        if not input_overrides.get_mouse_pressed()[0]: return
 
         for _field in self.input_fields:
             _field.on_left_mouse_click(rect_override=pygame.rect.Rect(self.screen_pos[0] + _field.pos[0], 

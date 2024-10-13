@@ -5,7 +5,7 @@ from util.tkinter_opener import tk_util
 import ui
 import palette
 import settings.data as data
-import mouse
+import input_overrides
 
 pygame.init()
 
@@ -69,11 +69,13 @@ class DropDown():
                 surf.blit(main_text, main_text.get_rect(center = rect.center))
 
 
-    def check_clicked(self, event_list):
+    def check_clicked(self,):
         """Returns the index of which option was clicken. -1 If no option selected"""
+        event_list = input_overrides.get_event_list()
+
         self.drawing = self.menu_active or self.draw_menu
 
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
         self.menu_active = self.rect.collidepoint(mouse_pos)
         
         self.active_option = -1
@@ -88,7 +90,7 @@ class DropDown():
             self.draw_menu = False
 
         for event in event_list:
-            if event.type == pygame.MOUSEBUTTONDOWN and mouse.get_pressed_override()[0]:
+            if event.type == pygame.MOUSEBUTTONDOWN and input_overrides.get_mouse_pressed()[0]:
                 # If clicked on the topmost bar, open the dropdown
                 if self.menu_active:
                     # Toggle draw_menu
@@ -100,8 +102,8 @@ class DropDown():
         return -1
     
 
-    def update(self, event_list) -> None:
-        clicked_on_option = self.check_clicked(event_list)
+    def update(self) -> None:
+        clicked_on_option = self.check_clicked()
 
         if clicked_on_option == -1: return
 

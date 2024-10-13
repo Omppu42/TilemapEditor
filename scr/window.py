@@ -12,7 +12,7 @@ import ui
 import manager
 import sidebar
 import import_map
-import mouse
+import input_overrides
 import grid_resize
 
 
@@ -26,7 +26,6 @@ class Window:
     
     def __init__(self):
         logger.log("Starting...")
-        self.event_list = None
 
         self.screen = pygame.display.set_mode((settings.SCR_W, settings.SCR_H))
         pygame.display.set_caption("Tilemap Editor")
@@ -72,8 +71,9 @@ class Window:
     def early_update(self) -> None:
         self.screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))
 
-        self.event_list = pygame.event.get()
-        mouse.frame_start_update()
+        # Get events
+        event_list = pygame.event.get()
+        input_overrides.frame_start_update(event_list)
 
     def draw_info(self) -> None:
         loaded_map = manager.m_obj.loaded_tilemap
@@ -103,7 +103,7 @@ class Window:
 
     # PUT IN ORDER, SOME EVENTS PREVENT EVENTS FURTHER DOWN LIKE POPUPS
     def manage_events(self) -> None:
-        for event in self.event_list:
+        for event in input_overrides.get_event_list():
             if event.type == pygame.QUIT:
                 sys.exit()
 
@@ -115,15 +115,15 @@ class Window:
 
         # DROPDOWNS -----------
         for _dd in dropdown.dropdowns:  #update dropdown dropdowns
-            _dd.update(self.event_list)
+            _dd.update()
 
             if _dd.drawing:
-                mouse.clear_pos_override()
-                mouse.clear_pressed_override()
+                input_overrides.clear_mouse_pos()
+                input_overrides.clear_mouse_pressed()
             
 
         # REST ---------
-        for event in self.event_list:
+        for event in input_overrides.get_event_list():
             # KEYDOWN -------------
             if event.type == pygame.KEYDOWN:
                 self.manage_keydown(event)
@@ -134,22 +134,26 @@ class Window:
                 pygame.mouse.get_rel()  #reset rel pos
 
                 # CLICK LEFT CLICK ----------
-                if mouse.get_pressed_override()[0]:
+                if input_overrides.get_mouse_pressed()[0]:
                     sidebar.s_obj.on_left_mouse_click()
             
             # HOLD LEFT CLICK ---------
-            if mouse.get_pressed_override()[0]: 
+            if input_overrides.get_mouse_pressed()[0]: 
                 manager.m_obj.mouse_update()
 
 
     def manage_popups(self):
-        for event in self.event_list:
+        for event in input_overrides.get_event_list():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 popup_window.popup_m_obj.on_mousebuttondown(event)
 
             if event.type == pygame.KEYDOWN:
                 popup_window.popup_m_obj.on_keydown(event)
 
+                #Clear this event to not allow interacting with other stuff during a popup
+                input_overrides.remove_event(event)
+
+        # Mouse buttons and pos is cleared here after top popup has updated
         popup_window.popup_m_obj.update_popups()
 
 

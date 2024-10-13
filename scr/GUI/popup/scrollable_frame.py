@@ -5,7 +5,7 @@ import GUI.button as button
 
 from util.util_logger import logger
 
-import mouse
+import input_overrides
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse
@@ -208,7 +208,7 @@ class ScrollableFrame:
     def on_mousebuttondown(self, event: pygame.event.Event) -> None:
         if not self.clickable: return
 
-        if mouse.get_pressed_override()[0]:
+        if input_overrides.get_mouse_pressed()[0]:
             for _frame in self.frames:
                 _frame.on_left_mouse_click()
 

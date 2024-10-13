@@ -13,7 +13,7 @@ import settings.settings as settings
 import palette
 import ui
 import sidebar
-import mouse
+import input_overrides
 
 
 pygame.init()
@@ -31,7 +31,7 @@ class Manager:
         logger.debug("Initialized Manager")
 
     def mouse_update(self):
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
 
         # If clicked on the sidebar
         if mouse_pos[0] > settings.VIEWPORT_W: return

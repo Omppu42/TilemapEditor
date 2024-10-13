@@ -2,7 +2,7 @@ import pygame, time
 
 import manager
 import settings.data as data
-import mouse
+import input_overrides
 
 pygame.init()
 
@@ -94,11 +94,11 @@ class Button:
     def check_clicked(self, rect_override:"pygame.rect.Rect"=None, boundaries:"pygame.rect.Rect"=None) -> bool:
         """Should be called on mouse click event"""
         if self.disabled: return
-        if not mouse.get_pressed_override()[0]: return False
+        if not input_overrides.get_mouse_pressed()[0]: return False
         if rect_override != None:
             self.rect = rect_override
 
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
 
         # Check if mouse overlaps the button's rect
         if self.rect.collidepoint(mouse_pos):
@@ -146,7 +146,7 @@ class Button:
         if rect_override != None:
             self.rect = rect_override
 
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
 
         if not self.rect.collidepoint(mouse_pos): # Not hovering
             self.hovering = False  

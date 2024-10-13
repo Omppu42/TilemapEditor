@@ -2,7 +2,7 @@ import pygame
 
 import settings.data as data
 
-import mouse
+import input_overrides
 
 pygame.init()
 
@@ -162,7 +162,7 @@ class NumberInputField():
         if rect_override == None:
             rect_override = self.rect
 
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
         self.active = rect_override.collidepoint(mouse_pos)
 
         if boundaries:

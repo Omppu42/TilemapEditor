@@ -6,6 +6,7 @@ from datetime import datetime
 
 from util.util import timer
 from util.util_logger import logger
+from util.util import RunnableFunc
 import util.util as util
 
 import GUI.button as button
@@ -184,8 +185,12 @@ class Importer():
         self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
         self.scrollable = scrollable_frame.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
         
-        popup_window.popup_m_obj.track_popup(self.popup, self.scrollable.update, self.scrollable.on_mousebuttondown)
-        self.popup.add_destroy_func(self.scrollable.deactivate)
+
+        self.popup.add_contents_draw_func( RunnableFunc(self.scrollable.update) )
+        self.popup.add_contents_onmousebuttondown_func( RunnableFunc(self.scrollable.on_mousebuttondown) )
+        self.popup.add_destroy_func( RunnableFunc(self.scrollable.deactivate) )
+
+        popup_window.popup_m_obj.track_popup(self.popup)
 
         paths = self.__get_folders_to_selection()
         for _p in paths:
@@ -239,7 +244,10 @@ class Importer():
         frame.add_button(yes_button, (0.1, 0.8), self.delete_tilemap_confirmed, on_click_func_args=[frame_to_delete, map_path])
         frame.add_button(cancel_button, (0.65, 0.8), self.confirm_popup.close_popup)
 
-        popup_window.popup_m_obj.track_popup(self.confirm_popup, frame.update, frame.on_mousebuttondown)
+        self.confirm_popup.add_contents_draw_func( RunnableFunc(frame.update) )
+        self.confirm_popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
+        popup_window.popup_m_obj.track_popup(self.confirm_popup)
+
         logger.debug("Tilemap delete confirmation popup initialized successfully")
 
 

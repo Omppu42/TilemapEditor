@@ -1,11 +1,13 @@
-import time, os, json, math
-from util.util_logger import logger
-from functools import wraps
-
-import settings.settings as settings
-
 import pygame
 
+import time, os, json, math
+from functools import wraps
+import inspect
+import traceback
+
+from util.util_logger import logger
+
+import settings.settings as settings
 
 
 
@@ -87,3 +89,26 @@ def pygame_different_color_text(font: "pygame.font.Font", texts: "list[str]", co
         filled_to_x += _render.get_rect().w
 
     return surf
+
+class RunnableFunc():
+    def __init__(self, function: "function", args:list=[], kwargs:dict={}):
+        self.function = function
+        self.args = args
+        self.kwargs = kwargs
+
+        self.traceback = traceback.extract_stack()[-2]
+
+    def run_function(self, args_override:list=[], kwargs_override:dict={}) -> None:
+        args = self.args
+        kwargs = self.kwargs
+
+        if args_override:
+            args = args_override
+        if kwargs_override:
+            kwargs = kwargs_override
+
+        try:
+            return self.function(*args, **kwargs)
+        except Exception as e:
+            logger.fatal(f"RunnableFunc trying to run function '{self.function.__name__}' from '{self.function.__module__}' at line {inspect.findsource(self.function)[1]}, but got unexpected arguments ({self.args}) and kwargs ({self.kwargs}). Possibly other errors")
+            raise Exception(f"Error in running RunnableFunction created in {os.path.basename(self.traceback[0])} line {self.traceback[1]}: {repr(e)}")

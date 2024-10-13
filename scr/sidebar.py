@@ -9,7 +9,7 @@ import settings.settings as settings
 import util.util as util
 import GUI.button as button
 
-import mouse
+import input_overrides
 import manager
 import palette
 
@@ -189,7 +189,7 @@ class Sidebar:
 
 
     def on_left_mouse_click(self):
-        mouse_pos = mouse.get_pos_override()
+        mouse_pos = input_overrides.get_mouse_pos()
 
         self.__check_click_buttons(mouse_pos)
         self.__check_tile_change(mouse_pos)

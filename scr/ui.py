@@ -8,7 +8,7 @@ import settings.settings as settings
 import import_map
 import manager
 import sidebar
-import mouse
+import input_overrides
 
 pygame.init()
 
@@ -99,11 +99,11 @@ class UI:
 
 
     def get_movement_vec(self): #get mouse movement from previous frame
-        if not mouse.get_pressed_override()[2]: 
+        if not input_overrides.get_mouse_pressed()[2]: 
             return (0, 0)
 
-        if mouse.get_pressed_override()[2]:
-            mouse_pos = mouse.get_pos_override()
+        if input_overrides.get_mouse_pressed()[2]:
+            mouse_pos = input_overrides.get_mouse_pos()
             if mouse_pos[0] == 0 or mouse_pos[1] == 0 or mouse_pos[0] > settings.VIEWPORT_W or mouse_pos[1] == settings.SCR_H-1: #if offscreen
                 pygame.mouse.get_rel()
                 return (0,0)

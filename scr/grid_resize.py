@@ -9,6 +9,7 @@ import GUI.popup.scrollable_frame as scrollable_frame
 import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
 
 from util.util_logger import logger
+from util.util import RunnableFunc
 import settings.settings as settings
 import settings.data as data
 
@@ -115,7 +116,11 @@ class GridResizer:
         frame.add_button(yes_button, (0.65, 0.8), self.confirm_button, on_click_func_args=[x_size.return_val, y_size.return_val])
         frame.add_button(cancel_button, (0.1, 0.8), self.popup.close_popup)
 
-        popup_window.popup_m_obj.track_popup(self.popup, frame.update, frame.on_mousebuttondown, contents_onkeydown_func=frame.on_keydown)
+        self.popup.add_contents_draw_func( RunnableFunc(frame.update) )
+        self.popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
+        self.popup.add_contents_onkeydown_func( RunnableFunc(frame.on_keydown) )
+        popup_window.popup_m_obj.track_popup(self.popup)
+
         logger.debug("Grid resize popup initialized successfully")
 
 

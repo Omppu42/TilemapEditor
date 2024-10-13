@@ -2,8 +2,9 @@ import pygame, time, math
 
 import settings.settings as settings
 import GUI.button as button
+import util.util as util
 
-import mouse
+import input_overrides
 
 class PopupWindow:
     TOP_BAR_H = 40
@@ -37,14 +38,14 @@ class PopupWindow:
         self.close_animation_playing = False
         self.close_anim_start_time = 0
 
-        self.on_destroy_func: list[tuple[function, list, dict]] = None  #Function, args, kwargs
 
         self.visible_pos = self.pos
         self.hidden_pos = (self.pos[0], -self.size[1] - (2 * self.border_w + self.backdrop_depth))
 
-        self.contents_draw_func: "function"            = None # Given in PopupManager track_popup()
-        self.contents_onmousebuttondown_func: "function" = None # Given in PopupManager track_popup()
-        self.contents_onkeydown_func: "function"         = None # Given in PopupManager track_popup()
+        self.on_destroy_func: "util.RunnableFunc"                 = None  #Function, args, kwargs
+        self.c_draw_obj: "util.RunnableFunc"              = None # Given in PopupManager track_popup()
+        self.c_onmousedown_obj: "util.RunnableFunc" = None # Given in PopupManager track_popup()
+        self.c_onkeydown_obj: "util.RunnableFunc"         = None # Given in PopupManager track_popup()
 
         self.__start_animation()
         self.__redraw_surface()
@@ -126,9 +127,8 @@ class PopupWindow:
 
         if progress < 0:
             progress = 0
-            if self.on_destroy_func != None:
-                # Function, args, kwargs
-                self.on_destroy_func[0](*self.on_destroy_func[1], **self.on_destroy_func[2])
+            if self.on_destroy_func:
+                self.on_destroy_func.run_function()
 
             self.close_animation_playing = False
             self.active = False
@@ -146,7 +146,8 @@ class PopupWindow:
         if self.close_animation_playing: self.__close_animation()
 
         self.__redraw_surface()
-        self.contents_draw_func()
+
+        self.c_draw_obj.run_function()
 
         # Allow next code only after animations are finished
         if not self.active: return
@@ -162,9 +163,17 @@ class PopupWindow:
         self.close_button.draw()
 
 
-    def add_destroy_func(self, func: "function", args=[], kwargs={}) -> None:
-        self.on_destroy_func = (func, args, kwargs)
+    def add_destroy_func(self, runnable_obj: "util.RunnableFunc") -> None:
+        self.on_destroy_func = runnable_obj
 
+    def add_contents_draw_func(self, runnable_obj: "util.RunnableFunc") -> None:
+        self.c_draw_obj = runnable_obj
+
+    def add_contents_onmousebuttondown_func(self, runnable_obj: "util.RunnableFunc") -> None:
+        self.c_onmousedown_obj = runnable_obj
+
+    def add_contents_onkeydown_func(self, runnable_obj: "util.RunnableFunc") -> None:
+        self.c_onkeydown_obj = runnable_obj
 
     def on_left_mouse_click(self) -> None:
         if not self.active: return
@@ -186,16 +195,11 @@ class PopupManager:
     def __init__(self) -> None:
         self.popups: "list[PopupWindow]" = []
 
-    def track_popup(self, popup_obj: PopupWindow, contents_draw_func: "function", contents_on_mousebuttondown_func: "function", contents_onkeydown_func: "function"=None) -> None:
-        """Add a popup to track. \n
-        Contents_draw_func being a function that draws the contents of the popup window. \n
-        Contents_on_mousebuttondown_func being the function that handles events in pygame.MOUSEBUTTONDOWN. \n
-        IMPORTANT: Contents_on_mousebuttondown_func has to take in event (pygame.event.Event)"""
+        self.mousebuttondown_event = None
+        self.keydown_event = None
 
-        popup_obj.contents_draw_func = contents_draw_func
-        popup_obj.contents_onmousebuttondown_func = contents_on_mousebuttondown_func
-        popup_obj.contents_onkeydown_func = contents_onkeydown_func
-
+    def track_popup(self, popup_obj: PopupWindow) -> None:
+        """Add a popup to track"""
         self.popups.append(popup_obj)
 
     def remove_popup(self, popup_obj: PopupWindow) -> None:
@@ -216,8 +220,8 @@ class PopupManager:
             _popup.update()
 
             # If popups are present, remove the button clicked status and mousepos to not allow clicking on other buttons
-            mouse.clear_pos_override()
-            mouse.clear_pressed_override()
+            input_overrides.clear_mouse_pos()
+            input_overrides.clear_mouse_pressed()
 
 
     def draw_popups(self) -> None:
@@ -225,21 +229,27 @@ class PopupManager:
             _popup.draw()
 
 
-    def on_mousebuttondown(self, event: "pygame.event.Event") -> None:        
+    def on_mousebuttondown(self, event: "pygame.event.Event") -> None:  
         # Update only the top popup, which is the last popup in the list
-        if len(self.popups) == 0: return
+        if len(self.popups) == 0: return     
         
-        if mouse.get_pressed_override()[0]:
+        if input_overrides.get_mouse_pressed()[0]:
             self.popups[-1].on_left_mouse_click() # Update top popup leftclick
         
-        self.popups[-1].contents_onmousebuttondown_func(event) # Update contents_on_mousebuttondown function
+        top_popup_onmd_obj = self.popups[-1].c_onmousedown_obj
+
+        top_popup_onmd_obj.args = [event]
+        top_popup_onmd_obj.run_function() # Update contents_on_mousebuttondown function
 
 
     def on_keydown(self, event: "pygame.event.Event") -> None:        
         # Update only the top popup, which is the last popup in the list
         if len(self.popups) == 0: return
-                
-        self.popups[-1].contents_onkeydown_func(event) # Update contents_on_mousebuttondown function
+        top_popup_onkd_obj = self.popups[-1].c_onkeydown_obj
+        
+        if top_popup_onkd_obj:
+            top_popup_onkd_obj.args = [event]
+            top_popup_onkd_obj.run_function() # Update contents_on_mousebuttondown function
 
 
 
@@ -252,6 +262,7 @@ class PopupManager:
 
 
 popup_m_obj: PopupManager = None
+
 
 def create_popup_manager() -> None:
     global popup_m_obj
