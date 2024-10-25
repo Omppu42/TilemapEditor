@@ -32,8 +32,9 @@ class GridResizer:
 
         frame = popup_contents.PopupContents(self.popup, (10, 10), (popup_size[0] - 20, popup_size[1] - 60))
 
+        current_w, current_h = ui.ui_obj.grid_size_rows_cols
 
-        current_size_text = data.font_25.render(f"Current size: {ui.ui_obj.grid_size_rows_cols[0]} x {ui.ui_obj.grid_size_rows_cols[1]}", True, (0,0,0))
+        current_size_text = data.font_25.render(f"Current size: {current_w} x {current_h}", True, (0,0,0))
         new_size_text = data.font_35.render(f"NEW SIZE:", True, (0,0,0))
 
         width_text = data.font_25.render(f"WIDTH", True, (150,150,150))
@@ -42,8 +43,8 @@ class GridResizer:
         yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Confirm", 25)
         cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
 
-        x_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty="30", bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
-        y_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty="20", bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        x_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        y_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
 
 
         by_image_surf = pygame.image.load("Assets\\close.png")

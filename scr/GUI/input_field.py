@@ -6,21 +6,19 @@ import input_overrides
 
 pygame.init()
 
-# TODO: Allow typing with keypad here
-
 class NumberInputField():
     EVENT_TO_INT = {
-            pygame.K_0: 0,
-            pygame.K_1: 1,
-            pygame.K_2: 2,
-            pygame.K_3: 3,
-            pygame.K_4: 4,
-            pygame.K_5: 5,
-            pygame.K_6: 6,
-            pygame.K_7: 7,
-            pygame.K_8: 8,
-            pygame.K_9: 9,
-        }
+        (pygame.K_0, pygame.K_KP_0): 0,
+        (pygame.K_1, pygame.K_KP_1): 1,
+        (pygame.K_2, pygame.K_KP_2): 2,
+        (pygame.K_3, pygame.K_KP_3): 3,
+        (pygame.K_4, pygame.K_KP_4): 4,
+        (pygame.K_5, pygame.K_KP_5): 5,
+        (pygame.K_6, pygame.K_KP_6): 6,
+        (pygame.K_7, pygame.K_KP_7): 7,
+        (pygame.K_8, pygame.K_KP_8): 8,
+        (pygame.K_9, pygame.K_KP_9): 9,
+    }
     
     def __init__(self, pos: tuple, size: tuple, max_chars, default_value, bg_color=(155,155,155),active_color=(200,200,200),
                 border_width=0, border_color=(0,0,0), empty="0", int_only=False, min_value=-1, max_value=-1, font=data.font_25):
@@ -148,8 +146,9 @@ class NumberInputField():
         if self.length >= self.max_chars: return
 
         # Adding numbers
-        if event.key in NumberInputField.EVENT_TO_INT:
-            self.text += str(NumberInputField.EVENT_TO_INT[event.key])
+        for keys, result in NumberInputField.EVENT_TO_INT.items():
+            if event.key in keys:
+                self.text += str(result)
 
         if self.int_only: return
 
