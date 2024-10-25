@@ -2,6 +2,8 @@ import pygame
 
 import GUI.button as button
 import GUI.popup.scrollable_frame as scrollable_frame
+import util.util as util
+import constants
 
 class FramePiece:
     """An object that holds any other pygame objects. Think of it like a canvas that things can be added to and cofigured"""
@@ -18,14 +20,16 @@ class FramePiece:
         
         self.buttons: "list[tuple[button.Button, tuple, tuple[function, list, dict]]]" = []  # [(ButtonClass, (relx, rely), (onclickfunc, args, kwargs)), (ButtonClass, (relx, rely), onclickfunc, (args, kwargs))]
 
-    def add_surface(self, surface: pygame.Surface, center_pos_rel: tuple) -> None:
+    def add_surface(self, surface: pygame.Surface, center_pos_rel: tuple, anchor=constants.CENTER) -> None: #FIXME: Why an anchor here?
         """center_pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
-        rect = surface.get_rect(center=(center_pos_rel[0]*self.size[0], 
-                                        center_pos_rel[1]*self.size[1]))
+        rect = util.get_rect_anchor(surface, 
+                                    (center_pos_rel[0]*self.size[0], 
+                                     center_pos_rel[1]*self.size[1]),
+                                     anchor)
 
         self.frame_base.blit(surface, rect)
 
-    def add_button(self, button: button.Button, pos_rel: tuple, on_click_func: "function", on_click_func_args: list=[], on_click_func_kwargs:dict={}) -> None:
+    def add_button(self, button: button.Button, pos_rel: tuple, on_click_func: "function", on_click_func_args: list=[], on_click_func_kwargs:dict={}) -> None: #TODO: Convert this to RunnableFunc class
         """pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
         self.buttons.append((button, (pos_rel[0]*self.size[0], 
                                       pos_rel[1]*self.size[1]),

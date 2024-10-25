@@ -40,7 +40,7 @@ class NumberInputField():
         self.border_color = border_color
         self.border_width = border_width
 
-        self.image = pygame.Surface(self.size)
+        self.surface = pygame.Surface(self.size)
         self.active = False
 
         self.__check_default_text_validity(str(default_value))
@@ -69,10 +69,10 @@ class NumberInputField():
 
         if _text_width < self.size[0] - self.border_width*2:
             # _text_width fits into the inputfield
-            self.image.blit(_text, (2 + self.border_width*2, (self.size[1] - _text_height) // 2))
+            self.surface.blit(_text, (2 + self.border_width*2, (self.size[1] - _text_height) // 2))
         else:
             # _text_width doesn't fit into the inputfield
-            self.image.blit(_text, ( (self.border_width * 2) + (self.size[0] - _text_width - self.border_width * 3),
+            self.surface.blit(_text, ( (self.border_width * 2) + (self.size[0] - _text_width - self.border_width * 3),
                                      (self.size[1] - _text_height) // 2) )
 
     def __text_info(self):
@@ -111,17 +111,17 @@ class NumberInputField():
     def draw(self, screen):
         if self.active:
             if self.border_width == 0:
-                self.image.fill(self.active_color)
+                self.surface.fill(self.active_color)
             else:
-                self.image.fill(self.border_color)
-                pygame.draw.rect(self.image, self.active_color, (self.border_width, self.border_width, 
+                self.surface.fill(self.border_color)
+                pygame.draw.rect(self.surface, self.active_color, (self.border_width, self.border_width, 
                                                                 self.size[0] - self.border_width * 2, self.size[1] - self.border_width * 2))
 
         elif self.border_width == 0:
-            self.image.fill(self.bg_color)
+            self.surface.fill(self.bg_color)
         else:
-            self.image.fill(self.border_color)
-            pygame.draw.rect(self.image, self.bg_color, (self.border_width, self.border_width, 
+            self.surface.fill(self.border_color)
+            pygame.draw.rect(self.surface, self.bg_color, (self.border_width, self.border_width, 
                                                         self.size[0] - self.border_width * 2, self.size[1] - self.border_width * 2))
 
         #rendering text
@@ -132,7 +132,7 @@ class NumberInputField():
         else:
             text = self.font.render(self.text, True, self.text_color)
             self.__draw_text(text)
-        screen.blit(self.image, self.pos)
+        screen.blit(self.surface, self.pos)
     
     
     def on_keydown(self, event: pygame.event.Event):

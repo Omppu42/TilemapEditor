@@ -15,59 +15,7 @@ import settings.data as data
 
 import ui
 import manager
-
-
-def set_gridsize_ask():
-    window = tkinter.Tk(className="grid settings")
-    window.geometry("300x200")
-    window.resizable(False, False)
-    window.attributes('-topmost', True)
-    window.eval('tk::PlaceWindow . center')
-
-    text = tkinter.Label(text="RESIZE GRID", font=(None, 18))
-    text.pack(pady=20,side=tkinter.TOP)
-
-    def validate(P):
-        if len(P) == 0:
-            return True
-        elif (len(P) == 1 or len(P) == 2) and P.isdigit():
-            return True
-        else:
-            return False
-
-    def get_gridsize():
-        w = width.get()
-        h = height.get()
-        if w == "" or h == "":
-            window.destroy()
-            set_gridsize_ask()
-            return
-
-        ui.ui_obj.set_gridsize((int(w), int(h)))
-        window.destroy()
-
-    vcmd = (window.register(validate), '%P')
-
-    width = tkinter.Entry(width=5, font=(None, 14), validate="key", validatecommand=vcmd)
-    width.place(x=50, y=90)
-    width.focus()
-
-    width_text = tkinter.Label(text="WIDTH", font=(None, 11))
-    width_text.place(x=53, y=120)
-
-    height = tkinter.Entry(width=5, font=(None, 14), validate="key", validatecommand=vcmd)
-    height.place(x=190, y=90)
-    
-    height_text = tkinter.Label(text="HEIGHT", font=(None, 11))
-    height_text.place(x=193, y=120)
-
-    xtext = tkinter.Label(text="x", font=(None, 18))
-    xtext.place(x=140, y=85)
-
-    button = tkinter.Button(text="CONFIRM", width=10, height=1, bg="Gainsboro", command=get_gridsize)
-    button.pack(side=tkinter.BOTTOM, pady=10)
-
-    window.mainloop()
+import constants
 
 
 class GridResizer:
@@ -78,6 +26,8 @@ class GridResizer:
         logger.debug("Opening grid resize popup")
         popup_size = (400, 300)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 100)
+
+        print("popup center:", popup_pos[0]+popup_size[0]//2, popup_pos[1]+popup_size[1]//2)
 
         self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
 
@@ -100,21 +50,23 @@ class GridResizer:
         by_image_surf = pygame.image.load("Assets\\close.png")
         by_image_surf = pygame.transform.smoothscale(by_image_surf, (32, 32))
 
-        frame.add_surface(current_size_text, (0.5,0.1))
-        frame.add_surface(new_size_text, (0.5,0.3))
+        # frame.add_surface(current_size_text, (0, 0.1), constants.UP)
+        frame.add_surface(current_size_text, (0, 0.05), anchor=constants.UP)
+        frame.add_surface(new_size_text, (0, 0.22), anchor=constants.UP)
 
         # Input
-        frame.add_number_input_field(x_size, (0.26, 0.45))  #-2 From image x
-        frame.add_number_input_field(y_size, (0.585, 0.45)) #+1,25 From image x
-        frame.add_surface_non_center(by_image_surf, (0.46,0.46))
+        frame.add_number_input_field(x_size, (-0.15, 0), anchor=constants.CENTER)  #-2 From image x
+        frame.add_number_input_field(y_size, ( 0.15, 0), anchor=constants.CENTER) #+1,25 From image x
 
-        frame.add_surface(width_text,  (0.33,0.67))
-        frame.add_surface(height_text, (0.665,0.67))
+        frame.add_surface(by_image_surf, (0, 0), anchor=constants.CENTER)
+
+        frame.add_surface(width_text,  (-0.15, -0.3), anchor=constants.BOTTOM)
+        frame.add_surface(height_text, ( 0.15, -0.3), anchor=constants.BOTTOM)
 
         # frame.add_surface(center, (0.5,0.5))
 
-        frame.add_button(yes_button, (0.65, 0.8), self.confirm_button, on_click_func_args=[x_size.return_val, y_size.return_val])
-        frame.add_button(cancel_button, (0.1, 0.8), self.popup.close_popup)
+        frame.add_button(yes_button, (-0.17, -0.05), RunnableFunc(self.confirm_button, args=[x_size.return_val, y_size.return_val]), anchor=constants.BOTTOM)
+        frame.add_button(cancel_button, (0.17, -0.05), RunnableFunc(self.popup.close_popup), anchor=constants.BOTTOM)
 
         self.popup.add_contents_draw_func( RunnableFunc(frame.update) )
         self.popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )

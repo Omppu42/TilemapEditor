@@ -1,6 +1,7 @@
 import pygame, sys, json, time, atexit, os
 
 from util.util_logger import logger
+from util.util import timer
 
 import GUI.dropdown as dropdown
 import GUI.popup.popup_window as popup_window
@@ -23,7 +24,7 @@ class Window:
                 pygame.K_RIGHT, 
                 pygame.K_UP, 
                 pygame.K_DOWN]
-    
+    @timer
     def __init__(self):
         logger.log("Starting...")
 
@@ -54,46 +55,12 @@ class Window:
         logger.log("Initialized successfully")
     
 
-    def __on_exit(palette_manager_obj, manager_obj):
-        palette_manager_obj.export_all_palette_tile_orders()
-
-        json_obj = {"palette" : palette_manager_obj.current_palette.path,
-                    "grid_size" : ui.ui_obj.grid_size_rows_cols,
-                    "loaded_tilemap" : manager_obj.loaded_tilemap}
-
-        with open(settings.LAST_SESSION_DATA_JSON, "w") as f:
-            f.write(json.dumps(json_obj, indent=4))
-        
-        logger.log("Exited")
-
-
-
     def early_update(self) -> None:
         self.screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))
 
         # Get events
         event_list = pygame.event.get()
         input_overrides.frame_start_update(event_list)
-
-    def draw_info(self) -> None:
-        loaded_map = manager.m_obj.loaded_tilemap
-        if loaded_map:
-            loaded_map = os.path.basename(loaded_map)
-        else:
-            loaded_map = "Not Saved"
-
-        fps_render = data.font_20.render(f"FPS: {round(self.clock.get_fps(), 0)}", True, (0,0,0))
-        fps_rect = fps_render.get_rect(topright=(settings.VIEWPORT_W-10, 10))
-
-        loaded_map_render = data.font_20.render(f"Tilemap: {loaded_map}", True, (0,0,0))
-        loaded_map_rect = loaded_map_render.get_rect(topright=(settings.VIEWPORT_W-10, 25))
-
-        grid_size_render = data.font_20.render(f"Grid Size: {ui.ui_obj.grid_size_rows_cols[0]}x{ui.ui_obj.grid_size_rows_cols[1]}", True, (0,0,0))
-        grid_size_rect = grid_size_render.get_rect(topright=(settings.VIEWPORT_W-10, 40))
-
-        self.screen.blit(fps_render, fps_rect)
-        self.screen.blit(loaded_map_render, loaded_map_rect)
-        self.screen.blit(grid_size_render, grid_size_rect)
 
 
     def update_screen(self) -> None:
@@ -172,10 +139,43 @@ class Window:
             case _key if _key in Window.ARROW_KEYS:
                 sidebar.s_obj.arrowkeys_tile_selection_move(event)
 
-
+    # DRAW FUNCS ----------
     def draw_dropdowns(self) -> None:
         for _dd in dropdown.dropdowns:
             _dd.draw(self.screen)
 
     def draw_popups(self) -> None:
         popup_window.popup_m_obj.draw_popups()
+
+    def draw_info(self) -> None:
+        loaded_map = manager.m_obj.loaded_tilemap
+        if loaded_map:
+            loaded_map = os.path.basename(loaded_map)
+        else:
+            loaded_map = "Not Saved"
+
+        fps_render = data.font_20.render(f"FPS: {round(self.clock.get_fps(), 0)}", True, (0,0,0))
+        fps_rect = fps_render.get_rect(topright=(settings.VIEWPORT_W-10, 10))
+
+        loaded_map_render = data.font_20.render(f"Tilemap: {loaded_map}", True, (0,0,0))
+        loaded_map_rect = loaded_map_render.get_rect(topright=(settings.VIEWPORT_W-10, 25))
+
+        grid_size_render = data.font_20.render(f"Grid Size: {ui.ui_obj.grid_size_rows_cols[0]}x{ui.ui_obj.grid_size_rows_cols[1]}", True, (0,0,0))
+        grid_size_rect = grid_size_render.get_rect(topright=(settings.VIEWPORT_W-10, 40))
+
+        self.screen.blit(fps_render, fps_rect)
+        self.screen.blit(loaded_map_render, loaded_map_rect)
+        self.screen.blit(grid_size_render, grid_size_rect)
+
+
+    def __on_exit(palette_manager_obj, manager_obj):
+        palette_manager_obj.export_all_palette_tile_orders()
+
+        json_obj = {"palette" : palette_manager_obj.current_palette.path,
+                    "grid_size" : ui.ui_obj.grid_size_rows_cols,
+                    "loaded_tilemap" : manager_obj.loaded_tilemap}
+
+        with open(settings.LAST_SESSION_DATA_JSON, "w") as f:
+            f.write(json.dumps(json_obj, indent=4))
+        
+        logger.log("Exited")

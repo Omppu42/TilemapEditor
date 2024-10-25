@@ -21,6 +21,7 @@ import ui
 import palette
 import sidebar
 import manager
+import constants
 
 pygame.init()
 
@@ -210,6 +211,7 @@ class Importer():
 
         load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
+        
         frame.add_button(load_button, (0.015, 0.15), self.on_load_click, on_click_func_args=[path])
         frame.add_button(trash_button, (0.915, 0.15), self.confirm_delete_frame, on_click_func_args=[frame, path])
 
@@ -235,14 +237,14 @@ class Importer():
         yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "DELETE", 25, hover_col=(200,0,0))
         cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
 
-        frame.add_surface(confirm_text_1, (0.5,0.2))
-        frame.add_surface(confirm_text_2, (0.5,0.3))
+        frame.add_surface(confirm_text_1, (0.0,0.2), anchor=constants.UP)
+        frame.add_surface(confirm_text_2, (0.0,0.3), anchor=constants.UP)
 
-        frame.add_surface(confirm_text_3, (0.5,0.5))
-        frame.add_surface(confirm_text_4, (0.5,0.6))
+        frame.add_surface(confirm_text_3, (0.0,0.5), anchor=constants.UP)
+        frame.add_surface(confirm_text_4, (0.0,0.6), anchor=constants.UP)
 
-        frame.add_button(yes_button, (0.1, 0.8), self.delete_tilemap_confirmed, on_click_func_args=[frame_to_delete, map_path])
-        frame.add_button(cancel_button, (0.65, 0.8), self.confirm_popup.close_popup)
+        frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.delete_tilemap_confirmed, args=[frame_to_delete, map_path]), anchor=constants.BOTTOM)
+        frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=constants.BOTTOM)
 
         self.confirm_popup.add_contents_draw_func( RunnableFunc(frame.update) )
         self.confirm_popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
