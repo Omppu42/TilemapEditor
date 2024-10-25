@@ -88,14 +88,16 @@ class PopupContents:
         self.input_fields.append(field)
 
 
-    def update(self) -> None:
-        self.screen_pos = (self.parent.pos[0] + self.pos[0], self.parent.pos[1] + self.pos[1])
+    def update(self, screen_pos_override:tuple=None, parent_pos_override:tuple=None) -> None:
+        """Screen_pos_override is for ScrollableFramePiece class"""
+        parent_pos = self.parent.pos if parent_pos_override == None else parent_pos_override
+        self.screen_pos = (parent_pos[0] + self.pos[0], parent_pos[1] + self.pos[1]) if screen_pos_override == None else screen_pos_override
 
         for _btn_struct in self.buttons:
             _btn_struct.btn.pos = _btn_struct.frame_pos
 
             _rect_override = self.__get_rect_override(_btn_struct.frame_pos, _btn_struct.btn.size)
-            _boundaries = pygame.rect.Rect(self.parent.pos, self.parent.size)
+            _boundaries = pygame.rect.Rect(parent_pos, self.parent.size)
 
             _btn_struct.btn.update(rect_override=_rect_override, 
                                    boundaries=_boundaries)
@@ -107,20 +109,22 @@ class PopupContents:
         self.parent.surface.blit(self.frame_base, self.pos)
 
     
-    def on_mousebuttondown(self, event) -> None:
+    def on_mousebuttondown(self, event, parent_pos_override:tuple=None) -> None:
         if not self.parent.active: return
         if not input_overrides.get_mouse_pressed()[0]: return
+        
+        parent_pos = self.parent.pos if parent_pos_override == None else parent_pos_override
 
         for _field in self.input_fields:
             _rect_override = self.__get_rect_override(_field.pos, _field.size)
-            _boundaries = pygame.rect.Rect(self.parent.pos, self.parent.size)
+            _boundaries = pygame.rect.Rect(parent_pos, self.parent.size)
 
             _field.on_left_mouse_click(rect_override=_rect_override,
                                        boundaries=_boundaries)
 
         for _btn_struct in self.buttons:
             _rect_override = self.__get_rect_override(_btn_struct.frame_pos, _btn_struct.btn.size)
-            _boundaries = pygame.rect.Rect(self.parent.pos, self.parent.size)
+            _boundaries = pygame.rect.Rect(parent_pos, self.parent.size)
 
             if _btn_struct.btn.check_clicked(rect_override=_rect_override,
                                              boundaries=_boundaries):

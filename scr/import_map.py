@@ -207,18 +207,19 @@ class Importer():
         mapname = os.path.basename(path)
         name_text = data.font_25.render(mapname, True, (0,0,0))
 
-        frame.add_surface(name_text, (0.55,0.5))
+        frame.add_surface(name_text, (0, 0), anchor=constants.CENTER)
 
         load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
         
-        frame.add_button(load_button, (0.015, 0.15), self.on_load_click, on_click_func_args=[path])
-        frame.add_button(trash_button, (0.915, 0.15), self.confirm_delete_frame, on_click_func_args=[frame, path])
+        frame.add_button(load_button, (-0.38, 0), RunnableFunc(self.on_load_click, args=[path]), anchor=constants.CENTER)
+        frame.add_button(trash_button, (0.4, 0), RunnableFunc(self.confirm_delete_frame, args=[frame, path]), anchor=constants.CENTER)
 
         self.scrollable.add_frame(frame)
 
 
     def confirm_delete_frame(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+        print("Confirm")
         logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
         popup_size = (400, 340)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 

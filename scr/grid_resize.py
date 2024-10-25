@@ -27,7 +27,6 @@ class GridResizer:
         popup_size = (400, 300)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 100)
 
-        print("popup center:", popup_pos[0]+popup_size[0]//2, popup_pos[1]+popup_size[1]//2)
 
         self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
 

@@ -36,6 +36,9 @@ class ScrollableFrame:
         self.surface = self.__redraw_surface()
         self.scroll_bar_surf = self.__redraw_scrollbar_surface()
 
+        # This doesn't actually work, it's just needed for PopupContents to work
+        self.border_w = 0
+
 
 
     def __redraw_surface(self) -> pygame.surface.Surface:
@@ -184,33 +187,32 @@ class ScrollableFrame:
         self.__update_can_scroll()
 
 
-    def create_test_frame(self) -> None:
-        font = pygame.font.Font(None, 35)
-        frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
+    # def create_test_frame(self) -> None:
+    #     font = pygame.font.Font(None, 35)
+    #     frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
 
-        mapname = f"Tilemap {len(self.frames) + 1}"
-        test_text = font.render(mapname, True, (0,0,0))
+    #     mapname = f"Tilemap {len(self.frames) + 1}"
+    #     test_text = font.render(mapname, True, (0,0,0))
 
-        frame.add_surface(test_text, (0.5,0.5))
+    #     frame.add_surface(test_text, (0.5,0.5))
 
-        load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
-        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
-        frame.add_button(load_button, (0.015, 0.15), ScrollableFrame.load_btn_onclick_test, on_click_func_args=[f"Tilemaps\\{mapname}"])
-        frame.add_button(trash_button, (0.915, 0.15), self.__delete_frame, on_click_func_args=[frame])
+    #     load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
+    #     trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
+    #     frame.add_button(load_button, (0.015, 0.15), ScrollableFrame.load_btn_onclick_test, on_click_func_args=[f"Tilemaps\\{mapname}"])
+    #     frame.add_button(trash_button, (0.915, 0.15), self.__delete_frame, on_click_func_args=[frame])
 
-        self.add_frame(frame)
+    #     self.add_frame(frame)
 
 
-    def load_btn_onclick_test(map_path: str) -> None:
-        logger.debug("TEST: Load", map_path)
+    # def load_btn_onclick_test(map_path: str) -> None:
+    #     logger.debug("TEST: Load", map_path)
 
 
     def on_mousebuttondown(self, event: pygame.event.Event) -> None:
         if not self.clickable: return
 
-        if input_overrides.get_mouse_pressed()[0]:
-            for _frame in self.frames:
-                _frame.on_left_mouse_click()
+        for _frame in self.frames:
+            _frame.on_mousebuttondown(event)
 
         if event.button == 4:
             self.__scroll(1)
