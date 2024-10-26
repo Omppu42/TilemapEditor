@@ -56,7 +56,7 @@ class Palette:
         if os.path.isfile(order_json_path):
             with open(order_json_path, "r") as f:
                 last_tiles_order = json.load(f)
-                logger.debug(f"Palette _order.json loaded from last session. Palette '{self.name}'")
+                logger.debug(f"Palette '{self.name}': _order.json loaded from last session")
         else:
             logger.debug(f"No last session order found for palette '{self.name}'. Creating from file order")
 

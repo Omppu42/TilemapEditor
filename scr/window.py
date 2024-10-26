@@ -4,7 +4,6 @@ from util.util_logger import logger
 from util.util import timer
 
 from GUI import popup
-import GUI.dropdown as dropdown
 import settings.settings as settings
 import settings.data as data
 
@@ -25,9 +24,10 @@ class Window:
                 pygame.K_RIGHT, 
                 pygame.K_UP, 
                 pygame.K_DOWN]
-    @timer
+    
+    @timer(text="Initialization completed in %.2f seconds", log_function=logger.log)
     def __init__(self):
-        logger.log("Starting...")
+        logger.log("Creating window...")
 
         self.screen = pygame.display.set_mode((settings.SCR_W, settings.SCR_H))
         pygame.display.set_caption("Tilemap Editor")
@@ -47,12 +47,10 @@ class Window:
         # POST_INIT UPDATES
         sidebar.s_obj.post_init()
         
-        atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
-
         # Import map
         import_map.import_tilemap_from_path(manager.m_obj.loaded_tilemap)
-
-        logger.log("Initialized successfully")
+        
+        atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
     
 
     def early_update(self) -> None:

@@ -10,21 +10,26 @@ import settings.settings as settings
 import constants as constants
 
 
+def timer(text="default", log_function=logger.debug):
+    """Custon text can be set as 'Time took: %.2f' to insert the time while rounding to 2 digits"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            rv = func(*args, **kwargs)
 
-def timer(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start_time = time.time()
-        rv = func(*args, **kwargs)
-
-        caller_path = os.path.abspath(func.__globals__["__file__"])
-        caller_path = os.path.relpath(caller_path, os.getcwd()) #get path relative to cwd
+            caller_path = os.path.abspath(func.__globals__["__file__"])
+            caller_path = os.path.relpath(caller_path, os.getcwd()) #get path relative to cwd
+            
+            total_time = round(time.time() - start_time, 4)
+            if text == "default":
+                log_function(f"Running function '{func.__name__}' at '{caller_path}' in {total_time} seconds")
+            else:
+                log_function(text % total_time)
+            return rv
         
-        total_time = round(time.time() - start_time, 4)
-        logger.debug(f"Running function '{func.__name__}' at '{caller_path}' in {total_time} seconds")
-        return rv
-    
-    return wrapper
+        return wrapper
+    return decorator
 
 
 def get_cell_pos_from_mousepos(pos: tuple, total_mouse_movement: tuple) -> tuple:

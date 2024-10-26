@@ -76,7 +76,7 @@ def import_empty_map() -> None:
     logger.log("Opened empty tilemap")
 
 
-@timer
+@timer(text="Tile IDs updated in %.2f seconds")
 def update_tiles(tile_ids):
     total = -1
     for i in range(ui.ui_obj.grid_size_rows_cols[1]):
@@ -159,7 +159,7 @@ class Importer():
         self.confirm_popup = None
         self.screen = screen
 
-        logger.debug("Initialized importer")
+        logger.debug("Initialized Importer")
 
     def import_tilemap(self) -> None:
         logger.debug("Opening tilemap import popup")
