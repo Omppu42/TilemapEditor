@@ -40,14 +40,13 @@ class Window:
         import_map.create_importer(self.screen)
 
         # ORDER OF CREATION IS IMPORTANT!
-        manager.create_manager()
         sidebar.create_sidebar(self.screen)
         palette.create_palette_manager()
         ui.create_ui(self.screen)
 
         # POST_INIT UPDATES
         sidebar.s_obj.post_init()
-        dropdown.init_dropdowns()
+        
         atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
 
         # Import map
@@ -82,7 +81,7 @@ class Window:
         # RESETS MOUSE CLICKED AND POS
 
         # DROPDOWNS -----------
-        for _dd in dropdown.dropdowns:  #update dropdown dropdowns
+        for _dd in ui.dropdowns:  #update dropdown dropdowns
             _dd.update()
 
             if _dd.drawing:
@@ -128,7 +127,7 @@ class Window:
     # DRAW FUNCS ----------
     def draw(self) -> None:
         # Dropdowns
-        for _dd in dropdown.dropdowns:
+        for _dd in ui.dropdowns:
             _dd.draw(self.screen)
 
         # Popups

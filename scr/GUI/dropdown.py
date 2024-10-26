@@ -10,7 +10,12 @@ import input_overrides
 pygame.init()
 
 class DropDown():
-    def __init__(self, color_menu, color_option, pos_size, font, main, options):
+    COLOR_INACTIVE = (200, 200, 200)
+    COLOR_ACTIVE = (240, 240, 240)
+    COLOR_LIST_INACTIVE = (180, 180, 180)
+    COLOR_LIST_ACTIVE = (220, 220, 220)
+
+    def __init__(self, pos_size, main, options, font=data.font_25, color_menu=[COLOR_INACTIVE, COLOR_ACTIVE], color_option=[COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE]):
         """pos_size being a vector4 x y w h"""
         self.color_menu = color_menu
         self.color_option = color_option
@@ -112,57 +117,3 @@ class DropDown():
 
         # Run the function that was assigned to the option clicked on
         option_func[0](*option_func[1], **option_func[2])
-
-    
-
-
-COLOR_INACTIVE = (200, 200, 200)
-COLOR_ACTIVE = (240, 240, 240)
-COLOR_LIST_INACTIVE = (180, 180, 180)
-COLOR_LIST_ACTIVE = (220, 220, 220)
-
-def create_dropdowns() -> list:
-    defaults = {"color_menu" : [COLOR_INACTIVE, COLOR_ACTIVE],
-                "color_option" : [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
-                "font" : data.font_25,}
-
-
-    dropdowns = []
-
-    dropdowns.append( DropDown.from_defaults(
-        defaults,
-        pos_size=(5, 0, 140, 30), 
-        main="Tilemap", 
-        options={"Load"    : (import_map.i_obj.import_tilemap), 
-                 "Save As" : (tk_util.queue_func, [export.export_tilemap]),
-                 "New"     : (import_map.import_empty_map)} ))
-
-    dropdowns.append( DropDown.from_defaults(
-        defaults,
-        pos_size=(150, 0, 125, 30), 
-        main="Palette", 
-        options={"Load"   : (tk_util.queue_func, [palette.pm_obj.change_palette_ask]), 
-                 "New"    : (tk_util.queue_func, [palette.pm_obj.create_empty_palette]), 
-                 "Delete" : (tk_util.queue_func, [palette.pm_obj.delete_palette])} ))
-
-    dropdowns.append( DropDown.from_defaults(
-        defaults,
-        pos_size=(280, 0, 125, 30), 
-        main="Tiles", 
-        options={"New Tile" : (tk_util.queue_func, [palette.pm_obj.add_tile]), 
-                 "Remove"   : (ui.ui_obj.toggle_delete)} ))
-
-    dropdowns.append( DropDown.from_defaults(
-        defaults,
-        pos_size=(410, 0, 125, 30), 
-        main="Grid", 
-        options={"Resize" : (grid_resize.gr_obj.grid_resize_popup)} ))
-    
-    return dropdowns
-
-
-dropdowns: "list[DropDown]" = []
-
-def init_dropdowns() -> None:
-    global dropdowns
-    dropdowns = create_dropdowns()

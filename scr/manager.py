@@ -117,7 +117,4 @@ class Manager:
     
 
 
-m_obj: Manager = None
-def create_manager() -> None:
-    global m_obj
-    m_obj = Manager()
+m_obj: Manager = Manager()

@@ -1,13 +1,20 @@
 import pygame, json, os
 from block import Block
-from util.util_logger import logger
+from GUI.dropdown import DropDown
 
-import settings.data as data
-import settings.settings as settings
+from util.util_logger import logger
+from util.tkinter_opener import tk_util
+
+from settings import data
+from settings import settings
 
 import manager
 import sidebar
 import input_overrides
+import import_map
+import export
+import grid_resize
+import palette
 
 pygame.init()
 
@@ -113,10 +120,46 @@ class UI:
     def toggle_delete(self):
         manager.m_obj.remove_palette_tiles = not manager.m_obj.remove_palette_tiles
 
+    
+    def init_dropdowns(self) -> list:
+        dropdowns = []
+
+        dropdowns.append( DropDown(
+            pos_size=(5, 0, 140, 30), 
+            main="Tilemap", 
+            options={"Load"    : (import_map.i_obj.import_tilemap), 
+                    "Save As" : (export.export_tilemap),
+                    "New"     : (import_map.import_empty_map)} ))
+
+        dropdowns.append( DropDown(
+            pos_size=(150, 0, 125, 30), 
+            main="Palette", 
+            options={"Load"   : (tk_util.queue_func, [palette.pm_obj.change_palette_ask]), 
+                    "New"    : (tk_util.queue_func, [palette.pm_obj.create_empty_palette]), 
+                    "Delete" : (tk_util.queue_func, [palette.pm_obj.delete_palette])} ))
+
+        dropdowns.append( DropDown(
+            pos_size=(280, 0, 125, 30), 
+            main="Tiles", 
+            options={"New Tile" : (tk_util.queue_func, [palette.pm_obj.add_tile]), 
+                    "Remove"   : (self.toggle_delete)} ))
+
+        dropdowns.append( DropDown(
+            pos_size=(410, 0, 125, 30), 
+            main="Grid", 
+            options={"Resize" : (grid_resize.gr_obj.grid_resize_popup)} ))
+        
+        return dropdowns
 
 
 
+
+
+
+dropdowns: "list[DropDown]" = []
 ui_obj: UI = None
+
 def create_ui(screen):
-    global ui_obj
+    global ui_obj, dropdowns
     ui_obj = UI(screen)
+    dropdowns = ui_obj.init_dropdowns()
