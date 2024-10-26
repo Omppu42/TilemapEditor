@@ -1,15 +1,16 @@
 import pygame
 
-import GUI.button as button
+from .. import button
+from .. import input_field
+
 from . import settings_popup
 from . import popup_window
-from GUI import input_field
 
-import util.util as util
+from util import util
 from util.util import RunnableFunc
 
-import input_overrides
 import constants
+import input_overrides
 
 class ButtonStruct:
     def __init__(self, button: "button.Button", frame_pos: tuple, on_click_class: "RunnableFunc"):
@@ -135,3 +136,6 @@ class PopupContents:
     def on_keydown(self, event) -> None:
         for _field in self.input_fields:
             _field.on_keydown(event)
+
+    def on_destroy(self) -> None:
+        pass # For popupwindow to work

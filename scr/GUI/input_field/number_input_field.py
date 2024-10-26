@@ -2,9 +2,6 @@ import pygame
 
 from . import input_field_base
 
-import settings.data as data
-import input_overrides
-
 pygame.init()
 
 class NumberInputField(input_field_base.InputField):

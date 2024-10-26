@@ -169,12 +169,8 @@ class Importer():
         self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
         self.scrollable = popup.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
         
+        self.popup.add_contents_class(self.scrollable)
 
-        self.popup.add_contents_draw_func( RunnableFunc(self.scrollable.update) )
-        self.popup.add_contents_onmousebuttondown_func( RunnableFunc(self.scrollable.on_mousebuttondown) )
-        self.popup.add_destroy_func( RunnableFunc(self.scrollable.deactivate) )
-
-        popup.popup_window.popup_m_obj.track_popup(self.popup)
 
         paths = file_utils.get_tilemap_paths_sort_date()
         for _p in paths:
@@ -202,7 +198,6 @@ class Importer():
 
 
     def confirm_delete_frame(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
-        print("Confirm")
         logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
         popup_size = (400, 340)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
@@ -230,9 +225,7 @@ class Importer():
         frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.delete_tilemap_confirmed, args=[frame_to_delete, map_path]), anchor=constants.BOTTOM)
         frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=constants.BOTTOM)
 
-        self.confirm_popup.add_contents_draw_func( RunnableFunc(frame.update) )
-        self.confirm_popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
-        popup.popup_window.popup_m_obj.track_popup(self.confirm_popup)
+        self.confirm_popup.add_contents_class(frame)
 
         logger.debug("Tilemap delete confirmation popup initialized successfully")
 

@@ -15,7 +15,6 @@ def get_next_break_index_left(string: str, cursor_pos: int, breaks: "list[str]")
 
     # Don't allow -1 for search end
     search_end = cursor_pos - 1 if cursor_pos > 0 else 0
-
     # Find a position closest to the cursor on the left that stops the control remove
     for _s in breaks:
         _pos = string.rfind(_s, 0, search_end) + 1
@@ -23,7 +22,7 @@ def get_next_break_index_left(string: str, cursor_pos: int, breaks: "list[str]")
             closest_index = _pos
     
     # No stoppers found
-    if closest_index == -1: return 0
+    if closest_index == 0: return 0
 
     # If next to the stopper are more stoppers, extend the closest index to delete all adjacent stoppers
     for i in range(0, 10):

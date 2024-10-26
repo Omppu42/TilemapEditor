@@ -46,16 +46,13 @@ def main():
 
         window.manage_events()
                 
-        tk_util.update() # TODO: Remove this after got rid of all TK functionality
+        tk_util.update()
         ui.ui_obj.update()
 
-        window.draw_dropdowns()
-        window.draw_popups()
-
-        window.draw_info()
+        window.draw()
         window.update_screen()
 
-    
+
 
 if __name__ == "__main__":
     main()

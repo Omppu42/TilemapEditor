@@ -65,10 +65,7 @@ class GridResizer:
         frame.add_button(yes_button, (-0.17, -0.05), RunnableFunc(self.confirm_button, args=[x_size.return_val, y_size.return_val]), anchor=constants.BOTTOM)
         frame.add_button(cancel_button, (0.17, -0.05), RunnableFunc(self.popup.close_popup), anchor=constants.BOTTOM)
 
-        self.popup.add_contents_draw_func( RunnableFunc(frame.update) )
-        self.popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
-        self.popup.add_contents_onkeydown_func( RunnableFunc(frame.on_keydown) )
-        popup.popup_window.popup_m_obj.track_popup(self.popup)
+        self.popup.add_contents_class(frame)
 
         logger.debug("Grid resize popup initialized successfully")
 

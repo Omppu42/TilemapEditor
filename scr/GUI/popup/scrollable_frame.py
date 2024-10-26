@@ -1,6 +1,10 @@
 import pygame
 
+from .. import button
 from . import scrollable_frame_piece
+from util.util import RunnableFunc
+
+import constants
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse
@@ -130,21 +134,6 @@ class ScrollableFrame:
         self.__fix_scroll_outofbounds()
 
 
-    def update(self) -> None:
-        self.surface = self.__redraw_surface()
-        self.scroll_bar_surf = self.__redraw_scrollbar_surface()
-
-        for _frame in self.frames:
-            _frame.update()
-
-        self.__fix_scroll_outofbounds()
-
-        self.parent_surf.blit(self.surface, self.pos)
-
-        scrollbar_y = self.pos[1] + (-self.total_scroll_amout * self.size[1]) / self.__get_scrollables_height() if self.can_scroll else self.pos[1]
-        self.parent_surf.blit(self.scroll_bar_surf, (self.pos[0] + self.size[0], scrollbar_y))
-
-
     def set_scroll(self, amount: int) -> None:
         if not self.can_scroll: return
 
@@ -159,9 +148,6 @@ class ScrollableFrame:
         self.__fix_scroll_outofbounds()
         self.__set_frames_scroll_pos(self.total_scroll_amout)
 
-
-    def deactivate(self) -> None:
-        self.active = False
 
     def disable_clicking(self) -> None:
         self.clickable = False
@@ -182,6 +168,42 @@ class ScrollableFrame:
         self.__update_can_scroll()
 
 
+    def create_frame(self) -> None:
+        font = pygame.font.Font(None, 35)
+        frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
+
+        mapname = f"Tilemap {len(self.frames) + 1}"
+        test_text = font.render(mapname, True, (0,0,0))
+
+        frame.add_surface(test_text, (0,0), anchor=constants.CENTER)
+
+        load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
+        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
+        frame.add_button(load_button, (0.05, 0.0), RunnableFunc(ScrollableFrame.load_btn_onclick_test, args=[f"Tilemaps\\{mapname}"]), anchor=constants.LEFT)
+        frame.add_button(trash_button, (-0.05, 0.0), RunnableFunc(self.delete_frame, args=[frame]), anchor=constants.RIGHT)
+
+        self.add_frame(frame)
+
+
+    def load_btn_onclick_test(map_path: str) -> None:
+        print("Load", map_path)
+
+
+    def update(self) -> None:
+        self.surface = self.__redraw_surface()
+        self.scroll_bar_surf = self.__redraw_scrollbar_surface()
+
+        for _frame in self.frames:
+            _frame.update()
+
+        self.__fix_scroll_outofbounds()
+
+        self.parent_surf.blit(self.surface, self.pos)
+
+        scrollbar_y = self.pos[1] + (-self.total_scroll_amout * self.size[1]) / self.__get_scrollables_height() if self.can_scroll else self.pos[1]
+        self.parent_surf.blit(self.scroll_bar_surf, (self.pos[0] + self.size[0], scrollbar_y))
+
+
     def on_mousebuttondown(self, event: pygame.event.Event) -> None:
         if not self.clickable: return
 
@@ -193,3 +215,12 @@ class ScrollableFrame:
         elif event.button == 5:
             self.__scroll(-1)
     
+    def on_keydown(self, event: pygame.event.Event) -> None:
+        pass # Used for popup add_class
+
+    def on_destroy(self) -> None:
+        pass
+
+    def on_deactivate(self, int1, int2=3) -> None:
+        print("Frame ondestroy:", int1, int2)
+        self.active = False

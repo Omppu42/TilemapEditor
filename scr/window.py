@@ -36,7 +36,6 @@ class Window:
 
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
-        popup.popup_window.create_popup_manager()
         export.create_exporter(self.screen)
         import_map.create_importer(self.screen)
 
@@ -77,10 +76,10 @@ class Window:
                 sys.exit()
 
         # POPUPS ----------
-        if popup.popup_window.popup_m_obj.popups_exist():
-            self.manage_popups()
-            # RESETS MOUSE CLICKED AND POS
-
+        popup.popup_window.popup_m_obj.handle_events(
+            input_overrides.get_event_list()
+        )
+        # RESETS MOUSE CLICKED AND POS
 
         # DROPDOWNS -----------
         for _dd in dropdown.dropdowns:  #update dropdown dropdowns
@@ -111,21 +110,6 @@ class Window:
                 manager.m_obj.mouse_update()
 
 
-    def manage_popups(self):
-        for event in input_overrides.get_event_list():
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                popup.popup_window.popup_m_obj.on_mousebuttondown(event)
-
-            if event.type == pygame.KEYDOWN:
-                popup.popup_window.popup_m_obj.on_keydown(event)
-
-                #Clear this event to not allow interacting with other stuff during a popup
-                input_overrides.remove_event(event)
-
-        # Mouse buttons and pos is cleared here after top popup has updated
-        popup.popup_window.popup_m_obj.update_popups()
-
-
     def manage_keydown(self, event) -> None:
         match (event.key):
             case pygame.K_p:
@@ -142,14 +126,15 @@ class Window:
                 sidebar.s_obj.arrowkeys_tile_selection_move(event)
 
     # DRAW FUNCS ----------
-    def draw_dropdowns(self) -> None:
+    def draw(self) -> None:
+        # Dropdowns
         for _dd in dropdown.dropdowns:
             _dd.draw(self.screen)
 
-    def draw_popups(self) -> None:
+        # Popups
         popup.popup_window.popup_m_obj.draw_popups()
 
-    def draw_info(self) -> None:
+        # Info
         loaded_map = manager.m_obj.loaded_tilemap
         if loaded_map:
             loaded_map = os.path.basename(loaded_map)

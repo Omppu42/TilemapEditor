@@ -1,10 +1,10 @@
 import pygame, time, math
+import inspect
 
-import settings.settings as settings
-import GUI.button as button
+from settings import settings
 from util import util
-from util.util_logger import logger
 
+from .. import button
 from . import settings_popup
 
 import input_overrides
@@ -60,13 +60,19 @@ class PopupWindow:
         self.visible_pos = self.pos
         self.hidden_pos = (self.pos[0], -self.size[1] - (2 * self.border_w + self.backdrop_depth))
 
-        self.on_destroy_func:   "RunnableFuncList" = RunnableFuncList()  #Function, args, kwargs
-        self.c_draw_obj:        "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
-        self.c_onmousedown_obj: "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
-        self.c_onkeydown_obj:   "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
+        self.c_draw_obj:        "RunnableFuncList" = RunnableFuncList()
+        self.c_onmousedown_obj: "RunnableFuncList" = RunnableFuncList()
+        self.c_onkeydown_obj:   "RunnableFuncList" = RunnableFuncList()
+        self.on_destroy_func:   "RunnableFuncList" = RunnableFuncList()
+
+        self.contents_list: list = []
+
+        self.key_bound_funcs: "dict[int, util.RunnableFunc]" = {}
 
         self.__start_animation()
         self.__redraw_surface()
+
+        popup_m_obj.track_popup(self)
         
 
     # PRIVATE -------------------------------
@@ -145,6 +151,9 @@ class PopupWindow:
 
         if progress < 0:
             progress = 0
+            if self.contents_list:
+                [c.on_destroy() for c in self.contents_list]
+
             if self.on_destroy_func.has_funcs():
                 self.on_destroy_func.run_funcs()
 
@@ -156,6 +165,21 @@ class PopupWindow:
         self.pos = self.__anim_ease_pos(progress)
 
 
+    def __get_runnable_func(self, func: "util.RunnableFunc | function") -> util.RunnableFunc:
+        if callable(func):
+            return util.RunnableFunc(func)
+        elif isinstance(func, util.RunnableFunc):
+            return func
+        else:
+            raise TypeError(f"Invalid function passed: {func}")
+        
+    def __get_positional_args(self, func: "function") -> "list[inspect.Parameter]":
+        return [
+                param.name for param in inspect.signature(func).parameters.values()
+                if param.default == inspect.Parameter.empty and
+                param.kind in (inspect.Parameter.POSITIONAL_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+            ]
+
 
     # PUBLIC --------------------------------
     def update(self) -> None:
@@ -165,11 +189,12 @@ class PopupWindow:
 
         self.__redraw_surface()
 
+        # Drawing Funcs
+        if self.contents_list:
+            [c.update() for c in self.contents_list]
+
         if self.c_draw_obj.has_funcs():
             self.c_draw_obj.run_funcs()
-
-        # Allow next code only after animations are finished
-        if not self.active: return
 
 
     def draw(self) -> None:
@@ -182,21 +207,70 @@ class PopupWindow:
         self.close_button.draw()
 
 
-    def add_destroy_func(self, runnable_obj: "util.RunnableFunc") -> None:
-        """Called when the popup is off the screen and deleted"""
-        self.on_destroy_func.add_func(runnable_obj)
-
-    def add_contents_draw_func(self, runnable_obj: "util.RunnableFunc") -> None:
+    def add_contents_draw_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function that draws the contents of the contents of the popup"""
-        self.c_draw_obj.add_func(runnable_obj)
+        self.c_draw_obj.add_func(
+            self.__get_runnable_func(runnable_obj)
+        )
 
-    def add_contents_onmousebuttondown_func(self, runnable_obj: "util.RunnableFunc") -> None:
+    def add_destroy_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
+        """Called when the popup is off the screen and deleted"""
+        self.on_destroy_func.add_func(
+            self.__get_runnable_func(runnable_obj)
+        )
+
+    def add_contents_onmousebuttondown_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
+        runnable_obj = self.__get_runnable_func(runnable_obj)
+        req_args = inspect.getfullargspec(runnable_obj.function).args
+
+        assert (len(req_args) >= 2), f"{runnable_obj.function.__self__.__class__.__name__}.{runnable_obj.function.__name__}() must have at least 2 args: 'self' and 'event'. Current args: {req_args}"
+
         self.c_onmousedown_obj.add_func(runnable_obj)
 
-    def add_contents_onkeydown_func(self, runnable_obj: "util.RunnableFunc") -> None:
+    def add_contents_onkeydown_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
+        runnable_obj = self.__get_runnable_func(runnable_obj)
+        req_args = inspect.getfullargspec(runnable_obj.function).args
+
+        assert (len(req_args) >= 2), f"{runnable_obj.function.__self__.__class__.__name__}.{runnable_obj.function.__name__}() must have at least 2 args: 'self' and 'event'. Current args: {req_args}"
+
         self.c_onkeydown_obj.add_func(runnable_obj)
+
+
+
+    def bind_func_to_key(self, pygame_keycode: int, runnable_obj: "util.RunnableFunc | function") -> None:
+        runnable_obj = self.__get_runnable_func(runnable_obj)
+
+        self.key_bound_funcs[pygame_keycode] = runnable_obj
+
+
+    def add_contents_class(self, contents_class) -> None:
+        """Adds a contents class to update automatically.\n
+        Class has to have update(), on_mousebuttondown(), on_keydown(), on_delete() functions.\n
+        No args or kwargs can be passed. To pass args and kwargs, make the func called here empty and assign with add_funcname() the function desired with args"""
+        f1 = getattr(contents_class, "update")
+        f2 = getattr(contents_class, "on_mousebuttondown")
+        f3 = getattr(contents_class, "on_keydown")
+        f4 = getattr(contents_class, "on_destroy")
+
+        assert callable(f1),                f"update is not a function: {type(f1)}"
+        assert callable(f2),    f"on_mousebuttondown is not a function: {type(f2)}"
+        assert callable(f3),            f"on_keydown is not a function: {type(f3)}"
+        assert callable(f4),            f"on_destroy is not a function: {type(f4)}"
+
+        f1args = self.__get_positional_args(f1)
+        f2args = self.__get_positional_args(f2)
+        f3args = self.__get_positional_args(f3)
+        f4args = self.__get_positional_args(f4)
+
+        assert( len(f1args) == 0),             f"{type(contents_class).__name__}.update() function must take in no args. Currently there are {len(f1args)} arguments: {f1args}"
+        assert( len(f2args) == 1), f"{type(contents_class).__name__}.on_mousebuttondown() function must take in only 'event' as an arg. Currently there are {len(f2args)} arguments: {f2args}"
+        assert( len(f3args) == 1),         f"{type(contents_class).__name__}.on_keydown() function must take in only 'event' as an arg. Currently there are {len(f3args)} arguments: {f3args}"
+        assert( len(f4args) == 0),         f"{type(contents_class).__name__}.on_destroy() function must take in no args. Currently there are {len(f4args)} arguments: {f4args}"
+
+
+        self.contents_list.append(contents_class)
 
 
     def on_left_mouse_click(self) -> None:
@@ -218,7 +292,6 @@ class PopupWindow:
 class PopupManager:
     def __init__(self) -> None:
         self.popups: "list[PopupWindow]" = []
-        logger.debug("Initialized Popup Manager")
 
 
     def track_popup(self, popup_obj: PopupWindow) -> None:
@@ -238,18 +311,31 @@ class PopupManager:
                 _obj.close_popup()
                 break
 
-    def update_popups(self) -> None:
+
+    def draw_popups(self) -> None:
+        for _popup in self.popups:
+            _popup.draw()
+
+    
+    def handle_events(self, events: "list[pygame.event.Event]") -> None:
+        if not self.popups_exist(): return
+
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                self.on_mousebuttondown(event)
+
+            if event.type == pygame.KEYDOWN:
+                self.on_keydown(event)
+
+                input_overrides.remove_event(event)
+
+        # Mouse buttons and pos is cleared here after top popup has updated
         for _popup in self.popups[::-1]:
             _popup.update()
 
             # If popups are present, remove the button clicked status and mousepos to not allow clicking on other buttons
             input_overrides.clear_mouse_pos()
             input_overrides.clear_mouse_pressed()
-
-
-    def draw_popups(self) -> None:
-        for _popup in self.popups:
-            _popup.draw()
 
 
     def on_mousebuttondown(self, event: "pygame.event.Event") -> None:  
@@ -259,6 +345,10 @@ class PopupManager:
         if input_overrides.get_mouse_pressed()[0]:
             self.popups[-1].on_left_mouse_click() # Update top popup leftclick
         
+        top_popup_contents = self.popups[-1].contents_list
+        if top_popup_contents:
+            [c.on_mousebuttondown(event) for c in top_popup_contents]
+
         top_popup_onmd_obj = self.popups[-1].c_onmousedown_obj
         if top_popup_onmd_obj.has_funcs():
             top_popup_onmd_obj.run_funcs(start_args_override=[event]) # Update contents_on_mousebuttondown function
@@ -267,11 +357,18 @@ class PopupManager:
     def on_keydown(self, event: "pygame.event.Event") -> None:        
         # Update only the top popup, which is the last popup in the list
         if len(self.popups) == 0: return
+
+        top_popup_contents = self.popups[-1].contents_list
+        if top_popup_contents:
+            [c.on_keydown(event) for c in top_popup_contents]
+
         top_popup_onkd_obj = self.popups[-1].c_onkeydown_obj
-        
         if top_popup_onkd_obj.has_funcs():
             top_popup_onkd_obj.run_funcs(start_args_override=[event]) # Update contents_on_mousebuttondown function
 
+        for _keycode, _func in self.popups[-1].key_bound_funcs.items():
+            if event.key == _keycode:
+                _func.run_function()
 
 
     def popups_exist(self) -> bool:
@@ -281,9 +378,4 @@ class PopupManager:
         return False
     
 
-popup_m_obj: PopupManager = None
-
-def create_popup_manager() -> None:
-    global popup_m_obj
-    popup_m_obj = PopupManager()
-    print("Inside module popup_m:", popup_m_obj)
+popup_m_obj: PopupManager = PopupManager()
