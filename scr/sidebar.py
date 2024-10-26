@@ -214,7 +214,7 @@ class Sidebar:
             self.draw_page_num()
 
         # Current palette
-        palette.pm_obj.draw_current_palette_text()
+        palette.pm_obj.draw_current_palette_text(self.screen)
 
         # Draw each tile in the selection
         for tile in palette.pm_obj.get_data_current_page():

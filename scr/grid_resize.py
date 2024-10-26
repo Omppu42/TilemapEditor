@@ -2,11 +2,11 @@ import pygame
 import tkinter
 
 import GUI.button as button
-import GUI.input_field as input_field
 import GUI.popup.popup_window as popup_window
 import GUI.popup.popup_contents as popup_contents
 import GUI.popup.scrollable_frame as scrollable_frame
 import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+from GUI import input_field
 
 from util.util_logger import logger
 from util.util import RunnableFunc
@@ -41,10 +41,10 @@ class GridResizer:
         height_text = data.font_25.render(f"HEIGHT", True, (150,150,150))
 
         yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Confirm", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel",  25)
 
-        x_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
-        y_size = input_field.NumberInputField((0,0), (60, 40), 3, "", int_only=True, empty=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        x_size = input_field.NumberInputField((0,0), (60, 40), 3, default_value="", int_only=True, empty=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        y_size = input_field.NumberInputField((0,0), (60, 40), 3, default_value="", int_only=True, empty=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
 
 
         by_image_surf = pygame.image.load("Assets\\close.png")
@@ -55,8 +55,8 @@ class GridResizer:
         frame.add_surface(new_size_text, (0, 0.22), anchor=constants.UP)
 
         # Input
-        frame.add_number_input_field(x_size, (-0.15, 0), anchor=constants.CENTER)  #-2 From image x
-        frame.add_number_input_field(y_size, ( 0.15, 0), anchor=constants.CENTER) #+1,25 From image x
+        frame.add_input_field(x_size, (-0.15, 0), anchor=constants.CENTER)  #-2 From image x
+        frame.add_input_field(y_size, ( 0.15, 0), anchor=constants.CENTER) #+1,25 From image x
 
         frame.add_surface(by_image_surf, (0, 0), anchor=constants.CENTER)
 

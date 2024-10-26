@@ -6,6 +6,24 @@ import util.util as util
 
 import input_overrides
 
+class RunnableFuncList:
+    def __init__(self):
+        self.runnable_funcs: "list[util.RunnableFunc]" = []
+
+    def add_func(self, runnable_func: "util.RunnableFunc") -> None:
+        self.runnable_funcs.append(runnable_func)
+
+    def has_funcs(self) -> bool:
+        return len(self.runnable_funcs) >= 1
+
+    def run_funcs(self, start_args_override=None) -> None:
+        for func in self.runnable_funcs:
+            if start_args_override:
+                func.run_function(start_args_override=start_args_override)
+            else:
+                func.run_function()
+
+
 class PopupWindow:
     TOP_BAR_H = 40
     POPUP_TIME_S = 0.5
@@ -42,10 +60,10 @@ class PopupWindow:
         self.visible_pos = self.pos
         self.hidden_pos = (self.pos[0], -self.size[1] - (2 * self.border_w + self.backdrop_depth))
 
-        self.on_destroy_func: "util.RunnableFunc"                 = None  #Function, args, kwargs
-        self.c_draw_obj: "util.RunnableFunc"              = None # Given in PopupManager track_popup()
-        self.c_onmousedown_obj: "util.RunnableFunc" = None # Given in PopupManager track_popup()
-        self.c_onkeydown_obj: "util.RunnableFunc"         = None # Given in PopupManager track_popup()
+        self.on_destroy_func:   "RunnableFuncList" = RunnableFuncList()  #Function, args, kwargs
+        self.c_draw_obj:        "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
+        self.c_onmousedown_obj: "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
+        self.c_onkeydown_obj:   "RunnableFuncList" = RunnableFuncList() # Given in PopupManager track_popup()
 
         self.__start_animation()
         self.__redraw_surface()
@@ -127,8 +145,8 @@ class PopupWindow:
 
         if progress < 0:
             progress = 0
-            if self.on_destroy_func:
-                self.on_destroy_func.run_function()
+            if self.on_destroy_func.has_funcs():
+                self.on_destroy_func.run_funcs()
 
             self.close_animation_playing = False
             self.active = False
@@ -147,8 +165,8 @@ class PopupWindow:
 
         self.__redraw_surface()
 
-        if self.c_draw_obj:
-            self.c_draw_obj.run_function()
+        if self.c_draw_obj.has_funcs():
+            self.c_draw_obj.run_funcs()
 
         # Allow next code only after animations are finished
         if not self.active: return
@@ -164,21 +182,21 @@ class PopupWindow:
         self.close_button.draw()
 
 
+    def add_destroy_func(self, runnable_obj: "util.RunnableFunc") -> None:
+        """Called when the popup is off the screen and deleted"""
+        self.on_destroy_func.add_func(runnable_obj)
+
     def add_contents_draw_func(self, runnable_obj: "util.RunnableFunc") -> None:
         """Function that draws the contents of the contents of the popup"""
-        self.c_draw_obj = runnable_obj
+        self.c_draw_obj.add_func(runnable_obj)
 
     def add_contents_onmousebuttondown_func(self, runnable_obj: "util.RunnableFunc") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
-        self.c_onmousedown_obj = runnable_obj
+        self.c_onmousedown_obj.add_func(runnable_obj)
 
     def add_contents_onkeydown_func(self, runnable_obj: "util.RunnableFunc") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
-        self.c_onkeydown_obj = runnable_obj
-
-    def add_destroy_func(self, runnable_obj: "util.RunnableFunc") -> None:
-        """Called when the popup is off the screen and deleted"""
-        self.on_destroy_func = runnable_obj
+        self.c_onkeydown_obj.add_func(runnable_obj)
 
 
     def on_left_mouse_click(self) -> None:
@@ -241,8 +259,8 @@ class PopupManager:
             self.popups[-1].on_left_mouse_click() # Update top popup leftclick
         
         top_popup_onmd_obj = self.popups[-1].c_onmousedown_obj
-        if top_popup_onmd_obj:
-            top_popup_onmd_obj.run_function(start_args_override=[event]) # Update contents_on_mousebuttondown function
+        if top_popup_onmd_obj.has_funcs():
+            top_popup_onmd_obj.run_funcs(start_args_override=[event]) # Update contents_on_mousebuttondown function
 
 
     def on_keydown(self, event: "pygame.event.Event") -> None:        
@@ -250,8 +268,8 @@ class PopupManager:
         if len(self.popups) == 0: return
         top_popup_onkd_obj = self.popups[-1].c_onkeydown_obj
         
-        if top_popup_onkd_obj:
-            top_popup_onkd_obj.run_function(start_args_override=[event]) # Update contents_on_mousebuttondown function
+        if top_popup_onkd_obj.has_funcs():
+            top_popup_onkd_obj.run_funcs(start_args_override=[event]) # Update contents_on_mousebuttondown function
 
 
 

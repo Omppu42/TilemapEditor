@@ -5,7 +5,6 @@ from util.util_logger import logger
 import settings.data as data
 import settings.settings as settings
 
-import import_map
 import manager
 import sidebar
 import input_overrides

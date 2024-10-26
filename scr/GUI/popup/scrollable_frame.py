@@ -1,17 +1,12 @@
 import pygame
 
 import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
-import GUI.button as button
-
-from util.util_logger import logger
-
-import input_overrides
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse
 
     SCROLL_SPEED = 17
-    def __init__(self, surface: pygame.Surface, parent_pos: tuple, pos: int, size: int) -> None:
+    def __init__(self, surface: pygame.Surface, parent_pos: tuple, pos: int, size: int, frames_gap=10) -> None:
         """parent_pos being the position of the parent on the screen, pos being relative to parent surface"""
         self.parent_surf = surface
         self.pos = pos
@@ -29,7 +24,7 @@ class ScrollableFrame:
 
         # Frames
         self.frames: "list[scrollable_frame_piece.FramePiece]" = []
-        self.frames_gap = 10
+        self.frames_gap = frames_gap
         self.first_frame_h = 0
 
         # Surfaces
@@ -185,27 +180,6 @@ class ScrollableFrame:
         
         self.frames.append(frame)
         self.__update_can_scroll()
-
-
-    # def create_test_frame(self) -> None:
-    #     font = pygame.font.Font(None, 35)
-    #     frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
-
-    #     mapname = f"Tilemap {len(self.frames) + 1}"
-    #     test_text = font.render(mapname, True, (0,0,0))
-
-    #     frame.add_surface(test_text, (0.5,0.5))
-
-    #     load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
-    #     trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
-    #     frame.add_button(load_button, (0.015, 0.15), ScrollableFrame.load_btn_onclick_test, on_click_func_args=[f"Tilemaps\\{mapname}"])
-    #     frame.add_button(trash_button, (0.915, 0.15), self.__delete_frame, on_click_func_args=[frame])
-
-    #     self.add_frame(frame)
-
-
-    # def load_btn_onclick_test(map_path: str) -> None:
-    #     logger.debug("TEST: Load", map_path)
 
 
     def on_mousebuttondown(self, event: pygame.event.Event) -> None:

@@ -34,7 +34,7 @@ import ui
 # TODO: Scrollable_frame_piece.py and popup_contents.py are almost same (one takes in scrollable frame, other popup window to extract parent position) Merge them somehow into one?
 
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
-
+# FIXME: Remenber if grid was toggled off when exiting to load next time. (last session data)
 
 def main():
     # DISPLAY

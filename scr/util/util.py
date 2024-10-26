@@ -1,8 +1,7 @@
 import pygame
 
-import time, os, json, math
+import time, os, math
 from functools import wraps
-import inspect
 import traceback
 
 from util.util_logger import logger
@@ -28,33 +27,20 @@ def timer(func):
     return wrapper
 
 
-def load_json_data_dict(path: str) -> dict:
-    if not os.path.isfile(path): 
-        logger.warning(f"Trying to open file at path {path}, which was not found")
-        return {}
+def get_cell_pos_from_mousepos(pos: tuple, total_mouse_movement: tuple) -> tuple:
+    """Returns tuple of x and y block coordinates"""
+    cell = ((pos[0] - total_mouse_movement[0]) // settings.CELL_SIZE, 
+            (pos[1] - total_mouse_movement[1]) // settings.CELL_SIZE)
 
-    with open(path, "r") as f:        
-        return json.load(f)
+    return cell
 
+def get_clicked_block(pos: tuple, total_mouse_movement: tuple, blocks_list: list) -> tuple:
+    """Returns a block which was clicked on"""
+    cell = ((pos[0] - total_mouse_movement[0]) // settings.CELL_SIZE, 
+            (pos[1] - total_mouse_movement[1]) // settings.CELL_SIZE)
 
-def prevent_existing_file_overlap(filepath: str) -> str:
-    """Returns a path that is valid, fixing conflicts by adding (1) or (2) depending on many conflicts there are"""
-    if not os.path.isfile(filepath):
-        return filepath
-
-    _filepath, _filename = os.path.split(filepath)
-    _file, _extension = os.path.splitext(_filename)
-
-    new_filename = _file + " (%s)" + _extension
-    new_filepath = _filepath + "\\" + new_filename
-    # _filename (%s).png
-
-    i = 1
-    # find a free name
-    while os.path.isfile(new_filepath % i):
-        i += 1
-
-    return new_filepath % i
+    block = next((x for x in blocks_list if x.pos_on_grid == cell), None)
+    return block
 
 
 def get_tile_page_from_index(index: int) -> int:

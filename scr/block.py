@@ -1,4 +1,4 @@
-import pygame, math
+import pygame
 
 from util.util_logger import logger
 
@@ -7,7 +7,6 @@ import settings.data as data
 import settings.settings as settings
 
 import palette
-import ui
 
 
 pygame.init()
@@ -23,15 +22,7 @@ class Block:
         self.screen_size = self.screen.get_size()
         self.surf = pygame.Surface((self.size, self.size))
         self.update_surf(grid_on)
-
-    # STATIC ------------------------------------------
-    def get_cell_from_mousepos(pos: tuple) -> "Block":
-        cell = ((pos[0] - ui.ui_obj.total_mouse_change[0]) // settings.CELL_SIZE, 
-                (pos[1] - ui.ui_obj.total_mouse_change[1]) // settings.CELL_SIZE)
-
-        block = next((x for x in ui.ui_obj.blocks if x.pos_on_grid == cell), None)
-        return block
-
+        
 
     # PUBLIC ------------------------------------------
     def update_surf(self, grid: bool):

@@ -1,8 +1,8 @@
 import pygame
 
 import GUI.button as button
-import GUI.input_field as input_field
 import GUI.popup.popup_window as popup_window
+from GUI import input_field
 
 import util.util as util
 from util.util import RunnableFunc
@@ -80,7 +80,7 @@ class PopupContents:
         )
         
 
-    def add_number_input_field(self, field: "input_field.NumberInputField", pos_rel: tuple, anchor=constants.UL) -> None:
+    def add_input_field(self, field: "input_field.NumberInputField | input_field.TextInputField", pos_rel: tuple, anchor=constants.UL) -> None:
         anchor_pos = self.__get_anchor_position(field.surface, pos_rel, anchor)
 
         field.pos = anchor_pos
@@ -112,7 +112,7 @@ class PopupContents:
     def on_mousebuttondown(self, event, parent_pos_override:tuple=None) -> None:
         if not self.parent.active: return
         if not input_overrides.get_mouse_pressed()[0]: return
-        
+
         parent_pos = self.parent.pos if parent_pos_override == None else parent_pos_override
 
         for _field in self.input_fields:

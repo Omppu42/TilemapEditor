@@ -1,7 +1,7 @@
 import pygame
 
-import GUI.popup.scrollable_frame as scrollable_frame
-import GUI.popup.popup_contents as popup_contents
+from GUI.popup import scrollable_frame
+from GUI.popup import popup_contents
 
 
 class FramePiece(popup_contents.PopupContents):

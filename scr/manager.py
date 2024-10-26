@@ -1,13 +1,10 @@
 import pygame, tkinter
-from enum import Enum
 from util.util_logger import logger
 from tkinter import filedialog
 
 from settings.data import State
 
 import util.util as util
-import GUI.dropdown as dropdown
-import block as block_file
 import settings.settings as settings
 
 import palette
@@ -36,7 +33,7 @@ class Manager:
         # If clicked on the sidebar
         if mouse_pos[0] > settings.VIEWPORT_W: return
 
-        _block = block_file.Block.get_cell_from_mousepos(mouse_pos)
+        _block = util.get_clicked_block(mouse_pos, ui.ui_obj.total_mouse_change, ui.ui_obj.blocks)
         if _block is None: return
 
         # If clicked on canvas, toggle remove_palette_tiles to False

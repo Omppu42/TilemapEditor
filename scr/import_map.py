@@ -1,13 +1,12 @@
 import pygame, json, os, shutil
-import tkinter as tk
 
-from tkinter.messagebox import askyesno, WARNING
 from datetime import datetime
 
 from util.util import timer
 from util.util_logger import logger
 from util.util import RunnableFunc
-import util.util as util
+from util import file_utils
+from util import util
 
 import GUI.button as button
 import GUI.popup.popup_window as popup_window
@@ -146,19 +145,6 @@ def get_data_tileids_deprecated(tilemap_root_path) -> list:
 
 
 
-def get_data_data_or_explanations(tilemap_path: str) -> dict:
-    if os.path.isfile(tilemap_path + "\\data.json"):
-        with open(tilemap_path + "\\data.json", "r") as f:
-            return json.load(f)
-    elif os.path.isfile(tilemap_path + "\\explanations.json"):
-        with open(tilemap_path + "\\explanations.json", "r") as f:
-            return json.load(f)
-    else:
-        logger.warning(f"Retrieving tilemap data: Trying to get tilemap data, but no \\data.json or \\explanations.json was found")
-    
-    return {}
-
-
 
 
 class Importer():
@@ -193,7 +179,7 @@ class Importer():
 
         popup_window.popup_m_obj.track_popup(self.popup)
 
-        paths = self.__get_folders_to_selection()
+        paths = file_utils.get_tilemap_paths_sort_date()
         for _p in paths:
             self.create_frame(_p)
 
@@ -207,7 +193,7 @@ class Importer():
         mapname = os.path.basename(path)
         name_text = data.font_25.render(mapname, True, (0,0,0))
 
-        frame.add_surface(name_text, (0, 0), anchor=constants.CENTER)
+        frame.add_surface(name_text, (0.05, 0), anchor=constants.CENTER)
 
         load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
@@ -268,62 +254,7 @@ class Importer():
         self.scrollable.disable_clicking()
 
 
-    def __get_folders_to_selection(self) -> list:
-        # Get all directories in Tilemap export folder
-        dirs = os.listdir(settings.TILEMAPS_EXPORT)
-        
-        # Add tilemaps export folder to the path to make it relative to cwd
-        dirs = [settings.TILEMAPS_EXPORT + "\\" + _dir for _dir in dirs]
-
-        # Remove any folders that are not tilemap exports
-        dirs_clean = [_dir for _dir in dirs if (os.path.isfile(_dir + "\\data.json") or 
-                                                os.path.isfile(_dir + "\\explanations.json"))]
-        
-        if dirs != dirs_clean:
-            # Find the directories that are not tilemaps and put them into bad_paths
-            bad_paths = []
-            for _d in dirs:
-                if _d not in dirs_clean:
-                    bad_paths.append(_d)
-
-            logger.warning(f"One or more of folder under {settings.TILEMAPS_EXPORT}\\ is not a tilemap. Invalid tilemaps ({len(bad_paths)}) are {bad_paths}")
-
-        dirs = dirs_clean
-
-        # If no tilemaps exist
-        if dirs == []:
-            return []
-
-        sorted_dirs = []
-        dirs_no_time = []
-
-        # Sort by time saved
-        for _dir in dirs:
-            # Load each tilemap's data
-            data = get_data_data_or_explanations(_dir)
-
-            # if not saved_time in data
-            if not "last_loaded" in data.keys():
-                dirs_no_time.append( (_dir, -1) )
-                continue
-
-            last_loaded_time = data["last_loaded"]
-            diff = datetime.now() - datetime.strptime(last_loaded_time, settings.EXPORT_TIME_FORMAT)
-            loaded_minutes_ago = diff.total_seconds() / 60
-            
-            sorted_dirs.append( (_dir, loaded_minutes_ago) )
-
-
-        # sort by the difference to current time: Most recently exported will be on top
-        sorted_dirs.sort(key=lambda x: x[1])
-
-        # Append the ones that didn't have last_loaded to the back
-        for d in dirs_no_time:
-            sorted_dirs.append(d)
-
-        output = [_dir for _dir, _ in sorted_dirs]
-
-        return output
+    
         
 
 i_obj: Importer = None

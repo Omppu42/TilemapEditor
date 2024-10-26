@@ -3,11 +3,10 @@ from tkinter import filedialog
 from tkinter.messagebox import askokcancel, WARNING
 
 from util.util_logger import logger
-import util.util as util
+from util import file_utils
 import settings.data as data
 import settings.settings as settings
 
-import ui
 import sidebar
 import manager
 
@@ -180,7 +179,7 @@ class PaletteManager:
         # Default to the first palette, change to the last session palette if found
         self.current_palette = self.all_palettes[0]
 
-        last_session_data = util.load_json_data_dict(settings.LAST_SESSION_DATA_JSON)
+        last_session_data = file_utils.load_json_data_dict(settings.LAST_SESSION_DATA_JSON)
 
         if last_session_data == {}:
             logger.warning("No last session data found, returning to defaults")
@@ -247,8 +246,10 @@ class PaletteManager:
     def __update_palette_change(self):
         self.current_palette.load_sequence()
         
-        ui.ui_obj.current_palette = self.current_palette
-        ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
+        # TODO: Why are these imported from UI
+        #ui.ui_obj.current_palette = self.current_palette
+        #ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
+        sidebar.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
         self.selected_tile_id = 0 + sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
 
         sidebar.s_obj.update_page_arrows()
@@ -335,7 +336,7 @@ class PaletteManager:
             destination = self.current_palette.path + "\\" + filename
 
             # Add file (1) if needed
-            destination = util.prevent_existing_file_overlap(destination)
+            destination = file_utils.prevent_existing_file_overlap(destination)
             filename = os.path.split(destination)[1]
             
             shutil.copy(png, destination)
@@ -369,7 +370,7 @@ class PaletteManager:
         tile_to_remove_path = self.current_palette.path + "\\" + self.current_palette.tiles_order[index]
         
         deleted_tile_path = "Deleted_tiles\\"+self.current_palette.tiles_order[index]
-        deleted_tile_path = util.prevent_existing_file_overlap(deleted_tile_path)
+        deleted_tile_path = file_utils.prevent_existing_file_overlap(deleted_tile_path)
 
 
         shutil.move(tile_to_remove_path, deleted_tile_path)
@@ -460,10 +461,10 @@ class PaletteManager:
         logger.log(f"Deleting palette: Deleted '{palette.name}'")
 
 
-    def draw_current_palette_text(self):
+    def draw_current_palette_text(self, screen):
         text = data.font_35.render(self.current_palette.name, True, (150,150,150))
         text_rect = text.get_rect(center=(sidebar.s_obj.pos[0]+sidebar.s_obj.size[0]//2, 25))
-        ui.ui_obj.screen.blit(text, text_rect)
+        screen.blit(text, text_rect)
 
 
 

@@ -1,4 +1,4 @@
-import pygame, sys, json, time, atexit, os
+import pygame, sys, json, atexit, os
 
 from util.util_logger import logger
 from util.util import timer
@@ -15,6 +15,7 @@ import sidebar
 import import_map
 import input_overrides
 import grid_resize
+import export
 
 
 
@@ -36,6 +37,7 @@ class Window:
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
         popup_window.create_popup_manager()
+        export.create_exporter(self.screen)
         import_map.create_importer(self.screen)
 
         # ORDER OF CREATION IS IMPORTANT!
