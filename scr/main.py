@@ -9,6 +9,7 @@ import ui
 
 
 # TODO: Create popups for exporting, loading and exporting palettes
+# TODO: If gridsize didn't change during resizing, keep old tilemap active
 
 
 # TODO: Export GUI with asking to name the tilemap. There could also be the slection of all current tilemaps to overwrite if needed

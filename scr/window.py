@@ -3,8 +3,8 @@ import pygame, sys, json, atexit, os
 from util.util_logger import logger
 from util.util import timer
 
+from GUI import popup
 import GUI.dropdown as dropdown
-import GUI.popup.popup_window as popup_window
 import settings.settings as settings
 import settings.data as data
 
@@ -36,7 +36,7 @@ class Window:
 
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
-        popup_window.create_popup_manager()
+        popup.popup_window.create_popup_manager()
         export.create_exporter(self.screen)
         import_map.create_importer(self.screen)
 
@@ -77,7 +77,7 @@ class Window:
                 sys.exit()
 
         # POPUPS ----------
-        if popup_window.popup_m_obj.popups_exist():
+        if popup.popup_window.popup_m_obj.popups_exist():
             self.manage_popups()
             # RESETS MOUSE CLICKED AND POS
 
@@ -114,16 +114,16 @@ class Window:
     def manage_popups(self):
         for event in input_overrides.get_event_list():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                popup_window.popup_m_obj.on_mousebuttondown(event)
+                popup.popup_window.popup_m_obj.on_mousebuttondown(event)
 
             if event.type == pygame.KEYDOWN:
-                popup_window.popup_m_obj.on_keydown(event)
+                popup.popup_window.popup_m_obj.on_keydown(event)
 
                 #Clear this event to not allow interacting with other stuff during a popup
                 input_overrides.remove_event(event)
 
         # Mouse buttons and pos is cleared here after top popup has updated
-        popup_window.popup_m_obj.update_popups()
+        popup.popup_window.popup_m_obj.update_popups()
 
 
     def manage_keydown(self, event) -> None:
@@ -147,7 +147,7 @@ class Window:
             _dd.draw(self.screen)
 
     def draw_popups(self) -> None:
-        popup_window.popup_m_obj.draw_popups()
+        popup.popup_window.popup_m_obj.draw_popups()
 
     def draw_info(self) -> None:
         loaded_map = manager.m_obj.loaded_tilemap

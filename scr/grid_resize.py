@@ -2,10 +2,7 @@ import pygame
 import tkinter
 
 import GUI.button as button
-import GUI.popup.popup_window as popup_window
-import GUI.popup.popup_contents as popup_contents
-import GUI.popup.scrollable_frame as scrollable_frame
-import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+from GUI import popup
 from GUI import input_field
 
 from util.util_logger import logger
@@ -28,9 +25,9 @@ class GridResizer:
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 100)
 
 
-        self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
 
-        frame = popup_contents.PopupContents(self.popup, (10, 10), (popup_size[0] - 20, popup_size[1] - 60))
+        frame = popup.PopupContents(self.popup, (10, 10), (popup_size[0] - 20, popup_size[1] - 60))
 
         current_w, current_h = ui.ui_obj.grid_size_rows_cols
 
@@ -71,7 +68,7 @@ class GridResizer:
         self.popup.add_contents_draw_func( RunnableFunc(frame.update) )
         self.popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
         self.popup.add_contents_onkeydown_func( RunnableFunc(frame.on_keydown) )
-        popup_window.popup_m_obj.track_popup(self.popup)
+        popup.popup_window.popup_m_obj.track_popup(self.popup)
 
         logger.debug("Grid resize popup initialized successfully")
 

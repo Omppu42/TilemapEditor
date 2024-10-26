@@ -1,7 +1,8 @@
 import pygame
 
 import GUI.button as button
-import GUI.popup.popup_window as popup_window
+from . import settings_popup
+from . import popup_window
 from GUI import input_field
 
 import util.util as util
@@ -26,7 +27,7 @@ class PopupContents:
         self.parent = popup
         #self.pos = pos
         self.pos = (pos[0] + popup.border_w, 
-                    pos[1] + popup.border_w + popup_window.PopupWindow.TOP_BAR_H)
+                    pos[1] + popup.border_w + settings_popup.POPUP_TOPBAR_H)
         
         self.size = size
         self.frame_base = pygame.Surface(size)

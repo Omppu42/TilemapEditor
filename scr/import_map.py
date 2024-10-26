@@ -9,10 +9,7 @@ from util import file_utils
 from util import util
 
 import GUI.button as button
-import GUI.popup.popup_window as popup_window
-import GUI.popup.popup_contents as popup_contents
-import GUI.popup.scrollable_frame as scrollable_frame
-import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+from GUI import popup
 
 import settings.data as data
 import settings.settings as settings
@@ -169,15 +166,15 @@ class Importer():
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
 
-        self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-        self.scrollable = scrollable_frame.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
+        self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        self.scrollable = popup.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
         
 
         self.popup.add_contents_draw_func( RunnableFunc(self.scrollable.update) )
         self.popup.add_contents_onmousebuttondown_func( RunnableFunc(self.scrollable.on_mousebuttondown) )
         self.popup.add_destroy_func( RunnableFunc(self.scrollable.deactivate) )
 
-        popup_window.popup_m_obj.track_popup(self.popup)
+        popup.popup_window.popup_m_obj.track_popup(self.popup)
 
         paths = file_utils.get_tilemap_paths_sort_date()
         for _p in paths:
@@ -188,7 +185,7 @@ class Importer():
 
 
     def create_frame(self, path) -> None:
-        frame = scrollable_frame_piece.FramePiece(self.scrollable, (10,10), (480, 50))
+        frame = popup.FramePiece(self.scrollable, (10,10), (480, 50))
 
         mapname = os.path.basename(path)
         name_text = data.font_25.render(mapname, True, (0,0,0))
@@ -204,16 +201,16 @@ class Importer():
         self.scrollable.add_frame(frame)
 
 
-    def confirm_delete_frame(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+    def confirm_delete_frame(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
         print("Confirm")
         logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
         popup_size = (400, 340)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
                      settings.SCR_H//2 - popup_size[1]//2)
 
-        self.confirm_popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
 
-        frame = popup_contents.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
+        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
 
         mapname = os.path.basename(map_path)
         confirm_text_1 = util.pygame_different_color_text(data.font_25, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
@@ -235,12 +232,12 @@ class Importer():
 
         self.confirm_popup.add_contents_draw_func( RunnableFunc(frame.update) )
         self.confirm_popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
-        popup_window.popup_m_obj.track_popup(self.confirm_popup)
+        popup.popup_window.popup_m_obj.track_popup(self.confirm_popup)
 
         logger.debug("Tilemap delete confirmation popup initialized successfully")
 
 
-    def delete_tilemap_confirmed(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+    def delete_tilemap_confirmed(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
         logger.debug(f"Confirmed tilemap deletion. Deleting tilemap at '{map_path}'...")
         self.scrollable.delete_frame(frame_to_delete)
         delete_tilemap(map_path)
@@ -250,7 +247,7 @@ class Importer():
 
     def on_load_click(self, path_to_tilemap: str) -> None:
         import_tilemap_from_path(path_to_tilemap)
-        popup_window.popup_m_obj.close_popup(self.popup)
+        popup.popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()
 
 

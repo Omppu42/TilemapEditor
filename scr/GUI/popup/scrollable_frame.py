@@ -1,6 +1,6 @@
 import pygame
 
-import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+from . import scrollable_frame_piece
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse

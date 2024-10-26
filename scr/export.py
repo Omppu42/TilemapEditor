@@ -9,12 +9,9 @@ from util.util_logger import logger
 from util import file_utils
 from util import util
 
-from GUI import input_field
 import GUI.button as button
-import GUI.popup.popup_window as popup_window
-import GUI.popup.popup_contents as popup_contents
-import GUI.popup.scrollable_frame as scrollable_frame
-import GUI.popup.scrollable_frame_piece as scrollable_frame_piece
+from GUI import input_field
+from GUI import popup
 
 import ui
 import palette
@@ -104,10 +101,10 @@ class Exporter():
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
 
-        self.popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-        self.scrollable = scrollable_frame.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,340), frames_gap=4)
+        self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        self.scrollable = popup.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,340), frames_gap=4)
 
-        contents_canvas = popup_contents.PopupContents(self.popup, (10, 10), (580, 455), (120,120,120))
+        contents_canvas = popup.PopupContents(self.popup, (10, 10), (580, 455), (120,120,120))
         name = input_field.TextInputField((0,0), (320, 40), 30, empty="Tilemap name", bg_color=(180,180,180), border_width=1, font=data.font_30)
         # TODO: Add a button to confirm export
         contents_canvas.add_input_field(name, (0, -0.1), anchor=constants.BOTTOM)
@@ -123,7 +120,7 @@ class Exporter():
 
         self.popup.add_contents_onkeydown_func( RunnableFunc(contents_canvas.on_keydown) )
 
-        popup_window.popup_m_obj.track_popup(self.popup)
+        popup.popup_window.popup_m_obj.track_popup(self.popup)
 
         tilemap_paths = file_utils.get_tilemap_paths_alphabetically()
         for _p in tilemap_paths:
@@ -135,7 +132,7 @@ class Exporter():
 
 
     def create_frame(self, path) -> None:
-        frame = scrollable_frame_piece.FramePiece(self.scrollable, (10,10), (480, 30))
+        frame = popup.FramePiece(self.scrollable, (10,10), (480, 30))
 
         mapname = os.path.basename(path)
         name_text = data.font_25.render(mapname, True, (0,0,0))
@@ -145,16 +142,16 @@ class Exporter():
         self.scrollable.add_frame(frame)
 
 
-    def confirm_delete_frame(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+    def confirm_delete_frame(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
         print("Confirm")
         logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
         popup_size = (400, 340)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
                      settings.SCR_H//2 - popup_size[1]//2)
 
-        self.confirm_popup = popup_window.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
 
-        frame = popup_contents.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
+        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
 
         mapname = os.path.basename(map_path)
         confirm_text_1 = util.pygame_different_color_text(data.font_25, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
@@ -176,12 +173,12 @@ class Exporter():
 
         self.confirm_popup.add_contents_draw_func( RunnableFunc(frame.update) )
         self.confirm_popup.add_contents_onmousebuttondown_func( RunnableFunc(frame.on_mousebuttondown) )
-        popup_window.popup_m_obj.track_popup(self.confirm_popup)
+        popup.popup_window.popup_m_obj.track_popup(self.confirm_popup)
 
         logger.debug("Tilemap delete confirmation popup initialized successfully")
 
 
-    def delete_tilemap_confirmed(self, frame_to_delete: "scrollable_frame_piece.FramePiece", map_path: str) -> None:
+    def delete_tilemap_confirmed(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
         logger.debug(f"Confirmed tilemap deletion. Deleting tilemap at '{map_path}'...")
         self.scrollable.delete_frame(frame_to_delete)
         delete_tilemap(map_path)
@@ -191,7 +188,7 @@ class Exporter():
 
     def on_load_click(self, path_to_tilemap: str) -> None:
         import_tilemap_from_path(path_to_tilemap)
-        popup_window.popup_m_obj.close_popup(self.popup)
+        popup.popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()
         
 

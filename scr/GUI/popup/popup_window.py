@@ -2,7 +2,10 @@ import pygame, time, math
 
 import settings.settings as settings
 import GUI.button as button
-import util.util as util
+from util import util
+from util.util_logger import logger
+
+from . import settings_popup
 
 import input_overrides
 
@@ -25,9 +28,6 @@ class RunnableFuncList:
 
 
 class PopupWindow:
-    TOP_BAR_H = 40
-    POPUP_TIME_S = 0.5
-    BACKSHADOW_OPACITY = 100
     def __init__(self, screen: pygame.Surface, pos: tuple, size: tuple, bg: tuple, bar_bg: tuple, border_w: int=0, backdrop_depth: int=0) -> None:
         self.screen = screen
         self.pos = pos
@@ -45,8 +45,8 @@ class PopupWindow:
         self.surface = self.__init_surface()
 
         self.close_button = button.ImageButton(screen,
-                                               (self.pos[0] + self.size[0] + border_w - PopupWindow.TOP_BAR_H, self.pos[1] + border_w),
-                                               (PopupWindow.TOP_BAR_H, PopupWindow.TOP_BAR_H),
+                                               (self.pos[0] + self.size[0] + border_w - settings_popup.POPUP_TOPBAR_H, self.pos[1] + border_w),
+                                               (settings_popup.POPUP_TOPBAR_H, settings_popup.POPUP_TOPBAR_H),
                                                "Assets\\close.png", hover_col_on=(255, 50, 50), img_color_on_hover=(255, 255, 255), border_w=0, col_on=(255,255,255))
 
         self.active = False # Set to true after the starting animation
@@ -108,17 +108,17 @@ class PopupWindow:
         pygame.draw.rect(self.surface, self.bg, ((self.border_w, self.border_w), self.size))
 
         # Draw the top bar
-        pygame.draw.rect(self.surface, self.bar_bg, (self.border_w, self.border_w, self.size[0], PopupWindow.TOP_BAR_H))
+        pygame.draw.rect(self.surface, self.bar_bg, (self.border_w, self.border_w, self.size[0], settings_popup.POPUP_TOPBAR_H))
 
         # Keep the close button in it's correct place during animations
-        self.close_button.pos = (self.pos[0] + self.size[0] + self.border_w - PopupWindow.TOP_BAR_H, self.pos[1] + self.border_w)
+        self.close_button.pos = (self.pos[0] + self.size[0] + self.border_w - settings_popup.POPUP_TOPBAR_H, self.pos[1] + self.border_w)
         self.close_button.update()
 
 
     def __anim_ease_pos(self, x) -> float:
         ease = 2 * x * x if x < 0.5 else 1 - math.pow(-2 * x + 2, 2) / 2
 
-        self.screen_shade_surf.set_alpha(ease * PopupWindow.BACKSHADOW_OPACITY)
+        self.screen_shade_surf.set_alpha(ease * settings_popup.POPUP_BACKSHADOW_OPACITY)
 
         # At progress=1    self.hidden_pos[1]  cancel each other out 
         return (self.visible_pos[0], self.hidden_pos[1] + (self.visible_pos[1] - self.hidden_pos[1]) * ease)
@@ -127,7 +127,7 @@ class PopupWindow:
     def __start_animation(self) -> None:
         alive_time = time.time() - self.creation_time      
 
-        progress = alive_time / PopupWindow.POPUP_TIME_S
+        progress = alive_time / settings_popup.POPUP_ANIM_TIME_S
 
         if progress > 1:
             self.start_animation_playing = False
@@ -141,7 +141,7 @@ class PopupWindow:
     def __close_animation(self) -> None:
         elapsed_time = time.time() - self.close_anim_start_time
 
-        progress = 1 - (elapsed_time / PopupWindow.POPUP_TIME_S)
+        progress = 1 - (elapsed_time / settings_popup.POPUP_ANIM_TIME_S)
 
         if progress < 0:
             progress = 0
@@ -218,6 +218,7 @@ class PopupWindow:
 class PopupManager:
     def __init__(self) -> None:
         self.popups: "list[PopupWindow]" = []
+        logger.debug("Initialized Popup Manager")
 
 
     def track_popup(self, popup_obj: PopupWindow) -> None:
@@ -280,10 +281,9 @@ class PopupManager:
         return False
     
 
-
 popup_m_obj: PopupManager = None
-
 
 def create_popup_manager() -> None:
     global popup_m_obj
     popup_m_obj = PopupManager()
+    print("Inside module popup_m:", popup_m_obj)
