@@ -246,9 +246,6 @@ class PaletteManager:
     def __update_palette_change(self):
         self.current_palette.load_sequence()
         
-        # TODO: Why are these imported from UI
-        #ui.ui_obj.current_palette = self.current_palette
-        #ui.ui_obj.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
         sidebar.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
         self.selected_tile_id = 0 + sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
 

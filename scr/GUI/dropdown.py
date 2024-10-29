@@ -1,10 +1,7 @@
 import pygame
-import export, import_map, grid_resize
-from util.tkinter_opener import tk_util
 
-import ui
-import palette
-import settings.data as data
+from settings import data
+
 import input_overrides
 
 pygame.init()

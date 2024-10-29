@@ -9,7 +9,7 @@ from . import popup_window
 from util import util
 from util.util import RunnableFunc
 
-import constants
+import anchors
 import input_overrides
 
 class ButtonStruct:
@@ -45,12 +45,12 @@ class PopupContents:
         
         size_w, size_h = surface.get_size()
 
-        frame_anchor_xy = util.get_anchor_pos_from_rect(self.frame_base.get_rect(), anchor)
+        frame_anchor_xy = anchors.get_anchor_pos_from_rect(self.frame_base.get_rect(), anchor)
 
-        surface_anchor_rect = util.get_rect_anchor(surface, 
-                                                   (pos_rel[0]*self.size[0], 
-                                                    pos_rel[1]*self.size[1]),
-                                                   anchor)
+        surface_anchor_rect = anchors.get_rect_anchor(surface, 
+                                                     (pos_rel[0]*self.size[0], 
+                                                      pos_rel[1]*self.size[1]),
+                                                     anchor)
 
         return pygame.Rect(frame_anchor_xy[0] + surface_anchor_rect.x,
                            frame_anchor_xy[1] + surface_anchor_rect.y,
@@ -65,7 +65,7 @@ class PopupContents:
 
 
     # PUBLIC ---------------
-    def add_surface(self, surface: pygame.Surface, pos_rel: tuple, anchor=constants.UL) -> None:
+    def add_surface(self, surface: pygame.Surface, pos_rel: tuple, anchor=anchors.UL) -> None:
         """center_pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
 
         anchor_pos = self.__get_anchor_position(surface, pos_rel, anchor)
@@ -73,7 +73,7 @@ class PopupContents:
         self.frame_base.blit(surface, anchor_pos)
 
 
-    def add_button(self, button: button.Button, pos_rel: tuple, on_click_func: "RunnableFunc", anchor=constants.UL) -> None:
+    def add_button(self, button: button.Button, pos_rel: tuple, on_click_func: "RunnableFunc", anchor=anchors.UL) -> None:
         """pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
         anchor_pos = self.__get_anchor_position(button.btn_surf, pos_rel, anchor)
 
@@ -82,7 +82,7 @@ class PopupContents:
         )
         
 
-    def add_input_field(self, field: "input_field.NumberInputField | input_field.TextInputField", pos_rel: tuple, anchor=constants.UL) -> None:
+    def add_input_field(self, field: "input_field.NumberInputField | input_field.TextInputField", pos_rel: tuple, anchor=anchors.UL) -> None:
         anchor_pos = self.__get_anchor_position(field.surface, pos_rel, anchor)
 
         field.pos = anchor_pos

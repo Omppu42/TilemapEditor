@@ -8,11 +8,11 @@ from util.tkinter_opener import tk_util
 from settings import data
 from settings import settings
 
+from import_export import ie_interface
+
 import manager
 import sidebar
 import input_overrides
-import import_map
-import export
 import grid_resize
 import palette
 
@@ -21,6 +21,7 @@ pygame.init()
 class UI:
     def __init__(self, screen):
         self.screen = screen
+        self.blocks = []
         self.total_mouse_change: tuple = (0, 0)
         self.del_borders_w = 7
 
@@ -45,9 +46,11 @@ class UI:
                 
 
 
-    def set_gridsize(self, grid_size: tuple):
+    def set_gridsize(self, grid_size: tuple, recenter_camera:bool=True):
         self.grid_size_rows_cols = grid_size
-        self.total_mouse_change = (0, 0)
+        
+        if recenter_camera:
+            self.total_mouse_change = (100, 50)
 
         self.grid_bot_surf = pygame.Surface((self.grid_size_rows_cols[0]*settings.CELL_SIZE, 1))
         self.grid_bot_surf.fill((0,0,0))
@@ -127,9 +130,10 @@ class UI:
         dropdowns.append( DropDown(
             pos_size=(5, 0, 140, 30), 
             main="Tilemap", 
-            options={"Load"    : (import_map.i_obj.import_tilemap), 
-                    "Save As" : (export.export_tilemap),
-                    "New"     : (import_map.import_empty_map)} ))
+            options={"Load"    : (ie_interface.Iie_obj.import_tilemap), 
+                    "Save"     : (ie_interface.Iie_obj.save_tilemap),
+                    "Save As"  : (ie_interface.Iie_obj.export_tilemap),
+                    "New"      : (ie_interface.Iie_obj.import_empty_map)} ))
 
         dropdowns.append( DropDown(
             pos_size=(150, 0, 125, 30), 

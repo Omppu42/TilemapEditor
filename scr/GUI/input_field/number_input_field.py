@@ -18,9 +18,9 @@ class NumberInputField(input_field_base.InputField):
         (pygame.K_9, pygame.K_KP_9): 9,
     }
     
-    def __init__(self, pos: tuple, size: tuple, max_chars, default_value="",
-                empty="0", int_only=False, min_value=-1, max_value=-1, forbidden_chars=[pygame.K_COMMA], **kwargs):
-        super().__init__(pos, size, max_chars, default_value=default_value, empty=empty, forbidden_chars=forbidden_chars, **kwargs)
+    def __init__(self, pos: tuple, size: tuple, max_chars, start_value="",
+                placeholder="0", int_only=False, min_value=-1, max_value=-1, forbidden_chars=[pygame.K_COMMA], **kwargs):
+        super().__init__(pos, size, max_chars, start_value=start_value, placeholder=placeholder, forbidden_chars=forbidden_chars, **kwargs)
 
         self.int_only = int_only
         self.min_value = min_value
@@ -81,11 +81,11 @@ class NumberInputField(input_field_base.InputField):
         self.fix_text()
 
 
-    def return_val(self):
+    def get_value(self):
         if self.int_only:
-            return int(super().return_val())
+            return int(super().get_value())
         
-        return float(super().return_val())
+        return float(super().get_value())
 
 
 

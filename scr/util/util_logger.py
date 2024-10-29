@@ -1,4 +1,4 @@
-import os
+import os, sys
 from datetime import datetime
 
 
@@ -39,9 +39,12 @@ class Logger:
     def error(self, msg: str):
         if self.logging_level > 3: return
         self.log_to_file("ERROR", msg)
+        print("Error logged")
     
     def fatal(self, msg: str):
         self.log_to_file("FATAL", msg)
+        print("FATAL, QUITTING")
+        sys.exit()
 
 
     def log_to_file(self, level: str, msg: str):

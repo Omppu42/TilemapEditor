@@ -6,8 +6,7 @@ import traceback
 
 from util.util_logger import logger
 
-import settings.settings as settings
-import constants as constants
+from settings import settings
 
 
 def timer(text="default", log_function=logger.debug):
@@ -82,59 +81,6 @@ def pygame_different_color_text(font: "pygame.font.Font", texts: "list[str]", co
 
     return surf
 
-def get_rect_anchor(surface: "pygame.Surface", pos: tuple, anchor: int) -> "pygame.Rect":
-    assert anchor in constants.ANCHORS, f"Anchor id ({anchor}) not found in ANCHORS"
-
-    match anchor:
-        case constants.UL:
-            return surface.get_rect(topleft=(pos))
-        case constants.UP:
-            return surface.get_rect(midtop=(pos))
-        case constants.UR:
-            return surface.get_rect(topright=(pos))
-        case constants.RIGHT:
-            return surface.get_rect(midright=(pos))
-        case constants.BR:
-            return surface.get_rect(bottomright=(pos))
-        case constants.BOTTOM:
-            return surface.get_rect(midbottom=(pos))
-        case constants.BL:
-            return surface.get_rect(bottomleft=(pos))
-        case constants.LEFT:
-            return surface.get_rect(midleft=(pos))
-        case constants.CENTER:
-            return surface.get_rect(center=(pos))
-        
-    raise ValueError(f"Anchor was in ANCHORS but failed to match in the code aboce. Anchor id {anchor}")
-
-
-def get_anchor_pos_from_rect(rect: "pygame.Rect", anchor: int) -> tuple:
-    """Gets the rects anchor position, for example rects UP position. Position being relative (ie, topleft is (0, 0))"""
-    assert anchor in constants.ANCHORS, f"Anchor id ({anchor}) not found in ANCHORS"
-
-    w, h = rect.size
-
-    match anchor:
-        case constants.UL:
-            return (0, 0)
-        case constants.UP:
-            return (w//2, 0)
-        case constants.UR:
-            return (w, 0)
-        case constants.RIGHT:
-            return (w, h//2)
-        case constants.BR:
-            return (w, h)
-        case constants.BOTTOM:
-            return (w//2, h)
-        case constants.BL:
-            return (0, h)
-        case constants.LEFT:
-            return (0, h//2)
-        case constants.CENTER:
-            return (w//2, h//2)
-
-    raise ValueError(f"Anchor was in ANCHORS but failed to match in the code aboce. Anchor id {anchor}")
 
 class RunnableFunc():
     def __init__(self, function: "function", args:list=[], kwargs:dict={}):

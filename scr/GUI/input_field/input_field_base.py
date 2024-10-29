@@ -11,7 +11,7 @@ class InputField:
     ]
 
     def __init__(self, pos: tuple, size: tuple, max_chars, bg_color=(155,155,155),active_color=(200,200,200),
-                default_value="", empty="", border_width=0, cursor_w=3, border_color=(0,0,0), font=pygame.font.Font(None, 25), forbidden_chars:"list[int]"=[pygame.K_PERIOD, pygame.K_COMMA], blink_rate_s=0.4):
+                start_value="", placeholder="", empty_return_val="placeholder", border_width=0, cursor_w=3, border_color=(0,0,0), font=pygame.font.Font(None, 25), forbidden_chars:"list[int]"=[pygame.K_PERIOD, pygame.K_COMMA], blink_rate_s=0.4):
         """Max chars is overriden if the text is about to get bigger than the box can display"""
         self.pos = pos
         self.size = size
@@ -22,7 +22,7 @@ class InputField:
         self.text_color = (0, 0, 0)
 
         self.font = font
-        self.placeholder_txt = empty
+        self.placeholder_txt = placeholder
         self.placeholder_color = self.text_color
         
         self.border_color = border_color
@@ -37,8 +37,11 @@ class InputField:
         self.cursor_blink_timer = time.time()  #flips cursor_draw when reaches rate
         self.cursor_draw = True
 
-        self.__check_default_text_validity(str(default_value))
-        self.text = str(default_value)
+        self.start_value = start_value
+        self.empty_return_val = empty_return_val # can be "placeholder", "start_value" or any other value
+
+        self.__check_default_text_validity(str(self.start_value))
+        self.text = str(self.start_value)
         self.forbidden_chars = forbidden_chars
 
         self.cursor_pos = 0
@@ -205,7 +208,14 @@ class InputField:
         self.fix_text()
 
 
-    def return_val(self):
-        if self.text == "":
-            return self.placeholder_txt
-        return self.text
+    def get_value(self):
+        if self.text != "": return self.text
+
+        match (self.empty_return_val):
+            case "placeholder":
+                return self.placeholder_txt
+            case "start_value":
+                return self.start_value
+            
+        return self.empty_return_val
+        

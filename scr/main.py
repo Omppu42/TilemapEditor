@@ -32,7 +32,7 @@ import ui
 # TODO: Save buttons: Save and Save As
 # TODO: Ask to save if closing tilemap without saving first
 
-# TODO: Scrollable_frame_piece.py and popup_contents.py are almost same (one takes in scrollable frame, other popup window to extract parent position) Merge them somehow into one?
+# TODO: Rename tilemaps
 
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 # FIXME: Remenber if grid was toggled off when exiting to load next time. (last session data)

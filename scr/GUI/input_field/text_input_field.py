@@ -4,8 +4,8 @@ from . import input_field_base
 
 class TextInputField(input_field_base.InputField):
     def __init__(self, pos: tuple, size: tuple, max_chars, bg_color=(155,155,155), active_color=(200,200,200),
-                default_value="", empty="", **kwargs):
-        super().__init__(pos, size, max_chars, bg_color=bg_color, active_color=active_color, default_value=default_value, empty=empty, **kwargs)
+                start_value="", placeholder="", **kwargs):
+        super().__init__(pos, size, max_chars, bg_color=bg_color, active_color=active_color, start_value=start_value, placeholder=placeholder, **kwargs)
     
     # PRIVATE -------------
     def __process_key(self, event: "pygame.event.Event") -> None:
@@ -15,6 +15,7 @@ class TextInputField(input_field_base.InputField):
 
         # SPECIALS
         if event.key == pygame.K_SPACE:
+            if self.cursor_pos > 0 and self.text[self.cursor_pos - 1] == " ": return
             self.add_character_at_cursor(" ")
 
         # TYPING

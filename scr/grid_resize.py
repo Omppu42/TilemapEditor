@@ -12,7 +12,7 @@ import settings.data as data
 
 import ui
 import manager
-import constants
+import anchors
 
 
 class GridResizer:
@@ -40,30 +40,29 @@ class GridResizer:
         yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Confirm", 25)
         cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel",  25)
 
-        x_size = input_field.NumberInputField((0,0), (60, 40), 3, default_value="", int_only=True, empty=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
-        y_size = input_field.NumberInputField((0,0), (60, 40), 3, default_value="", int_only=True, empty=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        x_size = input_field.NumberInputField((0,0), (60, 40), 3, start_value="", int_only=True, placeholder=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
+        y_size = input_field.NumberInputField((0,0), (60, 40), 3, start_value="", int_only=True, placeholder=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
 
 
         by_image_surf = pygame.image.load("Assets\\close.png")
         by_image_surf = pygame.transform.smoothscale(by_image_surf, (32, 32))
 
-        # frame.add_surface(current_size_text, (0, 0.1), constants.UP)
-        frame.add_surface(current_size_text, (0, 0.05), anchor=constants.UP)
-        frame.add_surface(new_size_text, (0, 0.22), anchor=constants.UP)
+        frame.add_surface(current_size_text, (0, 0.05), anchor=anchors.UP)
+        frame.add_surface(new_size_text, (0, 0.22), anchor=anchors.UP)
 
         # Input
-        frame.add_input_field(x_size, (-0.15, 0), anchor=constants.CENTER)  #-2 From image x
-        frame.add_input_field(y_size, ( 0.15, 0), anchor=constants.CENTER) #+1,25 From image x
+        frame.add_input_field(x_size, (-0.15, 0), anchor=anchors.CENTER)  #-2 From image x
+        frame.add_input_field(y_size, ( 0.15, 0), anchor=anchors.CENTER) #+1,25 From image x
 
-        frame.add_surface(by_image_surf, (0, 0), anchor=constants.CENTER)
+        frame.add_surface(by_image_surf, (0, 0), anchor=anchors.CENTER)
 
-        frame.add_surface(width_text,  (-0.15, -0.3), anchor=constants.BOTTOM)
-        frame.add_surface(height_text, ( 0.15, -0.3), anchor=constants.BOTTOM)
+        frame.add_surface(width_text,  (-0.15, -0.3), anchor=anchors.BOTTOM)
+        frame.add_surface(height_text, ( 0.15, -0.3), anchor=anchors.BOTTOM)
 
         # frame.add_surface(center, (0.5,0.5))
 
-        frame.add_button(yes_button, (-0.17, -0.05), RunnableFunc(self.confirm_button, args=[x_size.return_val, y_size.return_val]), anchor=constants.BOTTOM)
-        frame.add_button(cancel_button, (0.17, -0.05), RunnableFunc(self.popup.close_popup), anchor=constants.BOTTOM)
+        frame.add_button(yes_button, (-0.17, -0.05), RunnableFunc(self.confirm_button, args=[x_size.get_value, y_size.get_value]), anchor=anchors.BOTTOM)
+        frame.add_button(cancel_button, (0.17, -0.05), RunnableFunc(self.popup.close_popup), anchor=anchors.BOTTOM)
 
         self.popup.add_contents_class(frame)
 

@@ -4,7 +4,7 @@ from .. import button
 from . import scrollable_frame_piece
 from util.util import RunnableFunc
 
-import constants
+import anchors
 
 class ScrollableFrame:
     # TODO: Add scroll bar dragging with mouse
@@ -175,12 +175,12 @@ class ScrollableFrame:
         mapname = f"Tilemap {len(self.frames) + 1}"
         test_text = font.render(mapname, True, (0,0,0))
 
-        frame.add_surface(test_text, (0,0), anchor=constants.CENTER)
+        frame.add_surface(test_text, (0,0), anchor=anchors.CENTER)
 
         load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
-        frame.add_button(load_button, (0.05, 0.0), RunnableFunc(ScrollableFrame.load_btn_onclick_test, args=[f"Tilemaps\\{mapname}"]), anchor=constants.LEFT)
-        frame.add_button(trash_button, (-0.05, 0.0), RunnableFunc(self.delete_frame, args=[frame]), anchor=constants.RIGHT)
+        frame.add_button(load_button, (0.05, 0.0), RunnableFunc(ScrollableFrame.load_btn_onclick_test, args=[f"Tilemaps\\{mapname}"]), anchor=anchors.LEFT)
+        frame.add_button(trash_button, (-0.05, 0.0), RunnableFunc(self.delete_frame, args=[frame]), anchor=anchors.RIGHT)
 
         self.add_frame(frame)
 

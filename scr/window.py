@@ -4,17 +4,18 @@ from util.util_logger import logger
 from util.util import timer
 
 from GUI import popup
-import settings.settings as settings
-import settings.data as data
+
+from settings import settings
+from settings import data
+
+from import_export import ie_interface
 
 import palette
 import ui
 import manager
 import sidebar
-import import_map
 import input_overrides
 import grid_resize
-import export
 
 
 
@@ -36,8 +37,7 @@ class Window:
 
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
-        export.create_exporter(self.screen)
-        import_map.create_importer(self.screen)
+        ie_interface.create_Iie(self.screen)
 
         # ORDER OF CREATION IS IMPORTANT!
         sidebar.create_sidebar(self.screen)
@@ -48,7 +48,7 @@ class Window:
         sidebar.s_obj.post_init()
         
         # Import map
-        import_map.import_tilemap_from_path(manager.m_obj.loaded_tilemap)
+        ie_interface.Iie_obj.importer.import_tools.import_tilemap_from_path(manager.m_obj.loaded_tilemap)
         
         atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
     
