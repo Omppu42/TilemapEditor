@@ -21,23 +21,16 @@ class I_importexport:
 
     # TODO: Saving... text in the bottom right of viewport?
     def save_tilemap(self):
-        map_name = manager.m_obj.loaded_tilemap
-        if map_name is None:
-            # Map not saved yet
-            self.export_tilemap()
-            return
-
-        tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
-        self.export_tools.export_tilemap(os.path.basename(map_name))
-
-
+        self.exporter.save_tilemap()
+        
     def import_tilemap_from_path(self, path: str, recenter_camera=True) -> None:
-        # Check that path isn't None and it points to a valid folder
         self.import_tools.import_tilemap_from_path(path, recenter_camera=recenter_camera)
-
 
     def import_empty_map(self):
         self.import_tools.import_empty_map()
+        
+    def import_empty_map_ask_save(self):
+        self.importer.ask_save_first_empty_tilemap()
 
     def import_tilemap(self):
         self.importer.import_tilemap()

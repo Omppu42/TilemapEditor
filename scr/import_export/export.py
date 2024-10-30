@@ -170,6 +170,16 @@ class Exporter():
 
         tilemap_util.delete_tilemap(settings.TILEMAPS_EXPORT + "\\" + tilemap_name, rename_to_path=settings.DELETED_TILEMAPS_PATH + "\\overridden-" + tilemap_name)
         self.export_tools.export_tilemap(tilemap_name)
+        
+    def save_tilemap(self) -> None:
+        map_name = manager.m_obj.loaded_tilemap
+        if map_name is None:
+            # Map not saved yet
+            self.export_tilemap()
+            return
+
+        tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
+        self.export_tools.export_tilemap(os.path.basename(map_name))
 
 
 

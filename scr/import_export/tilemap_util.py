@@ -5,6 +5,8 @@ from util.util_logger import logger
 from util import file_utils
 from settings import settings
 
+import manager
+
 
 def is_valid_tilemap(path: str) -> bool:
     if path is None: return False
@@ -48,8 +50,6 @@ def delete_tilemap(tilemap_path: str, rename_to_path:str="", move_to_deleted=Tru
     except Exception as e:
         logger.error("Error: %s - %s." % (e.filename, e.strerror))
         
-    
-    # TODO: Check if this tilemap was loaded and deload it if it was
     logger.log(f"Tilemap deleted at '{tilemap_path}'. Moved tilemap to '{settings.DELETED_TILEMAPS_PATH}\\'")
 
 

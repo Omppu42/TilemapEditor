@@ -133,7 +133,7 @@ class UI:
             options={"Load"    : (ie_interface.Iie_obj.import_tilemap), 
                     "Save"     : (ie_interface.Iie_obj.save_tilemap),
                     "Save As"  : (ie_interface.Iie_obj.export_tilemap),
-                    "New"      : (ie_interface.Iie_obj.import_empty_map)} ))
+                    "New"      : (ie_interface.Iie_obj.import_empty_map_ask_save)} ))
 
         dropdowns.append( DropDown(
             pos_size=(150, 0, 125, 30), 

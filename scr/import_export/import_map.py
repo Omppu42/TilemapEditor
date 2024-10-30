@@ -123,6 +123,9 @@ class Importer():
         logger.debug(f"Confirmed tilemap deletion. Deleting tilemap at '{map_path}'...")
         self.scrollable.delete_frame(frame_to_delete)
         tilemap_util.delete_tilemap(map_path)
+        
+        if map_path == manager.m_obj.loaded_tilemap:
+            self.import_tools.import_empty_map()
 
         self.confirm_popup.close_popup()
 
@@ -151,6 +154,33 @@ class Importer():
         frame.add_button(cancel_button, ( 0.32, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
 
         self.confirm_popup.add_contents_class(frame)
+        
+        
+    def ask_save_first_empty_tilemap(self) -> None:
+        """Ask if wanting to save before loading an empty tilemap"""
+        popup_size = (400, 240)
+        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
+                     settings.SCR_H//2 - popup_size[1]//2)
+
+        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+
+        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
+
+        confirm_text_1 = data.font_30.render(f"Unsaved changes.", True, (0,0,0))
+        confirm_text_2 = data.font_25.render(f"Save before creating an empty tilemap?", True, (0,0,0))
+
+        ignore_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Don't save", 25, hover_col=(200,0,0))
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Save", 25)
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+
+        frame.add_surface(confirm_text_1, (0.0,0.25), anchor=anchors.UP)
+        frame.add_surface(confirm_text_2, (0.0,0.45), anchor=anchors.UP)
+
+        frame.add_button(yes_button,    (-0.32, -0.05), RunnableFunc(self.save_first_confirmed), anchor=anchors.BOTTOM)
+        frame.add_button(ignore_button, (-0.0, -0.05),  RunnableFunc(self.import_empty_nosave_confirmed), anchor=anchors.BOTTOM)
+        frame.add_button(cancel_button, ( 0.32, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
+
+        self.confirm_popup.add_contents_class(frame)
 
 
     def on_load_click(self, path_to_tilemap: str) -> None:
@@ -170,7 +200,10 @@ class Importer():
         self.make_import_popup()
         self.confirm_popup.close_popup()
 
-
+    # FIXME: Empty tilemap detects changes even though it is empty
+    def import_empty_nosave_confirmed(self) -> None:
+        self.confirm_popup.close_popup()
+        self.import_tools.import_empty_map()
 
 
 class ImportTools:
@@ -198,7 +231,7 @@ class ImportTools:
         manager.m_obj.loaded_tilemap = path
 
 
-    def import_empty_map(self, ) -> None:
+    def import_empty_map(self) -> None:
         manager.m_obj.loaded_tilemap = None
         ui.ui_obj.set_gridsize(settings.DEFAULT_GRID_SIZE)
         
