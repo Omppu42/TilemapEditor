@@ -1,4 +1,4 @@
-import pygame, os, shutil, glob, json
+import pygame, os, shutil, glob, json, time
 from datetime import datetime
 
 from settings import data
@@ -175,11 +175,12 @@ class Exporter():
         map_name = manager.m_obj.loaded_tilemap
         if map_name is None:
             # Map not saved yet
-            self.export_tilemap()
+            self.start_export_tilemap()
             return
 
         tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
         self.export_tools.export_tilemap(os.path.basename(map_name))
+        data.saved_last_time = time.time()
 
 
 

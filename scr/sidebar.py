@@ -2,6 +2,7 @@ import pygame
 
 from util.tkinter_opener import tk_util
 from util.util_logger import logger
+from util.util import RunnableFunc
 from settings.data import State
 
 import settings.data as data
@@ -31,7 +32,7 @@ class Sidebar:
 
         # BUTTONS -------------
         self.buttons_dict = {"GridButton" : button.ToolButton(self.screen, (1150, 550), (32, 32), 
-                                                              "Assets\\grid_button.png", hover_text="Grid (G)", init_state=1), 
+                                                              "Assets\\grid_button.png", hover_text="Grid (G)", init_state=1, on_click_func=manager.m_obj.toggle_grid_on), 
                             "BrushButton" : button.ToolButton(self.screen, (931, 550), (32, 32),  
                                                               "Assets\\brush.png", state_when_clicked=State.BRUSH,  hover_text="Paint (P)", can_toggle_off=False, init_state=1),
                            "EraserButton" : button.ToolButton(self.screen, (971, 550), (32, 32),  

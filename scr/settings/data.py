@@ -12,3 +12,5 @@ class State(Enum):
     BRUSH = 0
     ERASE = 1
     COLOR_PICKER = 2
+
+saved_last_time = 0

@@ -5,14 +5,11 @@ from util.util_logger import logger
 from util import file_utils
 from settings import settings
 
-import manager
-
 
 def is_valid_tilemap(path: str) -> bool:
     if path is None: return False
 
     if not os.path.exists(path):
-        logger.error(f"Trying to delete a non-existing tilemap folder. Folder doesn't exist ({path})")
         return False
 
     if os.path.isfile(path+"\\data.json"):

@@ -4,11 +4,13 @@ import manager
 import settings.data as data
 import input_overrides
 
+from util.util import RunnableFunc
+
 pygame.init()
 
 class Button:
     def __init__(self, screen, pos: tuple, size: tuple, col_off=(100,100,100), col_on=(250,250,250), 
-                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20, tooltip_delay=0):
+                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20, tooltip_delay=0, on_click_func: RunnableFunc=None):
         self.pos = pos
         self.size = size
         self.col_off = col_off
@@ -50,6 +52,16 @@ class Button:
 
         # Disabling removes the ability to click and to render
         self.disabled = False
+
+        if on_click_func:
+            if callable(on_click_func):
+                self.on_click_func = RunnableFunc(on_click_func)
+            elif isinstance(on_click_func, RunnableFunc):
+                self.on_click_func = on_click_func
+            else:
+                assert False, f"Invalid on_click_func passed to a button class ({on_click_func})"
+        else:
+            self.on_click_func = None
         
         self.set_color()
 
@@ -113,6 +125,9 @@ class Button:
             
             self.set_state(self.clicked)
             self.just_clicked = True
+
+            if self.on_click_func:
+                self.on_click_func.run_function()
             return True
         return False
             

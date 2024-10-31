@@ -1,4 +1,4 @@
-import pygame, sys, json, atexit, os
+import pygame, sys, json, atexit, os, time
 
 from util.util_logger import logger
 from util.util import timer
@@ -108,6 +108,16 @@ class Window:
 
 
     def manage_keydown(self, event) -> None:
+        shift_pressed   = event.mod & pygame.KMOD_SHIFT
+        control_pressed = event.mod & pygame.KMOD_CTRL
+
+        if control_pressed:
+            match (event.key):
+                case pygame.K_s:
+                    ie_interface.Iie_obj.save_tilemap()
+            return
+        
+        
         match (event.key):
             case pygame.K_p:
                 manager.m_obj.equip_brush()
@@ -121,6 +131,7 @@ class Window:
             # If any of the arrow keys were pressed
             case _key if _key in Window.ARROW_KEYS:
                 sidebar.s_obj.arrowkeys_tile_selection_move(event)
+
 
     # DRAW FUNCS ----------
     def draw(self) -> None:
@@ -147,9 +158,15 @@ class Window:
         grid_size_render = data.font_20.render(f"Grid Size: {ui.ui_obj.grid_size_rows_cols[0]}x{ui.ui_obj.grid_size_rows_cols[1]}", True, (0,0,0))
         grid_size_rect = grid_size_render.get_rect(topright=(settings.VIEWPORT_W-10, 40))
 
+        saved_text_render = data.font_25.render(f"Saved", True, (0,0,0))
+        saved_text_rect = saved_text_render.get_rect(topright=(settings.VIEWPORT_W-10, settings.SCR_H-20))
+
         self.screen.blit(fps_render, fps_rect)
         self.screen.blit(loaded_map_render, loaded_map_rect)
         self.screen.blit(grid_size_render, grid_size_rect)
+
+        if time.time() - data.saved_last_time < settings.SAVE_TEXT_TIME_S:
+            self.screen.blit(saved_text_render, saved_text_rect)
 
 
     def __on_exit(palette_manager_obj, manager_obj):
@@ -157,6 +174,7 @@ class Window:
 
         json_obj = {"palette" : palette_manager_obj.current_palette.path,
                     "grid_size" : ui.ui_obj.grid_size_rows_cols,
+                    "grid_draw" : manager_obj.grid_on,
                     "loaded_tilemap" : manager_obj.loaded_tilemap}
 
         with open(settings.LAST_SESSION_DATA_JSON, "w") as f:

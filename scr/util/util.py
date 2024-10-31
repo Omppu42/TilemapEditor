@@ -96,5 +96,4 @@ class RunnableFunc():
         try:
             return self.function(*args, **self.kwargs)
         except Exception as e:
-            logger.fatal(f"Error in running RunnableFunction created in {os.path.basename(self.traceback[0])} line {self.traceback[1]}: {repr(e)}. Check terminal for more details")
-            raise Exception(f"Error in running RunnableFunction created in {os.path.basename(self.traceback[0])} line {self.traceback[1]}: {repr(e)}. Scroll up for more details (another error message)")
+            logger.fatal(f"Error in running RunnableFunction created in {os.path.basename(self.traceback[0])} line {self.traceback[1]}: {repr(e)}")

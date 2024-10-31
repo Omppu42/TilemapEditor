@@ -23,7 +23,8 @@ class Manager:
         self.loaded_tilemap = None
 
         # When selecting Tile > Remove tile, turns to True. When True and clicked on a tile from tile selection, remove the tile
-        self.remove_palette_tiles = False 
+        self.remove_palette_tiles = False
+        self.grid_on = True
 
         logger.debug("Initialized Manager")
 
@@ -79,6 +80,12 @@ class Manager:
         sidebar.s_obj.buttons_dict["GridButton"].clicked *= -1
         sidebar.s_obj.buttons_dict["GridButton"].set_color()
         sidebar.s_obj.buttons_dict["GridButton"].just_clicked = True
+        self.toggle_grid_on()
+
+
+    def toggle_grid_on(self) -> None:
+        """Set self.grid_on vadiable to it's opposite"""
+        self.grid_on = not self.grid_on
 
     
     def on_tile_deleted(self, index: int) -> None:
@@ -91,7 +98,7 @@ class Manager:
 
 
     def update_block_surf(self, block):
-        block.update_surf(sidebar.s_obj.buttons_dict["GridButton"].is_clicked())
+        block.update_surf(self.grid_on)
 
 
     def reset_map(self):

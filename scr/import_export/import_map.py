@@ -24,7 +24,6 @@ import anchors
 pygame.init()
 
 
-
 class Importer():
     SELECTION_W = 500
     SELECTION_H = 160
@@ -176,7 +175,7 @@ class Importer():
         frame.add_surface(confirm_text_1, (0.0,0.25), anchor=anchors.UP)
         frame.add_surface(confirm_text_2, (0.0,0.45), anchor=anchors.UP)
 
-        frame.add_button(yes_button,    (-0.32, -0.05), RunnableFunc(self.save_first_confirmed), anchor=anchors.BOTTOM)
+        frame.add_button(yes_button,    (-0.32, -0.05), RunnableFunc(self.save_first_empty_confirmed), anchor=anchors.BOTTOM)
         frame.add_button(ignore_button, (-0.0, -0.05),  RunnableFunc(self.import_empty_nosave_confirmed), anchor=anchors.BOTTOM)
         frame.add_button(cancel_button, ( 0.32, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
 
@@ -200,7 +199,19 @@ class Importer():
         self.make_import_popup()
         self.confirm_popup.close_popup()
 
-    # FIXME: Empty tilemap detects changes even though it is empty
+
+    def save_first_empty_confirmed(self) -> None:
+        if manager.m_obj.loaded_tilemap is None:
+            self.ie_interface.export_tilemap()
+            self.confirm_popup.close_popup()
+            return
+        
+        self.ie_interface.save_tilemap()
+
+        self.import_tools.import_empty_map()
+        self.confirm_popup.close_popup()
+
+
     def import_empty_nosave_confirmed(self) -> None:
         self.confirm_popup.close_popup()
         self.import_tools.import_empty_map()
@@ -247,7 +258,7 @@ class ImportTools:
                 if i >= len(tile_ids) or j >= len(tile_ids[0]):
                     continue
                 ui.ui_obj.blocks[total].tile_id = tile_ids[i][j]
-                ui.ui_obj.blocks[total].update_surf(sidebar.s_obj.buttons_dict["GridButton"].is_clicked())
+                ui.ui_obj.blocks[total].update_surf(manager.m_obj.grid_on)
 
 
     def update_last_loaded(self, path: str) -> None:

@@ -220,7 +220,3 @@ class ScrollableFrame:
 
     def on_destroy(self) -> None:
         pass
-
-    def on_deactivate(self, int1, int2=3) -> None:
-        print("Frame ondestroy:", int1, int2)
-        self.active = False

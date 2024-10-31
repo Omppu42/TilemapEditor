@@ -5,6 +5,7 @@ from . import import_map
 from . import export
 
 import manager
+import palette
 
 
 class I_importexport:
@@ -19,7 +20,6 @@ class I_importexport:
     def export_tilemap(self):
         self.exporter.start_export_tilemap()
 
-    # TODO: Saving... text in the bottom right of viewport?
     def save_tilemap(self):
         self.exporter.save_tilemap()
         
@@ -29,8 +29,12 @@ class I_importexport:
     def import_empty_map(self):
         self.import_tools.import_empty_map()
         
-    def import_empty_map_ask_save(self):
-        self.importer.ask_save_first_empty_tilemap()
+    def import_empty_map_ask_save(self, ui_obj):
+        if tilemap_util.tilemap_has_changes(manager.m_obj.loaded_tilemap, ui_obj.blocks, ui_obj.grid_size_rows_cols, palette.pm_obj.current_palette.tiles_order):
+            self.importer.ask_save_first_empty_tilemap()
+            return
+        
+        self.import_tools.import_empty_map()
 
     def import_tilemap(self):
         self.importer.import_tilemap()

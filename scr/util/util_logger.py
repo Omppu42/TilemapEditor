@@ -35,6 +35,7 @@ class Logger:
     def warning(self, msg: str):
         if self.logging_level > 2: return
         self.log_to_file("WARNING", msg)
+        print("Warning logged")
 
     def error(self, msg: str):
         if self.logging_level > 3: return

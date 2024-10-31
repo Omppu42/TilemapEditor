@@ -103,7 +103,7 @@ def prevent_existing_file_overlap(filepath: str) -> str:
 
 def load_json_data_dict(path: str) -> dict:
     if not os.path.isfile(path): 
-        logger.warning(f"Trying to open file at path {path}, which was not found")
+        logger.error(f"Trying to open file at path {path}, which was not found")
         return {}
 
     with open(path, "r") as f:        

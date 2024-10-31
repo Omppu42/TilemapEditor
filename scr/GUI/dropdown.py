@@ -1,6 +1,7 @@
 import pygame
 
 from settings import data
+from util.util import RunnableFunc
 
 import input_overrides
 
@@ -20,28 +21,26 @@ class DropDown():
         self.font = font
         self.main = main
 
-        self.options = {}
+        self.options: "dict[str, RunnableFunc]" = {}
+        self.options_texts: "list[str]" = []
 
         for key, option in options.items():
-            # Only function given
-            if callable(option):
-                self.options[key] = (option, [], {})
-            # Function and args given
-            elif len(option) == 2:
-                self.options[key] = (option[0], option[1], {})
-            # Function, args and kwargs given
-            elif len(option) == 3:
-                self.options[key] = (option[0], option[1], option[2])
-            # Error
+            if not isinstance(option, RunnableFunc) and callable(option):
+                self.options[key] = RunnableFunc(option)
+            elif isinstance(option, RunnableFunc):
+                self.options[key] = option
             else:
-                assert False, f"Dropdown options dict had a value that was an invalid length ({len(option)})"
+                assert False, f"Dropdown options dict had a value that was invalid. Must be a function or RunnableFunc class instance ({key}: {option})"
 
+        for text in self.options.keys():
+            self.options_texts.append(text)
 
 
         self.draw_menu = False
         self.menu_active = False
         self.mouse_on = False #cursor on dropdown menu
         self.active_option = -1
+
 
     @classmethod
     def from_defaults(cls, defaults, **kwargs):
@@ -63,11 +62,12 @@ class DropDown():
         surf.blit(main_text, main_text.get_rect(center = self.rect.center))
 
         if self.draw_menu:
-            for i, text in enumerate(self.options.keys()):
+            for i, text in enumerate(self.options_texts):
                 rect = self.rect.copy()
                 rect.y += (i+1) * self.rect.height
-                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect)
                 main_text = self.font.render(text, True, (0, 0, 0))
+                
+                pygame.draw.rect(surf, self.color_option[1 if i == self.active_option else 0], rect)
                 surf.blit(main_text, main_text.get_rect(center = rect.center))
 
 
@@ -107,10 +107,6 @@ class DropDown():
     def update(self) -> None:
         clicked_on_option = self.check_clicked()
 
-        if clicked_on_option == -1: return
-
-        # convert the values of a dict to list so we can access the nth value
-        option_func = list(self.options.values())[clicked_on_option]
-
-        # Run the function that was assigned to the option clicked on
-        option_func[0](*option_func[1], **option_func[2])
+        if clicked_on_option != -1: 
+            key = self.options_texts[clicked_on_option]
+            self.options[key].run_function()

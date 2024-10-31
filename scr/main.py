@@ -29,13 +29,11 @@ import ui
 # TODO: Autosave
 # TODO: Give the tilemap a name when exporting to name the folder
 
-# TODO: Save buttons: Save and Save As
 # TODO: Ask to save if closing tilemap without saving first
 
 # TODO: Rename tilemaps
 
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
-# FIXME: Remenber if grid was toggled off when exiting to load next time. (last session data)
 
 def main():
     # DISPLAY

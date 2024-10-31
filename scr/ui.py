@@ -4,11 +4,14 @@ from GUI.dropdown import DropDown
 
 from util.util_logger import logger
 from util.tkinter_opener import tk_util
+from util.util import RunnableFunc
+from util import file_utils
 
 from settings import data
 from settings import settings
 
 from import_export import ie_interface
+from import_export import tilemap_util
 
 import manager
 import sidebar
@@ -22,29 +25,38 @@ class UI:
     def __init__(self, screen):
         self.screen = screen
         self.blocks = []
+        self.grid_bot_surf = None
+        self.grid_right_surf = None
+        self.grid_size_rows_cols = (0, 0) #Initialized in set_gridsize()
+        
         self.total_mouse_change: tuple = (0, 0)
         self.del_borders_w = 7
 
-        json_data = {}
-        if os.path.isfile(settings.LAST_SESSION_DATA_JSON):
-            with open(settings.LAST_SESSION_DATA_JSON, "r") as f:
-                data = f.readlines()
-                if not data == []:
-                    json_data = json.loads("".join(data))
+        self.__init_last_session_data()
+
+        logger.debug("Initialized UI")
+                
+    def __init_last_session_data(self) -> None:
+        json_data = file_utils.load_json_data_dict(settings.LAST_SESSION_DATA_JSON)
 
         if "grid_size" in json_data:
             self.set_gridsize(json_data["grid_size"])
         else:
             self.set_gridsize(settings.DEFAULT_GRID_SIZE)
 
-        if "loaded_tilemap" in json_data:
-            tilemap_path = json_data["loaded_tilemap"]
+        if "grid_draw" in json_data:
+            if json_data["grid_draw"] == False:
+                manager.m_obj.toggle_grid()
+
+        if not "loaded_tilemap" in json_data: return
+
+        tilemap_path = json_data["loaded_tilemap"]
+        if tilemap_path == None: return
+        
+        if tilemap_util.is_valid_tilemap(tilemap_path):
             manager.m_obj.loaded_tilemap = tilemap_path
-                
-
-        logger.debug("Initialized UI")
-                
-
+        else:
+            logger.warning(f"Tilemap at path '{tilemap_path}' was deleted between sessions. Opening an empty tilemap")
 
     def set_gridsize(self, grid_size: tuple, recenter_camera:bool=True):
         self.grid_size_rows_cols = grid_size
@@ -62,9 +74,9 @@ class UI:
 
         for i in range(self.grid_size_rows_cols[1]):
             for j in range(self.grid_size_rows_cols[0]):
-                self.blocks.append(Block((j, i), settings.CELL_SIZE, self.screen, sidebar.s_obj.buttons_dict["GridButton"].is_clicked()))
+                self.blocks.append(Block((j, i), settings.CELL_SIZE, self.screen, manager.m_obj.grid_on))
   
-        logger.log(f"Grid size set to '{grid_size[0]}x{grid_size[1]}'")
+        logger.debug(f"Grid size set to '{grid_size[0]}x{grid_size[1]}'")
   
 
 
@@ -97,12 +109,9 @@ class UI:
             _block.update(self.total_mouse_change) #draw blocks
 
         if sidebar.s_obj.buttons_dict["GridButton"].just_clicked:
-            if sidebar.s_obj.buttons_dict["GridButton"].is_clicked():
-                [block.update_surf(True) for block in self.blocks]
-            else:
-                [block.update_surf(False) for block in self.blocks]
+            [block.update_surf(manager.m_obj.grid_on) for block in self.blocks]
 
-        if sidebar.s_obj.buttons_dict["GridButton"].is_clicked():
+        if manager.m_obj.grid_on:
             self.screen.blit(self.grid_bot_surf, (self.total_mouse_change[0], self.grid_size_rows_cols[1]*settings.CELL_SIZE+self.total_mouse_change[1]))
             self.screen.blit(self.grid_right_surf, (self.grid_size_rows_cols[0]*settings.CELL_SIZE+self.total_mouse_change[0], self.total_mouse_change[1]))
 
@@ -130,28 +139,28 @@ class UI:
         dropdowns.append( DropDown(
             pos_size=(5, 0, 140, 30), 
             main="Tilemap", 
-            options={"Load"    : (ie_interface.Iie_obj.import_tilemap), 
-                    "Save"     : (ie_interface.Iie_obj.save_tilemap),
-                    "Save As"  : (ie_interface.Iie_obj.export_tilemap),
-                    "New"      : (ie_interface.Iie_obj.import_empty_map_ask_save)} ))
+            options={"Load"    : ie_interface.Iie_obj.import_tilemap, 
+                     "Save"    : ie_interface.Iie_obj.save_tilemap,
+                     "Save As" : ie_interface.Iie_obj.export_tilemap,
+                     "New"     : RunnableFunc(ie_interface.Iie_obj.import_empty_map_ask_save, args=[ui_obj]) } ))
 
         dropdowns.append( DropDown(
             pos_size=(150, 0, 125, 30), 
             main="Palette", 
-            options={"Load"   : (tk_util.queue_func, [palette.pm_obj.change_palette_ask]), 
-                    "New"    : (tk_util.queue_func, [palette.pm_obj.create_empty_palette]), 
-                    "Delete" : (tk_util.queue_func, [palette.pm_obj.delete_palette])} ))
+            options={"Load"  : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.change_palette_ask]), 
+                    "New"    : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.create_empty_palette]), 
+                    "Delete" : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.delete_palette])} ))
 
         dropdowns.append( DropDown(
             pos_size=(280, 0, 125, 30), 
             main="Tiles", 
-            options={"New Tile" : (tk_util.queue_func, [palette.pm_obj.add_tile]), 
-                    "Remove"   : (self.toggle_delete)} ))
+            options={"New Tile" : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.add_tile]), 
+                    "Remove"    : self.toggle_delete} ))
 
         dropdowns.append( DropDown(
             pos_size=(410, 0, 125, 30), 
             main="Grid", 
-            options={"Resize" : (grid_resize.gr_obj.grid_resize_popup)} ))
+            options={"Resize" : grid_resize.gr_obj.grid_resize_popup} ))
         
         return dropdowns
 
