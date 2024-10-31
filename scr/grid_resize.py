@@ -70,11 +70,15 @@ class GridResizer:
 
 
     def confirm_button(self, x_size_getter: "function", y_size_getter: "function") -> None:
-        ui.ui_obj.set_gridsize((x_size_getter(), 
-                                y_size_getter()))
+        x = x_size_getter()
+        y = y_size_getter()
+        
+        # If not the same as already, change
+        if not ui.ui_obj.grid_size_rows_cols[0] == x or not ui.ui_obj.grid_size_rows_cols[1] == y:
+            ui.ui_obj.set_gridsize((x, y))
+            manager.m_obj.loaded_tilemap = None
         
         self.popup.close_popup()
-        manager.m_obj.loaded_tilemap = None
 
 
 gr_obj: "GridResizer" = None

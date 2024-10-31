@@ -40,7 +40,7 @@ class UI:
         json_data = file_utils.load_json_data_dict(settings.LAST_SESSION_DATA_JSON)
 
         if "grid_size" in json_data:
-            self.set_gridsize(json_data["grid_size"])
+            self.set_gridsize(tuple(json_data["grid_size"]))
         else:
             self.set_gridsize(settings.DEFAULT_GRID_SIZE)
 

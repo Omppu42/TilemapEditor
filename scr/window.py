@@ -173,9 +173,9 @@ class Window:
         palette_manager_obj.export_all_palette_tile_orders()
 
         json_obj = {"palette" : palette_manager_obj.current_palette.path,
+                    "loaded_tilemap" : manager_obj.loaded_tilemap,
                     "grid_size" : ui.ui_obj.grid_size_rows_cols,
-                    "grid_draw" : manager_obj.grid_on,
-                    "loaded_tilemap" : manager_obj.loaded_tilemap}
+                    "grid_draw" : manager_obj.grid_on}
 
         with open(settings.LAST_SESSION_DATA_JSON, "w") as f:
             f.write(json.dumps(json_obj, indent=4))
