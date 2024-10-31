@@ -61,6 +61,10 @@ class Sidebar:
         logger.debug("Initialized Sidebar")
 
 
+    def post_init(self) -> None:
+        self.create_tile_selection_rects()
+        self.update_page_arrows()
+
     # GETTERS AND SETTERS ---------
     def set_tile_selection_page(self, page: int) -> None:
         if palette.pm_obj.get_total_pages() - 1 < page or page < 0:
@@ -179,10 +183,6 @@ class Sidebar:
 
                 palette.pm_obj.selected_tile_id += settings.TILES_PER_ROW
 
-
-    def post_init(self) -> None:
-        self.create_tile_selection_rects()
-        self.update_page_arrows()
 
 
     def create_tile_selection_rects(self) -> None:

@@ -219,6 +219,9 @@ class ButtonGroup:  #only one button in the button group can be on at a time
         
         self.button_to_leave_on = None
 
+    def get_pressed_all(self) -> list:
+        return [b.is_clicked() for b in self.buttons]
+
 
 class ToolButton(Button):
     def __init__(self, screen, pos: tuple, size: tuple, image, state_when_clicked=None, hover_text=None, init_state=-1, can_toggle_off=True, **kwargs):

@@ -231,7 +231,7 @@ class PaletteManager:
         return new_palette_folder
 
 
-    def __change_palette(self, palette_path: str) -> bool:
+    def change_palette(self, palette_path: str) -> bool:
         """Returns True if changed palette succesfully, False if invalid path"""
         dest_palette = self.__get_palette_at_path(palette_path)
         if dest_palette is None: return False
@@ -273,7 +273,7 @@ class PaletteManager:
         if dest_folder == self.current_palette.path:
             logger.log("While changing palette, selected current palette. Didn't changed palette or reset map")
             return
-        if not self.__change_palette(dest_folder): 
+        if not self.change_palette(dest_folder): 
             self.change_palette_ask()
             return
 
@@ -312,10 +312,10 @@ class PaletteManager:
 
         if not has_palette:
             logger.warning(f"Didn't find a suitable palette for tilemap '{os.path.relpath(directory, os.getcwd())}' in '{settings.PALETTES_PATH}', creating a new one named 'Palette_{map_name}'")
-            self.__change_palette(self.__create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
+            self.change_palette(self.__create_palette("Palette_"+map_name, tiles_folder=tiles_dir))
             return
         
-        self.__change_palette(new_palette_path)
+        self.change_palette(new_palette_path)
 
 
     
@@ -396,7 +396,7 @@ class PaletteManager:
         new_palette = self.__create_palette("Palette_"+str(num))
 
         if update_palette:
-            self.__change_palette(new_palette)
+            self.change_palette(new_palette)
             manager.m_obj.reset_map()
 
 
