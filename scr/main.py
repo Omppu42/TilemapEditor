@@ -27,33 +27,11 @@ import ui
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 
 
-running = True
-tests_process_cycles = 2
-window = None
-
-def main_tests():
-    global running, window, tests_process_cycles
-    window = Window()
-
-    while running:
-        if tests_process_cycles > 0:
-            main_loop(window)
-            
-            if input_overrides.get_mouse_pressed()[0]:
-                pygame.draw.circle(window.screen, (255,0,0), input_overrides.get_mouse_pos(), 5)
-            pygame.draw.circle(window.screen, (255,255,0), input_overrides.get_mouse_pos(), 3)
-            
-            window.update_screen()
-
-            tests_process_cycles -= 1
-
-
 def main():
-    global running, window
     # DISPLAY
     window = Window()
 
-    while running:
+    while True:
         main_loop(window)
         
 

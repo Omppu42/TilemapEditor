@@ -22,9 +22,9 @@ class I_importexport:
 
     def save_tilemap(self):
         self.exporter.save_tilemap()
-        
-    def import_tilemap_from_path(self, path: str, recenter_camera=True) -> None:
-        self.import_tools.import_tilemap_from_path(path, recenter_camera=recenter_camera)
+    
+    def import_tilemap_from_path(self, path: str, recenter_camera=True, check_palette_change=True) -> None:
+        self.import_tools.import_tilemap_from_path(path, recenter_camera=recenter_camera, check_palette_change=check_palette_change)
 
     def import_empty_map(self):
         self.import_tools.import_empty_map()

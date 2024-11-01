@@ -26,3 +26,6 @@ EXPORT_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 # DEBUG ----------
 DRAW_TILE_IDS = False
 
+# TESTS------------
+TESTS_PALETTE_PATH = PALETTES_PATH   +   "tests-sVLkGQUpMQokDdScZWsr"
+TESTS_TILEMAP_PATH = TILEMAPS_EXPORT + "\\tests-sVLkGQUpMQokDdScZWsr"

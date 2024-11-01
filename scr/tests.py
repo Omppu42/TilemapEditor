@@ -31,6 +31,28 @@ import grid_resize
 
 SLEEP_BETWEEN_TESTS_SEC = 0.2
 
+
+running = True
+tests_process_cycles = 2
+window = None
+
+def main_tests():
+    global running, window, tests_process_cycles
+    window = main.Window()
+
+    while running:
+        if tests_process_cycles > 0:
+            main.main_loop(window)
+            
+            if input_overrides.get_mouse_pressed()[0]:
+                pygame.draw.circle(window.screen, (255,0,0), input_overrides.get_mouse_pos(), 5)
+            pygame.draw.circle(window.screen, (255,255,0), input_overrides.get_mouse_pos(), 3)
+            
+            window.update_screen()
+
+            tests_process_cycles -= 1
+
+
 @pytest.fixture(autouse=True)
 def before_and_after_tests(request):
     
@@ -41,7 +63,8 @@ def before_and_after_tests(request):
 
 
 def run_game_for_cycles(cycles: int, sleeptime_s:float=0.1) -> None: 
-    main.tests_process_cycles = cycles
+    global tests_process_cycles
+    tests_process_cycles = cycles
 
     time.sleep(sleeptime_s)
 
@@ -72,17 +95,28 @@ def inject_keydown(pygame_keycode: int, pygame_scancode: int, run_cycles=2) -> N
 
 class TestsButton():
     def test_initialization(self):
-        game_thread = threading.Thread(target=main.main_tests)
+        global window
+
+        game_thread = threading.Thread(target=main_tests)
         game_thread.start()
 
         time.sleep(0.1)
         run_game_for_cycles(1)
 
-        win = main.window
-        assert win != None, "Window failed to initialize"
+        assert window != None, "Window failed to initialize"
 
-        successful = palette.pm_obj.change_palette("Data\\Palettes\\Palette_tests")
+        successful = palette.pm_obj.change_palette(settings.TESTS_PALETTE_PATH)
         assert successful, "Palette loading failed"
+
+        run_game_for_cycles(1)
+        
+        try:
+            ie_interface.Iie_obj.import_tilemap_from_path(settings.TESTS_TILEMAP_PATH, check_palette_change=False)
+        except Exception as e:
+            assert False, "Error loading tilemap: %s - %s." % (e.filename, e.strerror)
+
+        run_game_for_cycles(2)
+
 
 
     def test_grid_toggle_key(self):
@@ -169,7 +203,8 @@ class TestsButton():
 
 
     def test_end(self):
-        main.running = False
+        global running
+        running = False
 
 
 if __name__ == "__main__":

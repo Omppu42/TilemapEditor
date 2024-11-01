@@ -2,6 +2,7 @@ import pygame, sys, json, atexit, os, time
 
 from util.util_logger import logger
 from util.util import timer
+from util import file_utils
 
 from GUI import popup
 
@@ -50,7 +51,7 @@ class Window:
         # Import map
         ie_interface.Iie_obj.importer.import_tools.import_tilemap_from_path(manager.m_obj.loaded_tilemap)
         
-        atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj)
+        atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj, file_utils.load_json_data_dict(settings.LAST_SESSION_DATA_JSON))
     
 
     def early_update(self) -> None:
@@ -169,11 +170,21 @@ class Window:
             self.screen.blit(saved_text_render, saved_text_rect)
 
 
-    def __on_exit(palette_manager_obj, manager_obj):
+    def __on_exit(palette_manager_obj, manager_obj, old_data):
         palette_manager_obj.export_all_palette_tile_orders()
 
-        json_obj = {"palette" : palette_manager_obj.current_palette.path,
-                    "loaded_tilemap" : manager_obj.loaded_tilemap,
+        palette = palette_manager_obj.current_palette.path
+        tilemap = manager_obj.loaded_tilemap
+
+        if "palette" in old_data and os.path.normpath(palette) == os.path.normpath(settings.TESTS_PALETTE_PATH):
+            palette = old_data["palette"]
+
+        if "loaded_tilemap" in old_data and os.path.normpath(tilemap) == os.path.normpath(settings.TESTS_TILEMAP_PATH):
+            tilemap = old_data["loaded_tilemap"]
+
+
+        json_obj = {"palette" : palette,
+                    "loaded_tilemap" : tilemap,
                     "grid_size" : ui.ui_obj.grid_size_rows_cols,
                     "grid_draw" : manager_obj.grid_on}
 

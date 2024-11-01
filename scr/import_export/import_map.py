@@ -66,6 +66,9 @@ class Importer():
 
 
         paths = file_utils.get_tilemap_paths_sort_date()
+        if settings.TESTS_TILEMAP_PATH:
+            paths.remove(settings.TESTS_TILEMAP_PATH)
+
         for _p in paths:
             self.create_frame(_p)
 
@@ -220,8 +223,8 @@ class Importer():
 class ImportTools:
     def __init__(self):
         pass
-
-    def import_tilemap_from_path(self, path: str, recenter_camera=True) -> None:
+    
+    def import_tilemap_from_path(self, path: str, recenter_camera=True, check_palette_change=True) -> None:
         # Check that path isn't None and it points to a valid folder
         if not tilemap_util.is_valid_tilemap(path): return
 
@@ -235,7 +238,8 @@ class ImportTools:
 
         ui.ui_obj.set_gridsize(grid_size, recenter_camera=recenter_camera)
         
-        palette.pm_obj.import_map_palette_change(path)   
+        if check_palette_change:
+            palette.pm_obj.import_map_palette_change(path)   
         
         self.update_tiles(tile_ids_lst)
 
@@ -259,7 +263,6 @@ class ImportTools:
                     continue
                 ui.ui_obj.blocks[total].tile_id = tile_ids[i][j]
                 ui.ui_obj.blocks[total].update_surf(manager.m_obj.grid_on)
-
 
     def update_last_loaded(self, path: str) -> None:
         if not tilemap_util.is_valid_tilemap(path): return
