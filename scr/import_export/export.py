@@ -65,6 +65,9 @@ class Exporter():
         self.popup.add_contents_class(self.scrollable)
 
         self.tilemap_paths = file_utils.get_tilemap_paths_alphabetically()
+        if settings.TESTS_TILEMAP_PATH:
+            self.tilemap_paths.remove(settings.TESTS_TILEMAP_PATH)
+
         for _p in self.tilemap_paths:
             self.create_frame(_p)
 

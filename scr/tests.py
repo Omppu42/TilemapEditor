@@ -28,6 +28,9 @@ import grid_resize
 # In terminal, run: pytest -q scr/tests.py
 # Add -s for printing
 
+# TODO: Implement can_run variable to continue straight after process_cycles have finished
+# FIXME: Make sure if saving a tilemap with a name 'tests-sVLkGQUpMQokDdScZWsr' nothing bad happens (not in export so maybe a problem?)
+
 LEFT_CLICK = [1, 0, 0]
 SLEEP_BETWEEN_TESTS_SEC = 0.2
 
@@ -36,7 +39,6 @@ running = True
 tests_process_cycles = 2
 window = None
 
-# TODO: Implement can_run variable to continue straight after process_cycles have finished
 
 def main_tests():
     global running, window, tests_process_cycles
@@ -289,6 +291,6 @@ class TestsEnd():
 
 
 if __name__ == "__main__":
-    #os.system("pytest -q scr/tests.py")
-    os.system("C:\\Users\\RomanLesnyak\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python311\\Scripts\\pytest.exe -q -s scr/tests.py")
+    os.system("pytest -q scr/tests.py")
+    #os.system("C:\\Users\\RomanLesnyak\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.11_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python311\\Scripts\\pytest.exe -q -s scr/tests.py")
     #os.system("pytest -q -s scr/tests.py")

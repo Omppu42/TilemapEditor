@@ -229,18 +229,6 @@ class PaletteManager:
 
         self.all_palettes.append(Palette(new_palette_folder))
         return new_palette_folder
-
-
-    def change_palette(self, palette_path: str) -> bool:
-        """Returns True if changed palette succesfully, False if invalid path"""
-        dest_palette = self.__get_palette_at_path(palette_path)
-        if dest_palette is None: return False
-
-        sidebar.s_obj.tiles_page = 0
-        self.current_palette = dest_palette
-        logger.log(f"Loaded {dest_palette}")
-        self.__update_palette_change()
-        return True
     
 
     def __update_palette_change(self):
@@ -280,6 +268,18 @@ class PaletteManager:
         manager.m_obj.reset_map()
 
 
+    def change_palette(self, palette_path: str) -> bool:
+        """Returns True if changed palette succesfully, False if invalid path"""
+        dest_palette = self.__get_palette_at_path(palette_path)
+        if dest_palette is None: return False
+
+        sidebar.s_obj.tiles_page = 0
+        self.current_palette = dest_palette
+        logger.log(f"Loaded {dest_palette}")
+        self.__update_palette_change()
+        return True
+
+
     def import_map_palette_change(self, directory: str):
         tiles_dir = directory+"\\Tiles"
         map_name = os.path.split(directory)[1]
@@ -316,7 +316,6 @@ class PaletteManager:
             return
         
         self.change_palette(new_palette_path)
-
 
     
     def add_tile(self):
