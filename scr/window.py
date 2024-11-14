@@ -4,6 +4,8 @@ from util.util_logger import logger
 from util.util import timer
 from util import file_utils
 
+from util.tkinter_opener import tk_util
+
 from GUI import popup
 
 from settings import settings
@@ -22,10 +24,12 @@ import grid_resize
 
 
 class Window:
-    ARROW_KEYS = [pygame.K_LEFT, 
-                pygame.K_RIGHT, 
-                pygame.K_UP, 
-                pygame.K_DOWN]
+    ARROW_KEYS = [
+        pygame.K_LEFT, 
+        pygame.K_RIGHT, 
+        pygame.K_UP, 
+        pygame.K_DOWN
+    ]
     
     @timer(text="Initialization completed in %.2f seconds", log_function=logger.log)
     def __init__(self):
@@ -54,18 +58,38 @@ class Window:
         atexit.register(Window.__on_exit, palette.pm_obj, manager.m_obj, file_utils.load_json_data_dict(settings.LAST_SESSION_DATA_JSON))
     
 
+    def __manage_keydown(self, event) -> None:
+        shift_pressed   = event.mod & pygame.KMOD_SHIFT
+        control_pressed = event.mod & pygame.KMOD_CTRL
+
+        if control_pressed:
+            match (event.key):
+                case pygame.K_s:
+                    ie_interface.Iie_obj.save_tilemap()
+            return
+        
+        
+        match (event.key):
+            case pygame.K_p:
+                manager.m_obj.equip_brush()
+            case pygame.K_e:
+                manager.m_obj.equip_eraser()
+            case pygame.K_o:
+                manager.m_obj.equip_color_picker()
+            case pygame.K_g:
+                manager.m_obj.toggle_grid()
+
+            # If any of the arrow keys were pressed
+            case _key if _key in Window.ARROW_KEYS:
+                sidebar.s_obj.arrowkeys_tile_selection_move(event)
+                
+
     def early_update(self) -> None:
         self.screen.fill((settings.BG_COLOR, settings.BG_COLOR, settings.BG_COLOR))
 
         # Get events
         event_list = pygame.event.get()
         input_overrides.frame_start_update(event_list)
-
-
-    def update_screen(self) -> None:
-        pygame.display.update()
-        self.clock.tick(60)
-
 
     # PUT IN ORDER, SOME EVENTS PREVENT EVENTS FURTHER DOWN LIKE POPUPS
     def manage_events(self) -> None:
@@ -92,7 +116,7 @@ class Window:
         for event in input_overrides.get_event_list():
             # KEYDOWN -------------
             if event.type == pygame.KEYDOWN:
-                self.manage_keydown(event)
+                self.__manage_keydown(event)
                 
             
             # ANY MOUSE BUTTON -----------
@@ -108,34 +132,10 @@ class Window:
                 manager.m_obj.mouse_update()
 
 
-    def manage_keydown(self, event) -> None:
-        shift_pressed   = event.mod & pygame.KMOD_SHIFT
-        control_pressed = event.mod & pygame.KMOD_CTRL
-
-        if control_pressed:
-            match (event.key):
-                case pygame.K_s:
-                    ie_interface.Iie_obj.save_tilemap()
-            return
+    def update(self) -> None:
+        tk_util.update()
+        ui.ui_obj.update()
         
-        
-        match (event.key):
-            case pygame.K_p:
-                manager.m_obj.equip_brush()
-            case pygame.K_e:
-                manager.m_obj.equip_eraser()
-            case pygame.K_o:
-                manager.m_obj.equip_color_picker()
-            case pygame.K_g:
-                manager.m_obj.toggle_grid()
-
-            # If any of the arrow keys were pressed
-            case _key if _key in Window.ARROW_KEYS:
-                sidebar.s_obj.arrowkeys_tile_selection_move(event)
-
-
-    # DRAW FUNCS ----------
-    def draw(self) -> None:
         # Dropdowns
         for _dd in ui.dropdowns:
             _dd.draw(self.screen)
@@ -168,6 +168,11 @@ class Window:
 
         if time.time() - data.saved_last_time < settings.SAVE_TEXT_TIME_S:
             self.screen.blit(saved_text_render, saved_text_rect)
+
+
+    def update_screen(self) -> None:
+        pygame.display.update()
+        self.clock.tick(60)
 
 
     def __on_exit(palette_manager_obj, manager_obj, old_data):

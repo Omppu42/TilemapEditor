@@ -184,7 +184,6 @@ class Sidebar:
                 palette.pm_obj.selected_tile_id += settings.TILES_PER_ROW
 
 
-
     def create_tile_selection_rects(self) -> None:
         self.tile_selection_rects = [pygame.Rect(_tile["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for _tile in palette.pm_obj.get_data_current_page()]
 
@@ -224,7 +223,6 @@ class Sidebar:
                 self.screen.blit(self.selected_tile_highlight, (tile["pos"][0] - Sidebar.TILE_HIGHLIGHT_W, tile["pos"][1] - Sidebar.TILE_HIGHLIGHT_W))
             self.screen.blit(tile["image"], tile["pos"])
     
-
 
     def update_page_arrows(self) -> None:
         """Updates page scrolling arrows according to the current palette"""

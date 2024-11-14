@@ -1,12 +1,8 @@
 import pygame
 pygame.init()
 
-from util.tkinter_opener import tk_util
-
 from window import Window
-import input_overrides
 
-import ui
 
 
 # TODO: Create popups for exporting, loading and exporting palettes
@@ -39,11 +35,8 @@ def main_loop(window: Window) -> None:
     window.early_update()
 
     window.manage_events()
-            
-    tk_util.update()
-    ui.ui_obj.update()
+    window.update()
 
-    window.draw()
     window.update_screen()
 
 
