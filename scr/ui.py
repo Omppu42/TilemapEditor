@@ -62,7 +62,7 @@ class UI:
         self.grid_size_rows_cols = grid_size
         
         if recenter_camera:
-            self.total_mouse_change = (100, 50)
+            self.total_mouse_change = settings.DEFAULT_GIRD_OFFSET
 
         self.grid_bot_surf = pygame.Surface((self.grid_size_rows_cols[0]*settings.CELL_SIZE, 1))
         self.grid_bot_surf.fill((0,0,0))

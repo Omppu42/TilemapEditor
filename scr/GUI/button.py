@@ -221,6 +221,15 @@ class ButtonGroup:  #only one button in the button group can be on at a time
 
     def get_pressed_all(self) -> list:
         return [b.is_clicked() for b in self.buttons]
+    
+    def get_pressed_all_binary(self) -> str:
+        """Return a string that corresponds to binary representation of pressed: example '010' where each number is the ith button in the group"""
+        string = ""
+        for b in self.buttons:
+            string += str(int(b.is_clicked())) #Turn True and False to 1 and 0, add to string
+            
+        return string
+        
 
 
 class ToolButton(Button):
