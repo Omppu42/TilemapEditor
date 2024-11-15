@@ -172,7 +172,7 @@ class Window:
 
     def update_screen(self) -> None:
         pygame.display.update()
-        self.clock.tick(60)
+        self.clock.tick(settings.FPS_CAP)
 
 
     def __on_exit(palette_manager_obj, manager_obj, old_data):

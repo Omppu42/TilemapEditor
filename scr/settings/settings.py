@@ -3,6 +3,7 @@ SCR_W = 1200
 SCR_H = 600
 CELL_SIZE = 32
 BG_COLOR = 100
+FPS_CAP = 60
 
 # PATHS ---------
 PALETTES_PATH = "Data\\Palettes\\"

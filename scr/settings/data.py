@@ -1,6 +1,7 @@
 from enum import Enum
 
 import pygame
+pygame.init()
 
 font_20 = pygame.font.Font(None, 20)
 font_25 = pygame.font.Font(None, 25)

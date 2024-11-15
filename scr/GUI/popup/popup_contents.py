@@ -1,6 +1,5 @@
 import pygame
 
-from .. import button
 from .. import input_field
 
 from . import settings_popup
@@ -13,7 +12,7 @@ import anchors
 import input_overrides
 
 class ButtonStruct:
-    def __init__(self, button: "button.Button", frame_pos: tuple, on_click_class: "RunnableFunc"):
+    def __init__(self, button , frame_pos: tuple, on_click_class: "RunnableFunc"):
         """Button being the button instance, frame_pos the position on the frame, on_click being the function to run when clicked"""
         self.btn = button
         self.frame_pos = frame_pos
@@ -73,7 +72,7 @@ class PopupContents:
         self.frame_base.blit(surface, anchor_pos)
 
 
-    def add_button(self, button: button.Button, pos_rel: tuple, on_click_func: "RunnableFunc", anchor=anchors.UL) -> None:
+    def add_button(self, button, pos_rel: tuple, on_click_func: "RunnableFunc", anchor=anchors.UL) -> None:
         """pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
         anchor_pos = self.__get_anchor_position(button.btn_surf, pos_rel, anchor)
 
