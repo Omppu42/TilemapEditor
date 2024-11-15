@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 #Custom
+Logs/
 _Deleted_tilemaps/
 _Deleted_tiles/
 last_session_data.json
