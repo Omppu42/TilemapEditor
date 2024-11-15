@@ -1,14 +1,15 @@
 import os, sys
 from datetime import datetime
 
+from settings import settings
+
 
 class Logger:
     def __init__(self, log_level: int=0):
-        self.logs_folder = "Logs\\"
-        if not os.path.isdir(self.logs_folder):
-            os.mkdir(self.logs_folder)
+        if not os.path.isdir(settings.LOGS_FOLDER):
+            os.mkdir(settings.LOGS_FOLDER)
 
-        self.log_file = "latest.log"
+        self.log_file = "\\latest.log"
         self.reset_logs_file()
 
         self.logging_level = log_level
@@ -21,7 +22,7 @@ class Logger:
 
 
     def reset_logs_file(self):
-        with open(self.logs_folder+self.log_file, "w"):
+        with open(settings.LOGS_FOLDER+self.log_file, "w"):
             pass
 
     def debug(self, msg: str):
@@ -52,7 +53,7 @@ class Logger:
         now = datetime.now()
         now = now.strftime("%H:%M:%S")
 
-        with open(self.logs_folder+self.log_file, "a") as f:
+        with open(settings.LOGS_FOLDER+self.log_file, "a") as f:
             f.write(f"{now} - [{level}] {msg}\n")
 
 logger = Logger(log_level=0)

@@ -6,10 +6,12 @@ BG_COLOR = 100
 FPS_CAP = 60
 
 # PATHS ---------
-PALETTES_PATH = "Data\\Palettes\\"
-TILEMAPS_EXPORT = "Data\\Tilemaps"
-DELETED_TILEMAPS_PATH = "Data\\_Deleted_tilemaps"
-LAST_SESSION_DATA_JSON = "Data\\last_session_data.json"
+LOGS_FOLDER             = "Data\\Logs"
+PALETTES_PATH           = "Data\\Palettes\\"
+TILEMAPS_EXPORT         = "Data\\Tilemaps"
+DELETED_TILEMAPS_PATH   = "Data\\_Deleted_tilemaps"
+DELETED_TILES_PATH      = "Data\\_Deleted_tiles"
+LAST_SESSION_DATA_JSON  = "Data\\last_session_data.json"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5

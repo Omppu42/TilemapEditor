@@ -360,12 +360,12 @@ class PaletteManager:
         # "Yes"
         root.destroy()
         
-        if not os.path.isdir("Deleted_tiles"):
-            os.mkdir("Deleted_tiles")
+        if not os.path.isdir(settings.DELETED_TILES_PATH):
+            os.mkdir(settings.DELETED_TILES_PATH)
         
         tile_to_remove_path = self.current_palette.path + "\\" + self.current_palette.tiles_order[index]
         
-        deleted_tile_path = "Deleted_tiles\\"+self.current_palette.tiles_order[index]
+        deleted_tile_path = settings.DELETED_TILES_PATH + "\\" + self.current_palette.tiles_order[index]
         deleted_tile_path = file_utils.prevent_existing_file_overlap(deleted_tile_path)
 
 
@@ -376,7 +376,7 @@ class PaletteManager:
         manager.m_obj.remove_index_map(index)
         manager.m_obj.on_tile_deleted(index)
 
-        logger.log(f"Moved '{os.path.split(tile_to_remove_path)[1]}' from '{self.current_palette.name}' to 'Deleted_tiles' folder")
+        logger.log(f"Moved '{os.path.split(tile_to_remove_path)[1]}' from '{self.current_palette.name}' to '{settings.DELETED_TILES_PATH}' folder")
 
 
     def create_empty_palette(self, ask_confirm=True, update_palette=True, num=None):
