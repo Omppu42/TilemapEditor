@@ -171,7 +171,7 @@ class PopupWindow:
         elif isinstance(func, util.RunnableFunc):
             return func
         else:
-            raise TypeError(f"Invalid function passed: {func}")
+            raise TypeError(f"Invalid function passed: {func}. Not a function?")
         
     def __get_positional_args(self, func: "function") -> "list[inspect.Parameter]":
         return [

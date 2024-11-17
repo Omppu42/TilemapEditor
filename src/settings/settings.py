@@ -7,11 +7,14 @@ FPS_CAP = 60
 
 # PATHS ---------
 LOGS_FOLDER             = "Data\\Logs"
-PALETTES_PATH           = "Data\\Palettes\\"
+PALETTES_PATH           = "Data\\Palettes"
 TILEMAPS_EXPORT         = "Data\\Tilemaps"
+LAST_SESSION_DATA_JSON  = "Data\\last_session_data.json"
 DELETED_TILEMAPS_PATH   = "Data\\_Deleted_tilemaps"
 DELETED_TILES_PATH      = "Data\\_Deleted_tiles"
-LAST_SESSION_DATA_JSON  = "Data\\last_session_data.json"
+DELETED_PALETTES_PATH   = "Data\\_Deleted_palettes"
+
+TILEMAP_LOAD_ORDER_JSON = "Data\\Tilemaps\\load_order.json"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5
@@ -31,5 +34,5 @@ EXPORT_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 DRAW_TILE_IDS = False
 
 # TESTS------------
-TESTS_PALETTE_PATH = PALETTES_PATH   +   "tests-sVLkGQUpMQokDdScZWsr"
+TESTS_PALETTE_PATH = PALETTES_PATH   + "\\tests-sVLkGQUpMQokDdScZWsr"
 TESTS_TILEMAP_PATH = TILEMAPS_EXPORT + "\\tests-sVLkGQUpMQokDdScZWsr"

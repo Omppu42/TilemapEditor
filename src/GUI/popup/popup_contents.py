@@ -30,7 +30,8 @@ class PopupContents:
                     pos[1] + popup.border_w + settings_popup.POPUP_TOPBAR_H)
         
         self.size = size
-        self.frame_base = pygame.Surface(size)
+        self.frame_base = pygame.Surface(size, pygame.SRCALPHA, 32)
+        self.frame_base = self.frame_base.convert_alpha()
         self.frame_base.fill(color)
 
         # Absolute position on the screen

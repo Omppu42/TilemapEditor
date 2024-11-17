@@ -11,6 +11,10 @@ def is_valid_tilemap(path: str) -> bool:
 
     if not os.path.exists(path):
         return False
+    
+    # FIXME: Check that this works
+    # if not os.path.commonprefix([path, settings.TILEMAPS_EXPORT]) == settings.TILEMAPS_EXPORT:
+    #     return False
 
     if os.path.isfile(path+"\\data.json"):
         return True

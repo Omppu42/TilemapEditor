@@ -17,7 +17,6 @@ import settings.data as data
 import settings.settings as settings
 import ui
 import palette
-import sidebar
 import manager
 import anchors
 
@@ -58,12 +57,17 @@ class Importer():
 
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
+        scrollable_size = (500,440)
 
         self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-        self.scrollable = popup.ScrollableFrame(self.popup.surface, popup_pos, (50, 50), (500,440))
+        self.scrollable = popup.ScrollableFrame(self.popup.surface, popup_pos, (40, 50), scrollable_size)
         
-        self.popup.add_contents_class(self.scrollable)
+        top_frame = popup.PopupContents(self.popup, (40,-40), (scrollable_size[0], 40), color=(0,0,0,0))
+        text = data.font_35.render(f"Load a Tilemap", True, (150,150,150))
+        top_frame.add_surface(text, (0.05,0.0), anchor=anchors.CENTER)
 
+        self.popup.add_contents_class(self.scrollable)
+        self.popup.add_contents_draw_func(top_frame.update)
 
         paths = file_utils.get_tilemap_paths_sort_date()
         if settings.TESTS_TILEMAP_PATH:
@@ -81,11 +85,11 @@ class Importer():
 
         frame.add_surface(name_text, (0.05, 0), anchor=anchors.CENTER)
 
-        load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
+        load_button = button.TextButton(frame.frame_base, (0,0), (80, 35), "Load", 25)
         trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
         
-        frame.add_button(load_button, (-0.38, 0), RunnableFunc(self.on_load_click, args=[path]), anchor=anchors.CENTER)
-        frame.add_button(trash_button, (0.4, 0), RunnableFunc(self.confirm_delete_frame, args=[frame, path]), anchor=anchors.CENTER)
+        frame.add_button(load_button, (-0.4, 0), RunnableFunc(self.on_load_click, args=[path]), anchor=anchors.CENTER)
+        frame.add_button(trash_button, (-0.015, 0), RunnableFunc(self.confirm_delete_frame, args=[frame, path]), anchor=anchors.RIGHT)
 
         self.scrollable.add_frame(frame)
 

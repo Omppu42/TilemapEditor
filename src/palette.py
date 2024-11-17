@@ -2,6 +2,8 @@ import pygame, os, glob, filecmp, tkinter, shutil, json
 from tkinter import filedialog
 from tkinter.messagebox import askokcancel, WARNING
 
+from import_export import ie_interface
+
 from util.util_logger import logger
 from util import file_utils
 import settings.data as data
@@ -123,12 +125,12 @@ class Palette:
 
 class PaletteManager:
     def __init__(self):
-        self.PALETTE_DIRS = [settings.PALETTES_PATH + _dir for _dir in os.listdir(settings.PALETTES_PATH) 
-                                    if os.path.isdir(settings.PALETTES_PATH + _dir)]
+        self.PALETTE_DIRS = [settings.PALETTES_PATH + "\\" + _dir for _dir in os.listdir(settings.PALETTES_PATH) 
+                                    if os.path.isdir(settings.PALETTES_PATH + "\\" + _dir)]
         
-        self.current_palette = None
-        self.all_palettes = []
-        self.selected_tile_id = 0
+        self.current_palette: Palette = None
+        self.all_palettes: "list[Palette]" = []
+        self.selected_tile_id: int = 0
 
         self.__init_palettes()
         self.__init_load_last_session_data()
@@ -139,6 +141,25 @@ class PaletteManager:
 
         logger.log(f"Loaded palette {self.current_palette}")
         logger.debug("Initialized PaletteManager")
+
+
+    # STATIC ------------
+    def get_all_palettes_paths() -> "list[str]":
+        return [settings.PALETTES_PATH + "\\" + x for x in os.listdir(settings.PALETTES_PATH)]
+
+    def is_valid_palette_path(self, path: str) -> bool:
+        #TODO: CHeck that palette is in all_palettes
+        if (path is None 
+            or not os.path.exists(path)
+            or not self.__get_palette_at_path(path)): 
+            return False
+        
+        if os.path.commonprefix([path, settings.PALETTES_PATH]) == settings.PALETTES_PATH:
+            return True
+        
+        logger.error(f"Invalid palette ({path}). Valid path but outside '{settings.PALETTES_PATH}'")
+        return False
+
 
     # GETTERS ----------------------------------------------------------------
     def get_current_tiles(self) -> list:
@@ -200,14 +221,14 @@ class PaletteManager:
             if path == palette.path:
                 return palette
         else:
-            logger.warning(f"No palette found at path: '{path}', keeping old palette")
+            logger.warning(f"No palette found at path: '{path}'")
             return None
 
 
     def __create_palette(self, name: str, tiles_folder=None) -> str: 
         """WARNING: will overwrite palette's folder if folder with same name already exists\n
         Returns path to new folder."""
-        new_palette_folder = str(settings.PALETTES_PATH+name)
+        new_palette_folder = str(settings.PALETTES_PATH + "\\" + name)
 
         if os.path.isdir(new_palette_folder): #if already exists, delete old one
             self.delete_palette(ask_confirm=False, dest_folder=new_palette_folder)
@@ -235,7 +256,7 @@ class PaletteManager:
         self.current_palette.load_sequence()
         
         sidebar.tile_selection_rects = [pygame.Rect(x["pos"], (settings.CELL_SIZE, settings.CELL_SIZE)) for x in self.current_palette.palette_data[sidebar.s_obj.tiles_page]] #make sidebar tiles' rects
-        self.selected_tile_id = 0 + sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
+        self.selected_tile_id = sidebar.s_obj.tiles_page * settings.TILES_PER_PAGE
 
         sidebar.s_obj.update_page_arrows()
     
@@ -249,35 +270,28 @@ class PaletteManager:
 
     def select_nth_tile_on_page(self, tile_index: int) -> None:
         """Selects the nth tile on the current page of the tile selection. Tile_index 0 is the first tile"""
-        self.selected_tile_id = self.current_palette.palette_data[sidebar.s_obj.tiles_page][tile_index]["id"]
+        self.selected_tile_id = self.current_palette.palette_data[sidebar.s_obj.tiles_page][tile_index]["id"]        
 
 
-    def change_palette_ask(self):
-        dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
-        if dest_folder == "": return #pressed cancel when selecting 
-        dest_folder = os.path.relpath(dest_folder, os.getcwd())
-
-        #check if dest path is current palette
-        if dest_folder == self.current_palette.path:
-            logger.log("While changing palette, selected current palette. Didn't changed palette or reset map")
-            return
-        if not self.change_palette(dest_folder): 
-            self.change_palette_ask()
-            return
-
-        manager.m_obj.reset_map()
-
-
-    def change_palette(self, palette_path: str) -> bool:
-        """Returns True if changed palette succesfully, False if invalid path"""
+    def change_palette(self, palette_path: str) -> None:
+        """Load a palette from a path"""
         dest_palette = self.__get_palette_at_path(palette_path)
-        if dest_palette is None: return False
+        if dest_palette is None: 
+            logger.error(f"Trying to load a palette which is invalid from path '{palette_path}'")
+            return
+        
+        if dest_palette == self.current_palette:
+            return
+
+        ie_interface.Iie_obj.save_tilemap_quiet()
 
         sidebar.s_obj.tiles_page = 0
         self.current_palette = dest_palette
-        logger.log(f"Loaded {dest_palette}")
+
         self.__update_palette_change()
-        return True
+        ie_interface.Iie_obj.import_empty_map()
+
+        logger.log(f"Loaded {dest_palette}")
 
 
     def import_map_palette_change(self, directory: str):
@@ -399,71 +413,101 @@ class PaletteManager:
             manager.m_obj.reset_map()
 
 
-    def delete_palette(self, ask_confirm=True, dest_folder=None):
-        if dest_folder is None:
-            dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
-            if dest_folder == "":return
+    def delete_palette(self, palette_path: str, rename_to_path:str="", move_to_deleted=True):
+        if not self.is_valid_palette_path(palette_path):
+            return
+            
+        if not os.path.isdir(settings.DELETED_PALETTES_PATH):
+            os.mkdir(settings.DELETED_PALETTES_PATH)
 
-        allowed_path = os.path.abspath("Data\\Palettes")  #reformat paths
-        allowed_path = os.path.normpath(allowed_path)
-        
-        dest_folder = os.path.abspath(dest_folder)
-        dest_folder = os.path.normpath(dest_folder)
-
-        if not os.path.commonprefix([dest_folder, allowed_path]) == allowed_path: #check if in palettes folder
-            logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Data\\Palettes'")
+        if not move_to_deleted:
+            try:
+                shutil.rmtree(palette_path)
+            except Exception as e:
+                logger.error("Error: %s - %s." % (e.filename, e.strerror))
             return
 
-        if dest_folder == allowed_path:
-            logger.error("Deleting palette: You cant select 'Data\\Palettes' folder. You have to select one of it's child folders")
-            return
+        try:
+            shutil.move(palette_path, settings.DELETED_PALETTES_PATH)
 
-        palette = self.__get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
-        if palette is None:
-            logger.error("Deleting palette: No palette found.")
-            return
+            if rename_to_path:
+                rename_to_path = file_utils.prevent_existing_file_overlap(rename_to_path)
+                deleted_path = settings.DELETED_PALETTES_PATH + "\\" + os.path.basename(palette_path)
+                os.rename(deleted_path, rename_to_path)
+                
+        except Exception as e:
+            logger.error("Error: %s - %s." % (e.filename, e.strerror))
 
-        if ask_confirm:
-            root = tkinter.Tk()
-            root.withdraw()
-            if not askokcancel("Confirm", f"Are you sure you want to delete {palette.name}?\nThis action cannot be undone.", icon=WARNING):
-                root.destroy()
-                return
-
-            root.destroy()
-
-        for file in os.listdir(dest_folder):
-            if not file.endswith(".png"):
-                logger.warning("Deleting palette: Not all files were '.png' files. Can't delete such folder")
-                return
-        
-        logger.log("Deleting palette: Deleting pngs..")
-        for f in glob.glob(dest_folder+"\\*.png"):
-            os.remove(f)
-    
-        if not os.listdir(dest_folder) == []:
-            logger.error("Deleting palette: Directory isn't empty. This should never happen")
-            return
-
-        logger.log("Deleting palette: Deleting folder")
-        os.rmdir(dest_folder)
-
-        if os.listdir("Data\\Palettes") == []:
-            self.create_empty_palette(ask_confirm=False, num=0)
-        
-        self.init_palettes()
         self.current_palette = self.all_palettes[0]
         self.__update_palette_change()
-        logger.log(f"Deleting palette: Deleted '{palette.name}'")
+
+        self.all_palettes.remove(self.__get_palette_at_path(palette_path))
+        
+        logger.log(f"Palette deleted at '{palette_path}'. Moved palette to '{settings.DELETED_TILEMAPS_PATH}\\'")
+
+
+    # def delete_palette(self, ask_confirm=True, dest_folder=None):
+    #     if dest_folder is None:
+    #         dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
+    #         if dest_folder == "":return
+
+    #     allowed_path = os.path.abspath("Data\\Palettes")  #reformat paths
+    #     allowed_path = os.path.normpath(allowed_path)
+        
+    #     dest_folder = os.path.abspath(dest_folder)
+    #     dest_folder = os.path.normpath(dest_folder)
+
+    #     if not os.path.commonprefix([dest_folder, allowed_path]) == allowed_path: #check if in palettes folder
+    #         logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Data\\Palettes'")
+    #         return
+
+    #     if dest_folder == allowed_path:
+    #         logger.error("Deleting palette: You cant select 'Data\\Palettes' folder. You have to select one of it's child folders")
+    #         return
+
+    #     palette = self.__get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
+    #     if palette is None:
+    #         logger.error("Deleting palette: No palette found.")
+    #         return
+
+    #     if ask_confirm:
+    #         root = tkinter.Tk()
+    #         root.withdraw()
+    #         if not askokcancel("Confirm", f"Are you sure you want to delete {palette.name}?\nThis action cannot be undone.", icon=WARNING):
+    #             root.destroy()
+    #             return
+
+    #         root.destroy()
+
+    #     for file in os.listdir(dest_folder): #FIXME: This will no longer work
+    #         if not file.endswith(".png"):
+    #             logger.warning("Deleting palette: Not all files were '.png' files. Can't delete such folder")
+    #             return
+        
+    #     logger.log("Deleting palette: Deleting pngs..")
+    #     for f in glob.glob(dest_folder+"\\*.png"):
+    #         os.remove(f)
+    
+    #     if not os.listdir(dest_folder) == []:
+    #         logger.error("Deleting palette: Directory isn't empty. This should never happen")
+    #         return
+
+    #     logger.log("Deleting palette: Deleting folder")
+    #     os.rmdir(dest_folder)
+
+    #     if os.listdir("Data\\Palettes") == []:
+    #         self.create_empty_palette(ask_confirm=False, num=0)
+        
+    #     self.init_palettes()
+    #     self.current_palette = self.all_palettes[0]
+    #     self.__update_palette_change()
+    #     logger.log(f"Deleting palette: Deleted '{palette.name}'")
 
 
     def draw_current_palette_text(self, screen):
         text = data.font_35.render(self.current_palette.name, True, (150,150,150))
         text_rect = text.get_rect(center=(sidebar.s_obj.pos[0]+sidebar.s_obj.size[0]//2, 25))
         screen.blit(text, text_rect)
-
-
-
 
 
 

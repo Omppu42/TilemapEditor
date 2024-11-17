@@ -185,6 +185,15 @@ class Exporter():
         self.export_tools.export_tilemap(os.path.basename(map_name))
         data.saved_last_time = time.time()
 
+    def save_tilemap_quiet(self) -> None:
+        """Save without save text and don't ask to save with name"""
+        map_name = manager.m_obj.loaded_tilemap
+        if map_name is None:
+            return
+
+        tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
+        self.export_tools.export_tilemap(os.path.basename(map_name))
+
 
 
 

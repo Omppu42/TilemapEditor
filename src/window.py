@@ -12,6 +12,7 @@ from settings import settings
 from settings import data
 
 from import_export import ie_interface
+from import_export import import_palette
 
 import palette
 import ui
@@ -43,6 +44,7 @@ class Window:
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
         ie_interface.create_Iie(self.screen)
+        import_palette.create_palette_loader(self.screen)
 
         # ORDER OF CREATION IS IMPORTANT!
         sidebar.create_sidebar(self.screen)
@@ -184,7 +186,10 @@ class Window:
         if "palette" in old_data and os.path.normpath(palette) == os.path.normpath(settings.TESTS_PALETTE_PATH):
             palette = old_data["palette"]
 
-        if "loaded_tilemap" in old_data and os.path.normpath(tilemap) == os.path.normpath(settings.TESTS_TILEMAP_PATH):
+        if (tilemap != None 
+            and "loaded_tilemap" in old_data 
+            and os.path.normpath(tilemap) == os.path.normpath(settings.TESTS_TILEMAP_PATH)):
+            
             tilemap = old_data["loaded_tilemap"]
 
 

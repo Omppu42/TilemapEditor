@@ -1,6 +1,3 @@
-import time, os
-import pytest
-import threading
 import pygame
 
 from tests._constants import *
@@ -10,9 +7,6 @@ from tests._utils import inject_click_at_pos_events, inject_keydown
 import sidebar
 import manager
 import palette
-
-# TODO: Implement can_run variable to continue straight after process_cycles have finished
-# FIXME: Make sure if saving a tilemap with a name 'tests-sVLkGQUpMQokDdScZWsr' nothing bad happens (not in export so maybe a problem?)
 
 
 class TestsButtons():

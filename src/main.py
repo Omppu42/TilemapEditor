@@ -6,14 +6,15 @@ pygame.init()
 from window import Window
 
 
-
-# TODO: Create popups for exporting, loading and exporting palettes
-
+# TODO: Create popups for loading and exporting palettes
+# TODO: Rename Tilemaps and palettes
+# TODO: Move Tilemap Lastloaded to a seperate JSON where all the open dates are kept track of
 
 # TODO: Zooming
-# TODO: Automated testing
-# TODO: Support screen resizes
 # TODO: Layers
+# TODO: Automated testing
+
+# TODO: Support screen resizes
 # TODO: Rearrange tiles selection by dragging 
 
 # TODO: Autosave

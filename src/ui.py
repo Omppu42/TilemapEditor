@@ -12,6 +12,7 @@ from settings import settings
 
 from import_export import ie_interface
 from import_export import tilemap_util
+from import_export import import_palette
 
 import manager
 import sidebar
@@ -59,6 +60,9 @@ class UI:
             logger.warning(f"Tilemap at path '{tilemap_path}' was deleted between sessions. Opening an empty tilemap")
 
     def set_gridsize(self, grid_size: tuple, recenter_camera:bool=True):
+        if self.grid_size_rows_cols == grid_size:
+            return
+        
         self.grid_size_rows_cols = grid_size
         
         if recenter_camera:
@@ -147,7 +151,7 @@ class UI:
         dropdowns.append( DropDown(
             pos_size=(150, 0, 125, 30), 
             main="Palette", 
-            options={"Load"  : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.change_palette_ask]), 
+            options={"Load"  : import_palette.pl_obj.start_palette_import, 
                     "New"    : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.create_empty_palette]), 
                     "Delete" : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.delete_palette])} ))
 
