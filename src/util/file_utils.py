@@ -14,9 +14,10 @@ def get_tilemap_paths_alphabetically() -> list:
     dirs = [settings.TILEMAPS_EXPORT + "\\" + _dir for _dir in dirs]
 
     # Remove any folders that are not tilemap exports
+    dirs.remove(settings.TILEMAP_LOAD_DATES_JSON)
     dirs_clean = [_dir for _dir in dirs if (os.path.isfile(_dir + "\\data.json") or 
                                             os.path.isfile(_dir + "\\explanations.json"))]
-    
+
     if dirs != dirs_clean:
         # Find the directories that are not tilemaps and put them into bad_paths
         bad_paths = []
@@ -32,6 +33,11 @@ def get_tilemap_paths_alphabetically() -> list:
 def get_tilemap_paths_sort_date() -> list:
     """Returns all valid tilemap paths in settings.TILEMAPS_EXPORT sorted by the date opened"""
     dirs = get_tilemap_paths_alphabetically()
+    load_dates = {}
+
+    if os.path.isfile(settings.TILEMAP_LOAD_DATES_JSON):
+        with open(settings.TILEMAP_LOAD_DATES_JSON, "r") as f:
+            load_dates = json.load(f)
 
     # If no tilemaps exist
     if dirs == []: return []
@@ -40,22 +46,20 @@ def get_tilemap_paths_sort_date() -> list:
     dirs_no_time = []
 
     # Sort by time saved
-    for _dir in dirs:
-        # Load each tilemap's data
-        data = __get_tilemap_data(_dir)
+    for _dir in dirs:        
+        if not _dir in load_dates:
+            logger.error(f"'{_dir}' not found in load_dates: {load_dates}")
 
-        # if not saved_time in data
-        if not "last_loaded" in data.keys():
-            dirs_no_time.append( (_dir, -1) )
-            continue
+        last_loaded_time = load_dates[_dir]
+        if last_loaded_time == 0:
+            epoch_start = datetime(1970, 1, 1, 0, 0, 0)
+            last_loaded_time = epoch_start.strftime(settings.EXPORT_TIME_FORMAT)
 
-        last_loaded_time = data["last_loaded"]
         diff = datetime.now() - datetime.strptime(last_loaded_time, settings.EXPORT_TIME_FORMAT)
         loaded_minutes_ago = diff.total_seconds() / 60
         
         sorted_dirs.append( (_dir, loaded_minutes_ago) )
-
-
+    
     # sort by the difference to current time: Most recently exported will be on top
     sorted_dirs.sort(key=lambda x: x[1])
 

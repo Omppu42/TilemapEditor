@@ -273,25 +273,20 @@ class PaletteManager:
         self.selected_tile_id = self.current_palette.palette_data[sidebar.s_obj.tiles_page][tile_index]["id"]        
 
 
-    def change_palette(self, palette_path: str) -> None:
-        """Load a palette from a path"""
+    def change_palette(self, palette_path: str) -> bool:
+        """Load a palette from a path, returns True if succeeded"""
         dest_palette = self.__get_palette_at_path(palette_path)
         if dest_palette is None: 
             logger.error(f"Trying to load a palette which is invalid from path '{palette_path}'")
-            return
-        
-        if dest_palette == self.current_palette:
-            return
-
-        ie_interface.Iie_obj.save_tilemap_quiet()
+            return False
 
         sidebar.s_obj.tiles_page = 0
         self.current_palette = dest_palette
 
         self.__update_palette_change()
-        ie_interface.Iie_obj.import_empty_map()
 
         logger.log(f"Loaded {dest_palette}")
+        return True
 
 
     def import_map_palette_change(self, directory: str):

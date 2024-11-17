@@ -60,8 +60,8 @@ class UI:
             logger.warning(f"Tilemap at path '{tilemap_path}' was deleted between sessions. Opening an empty tilemap")
 
     def set_gridsize(self, grid_size: tuple, recenter_camera:bool=True):
-        if self.grid_size_rows_cols == grid_size:
-            return
+        # if self.grid_size_rows_cols == grid_size:
+        #     return
         
         self.grid_size_rows_cols = grid_size
         

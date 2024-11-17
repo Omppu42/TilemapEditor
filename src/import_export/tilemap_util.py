@@ -12,9 +12,8 @@ def is_valid_tilemap(path: str) -> bool:
     if not os.path.exists(path):
         return False
     
-    # FIXME: Check that this works
-    # if not os.path.commonprefix([path, settings.TILEMAPS_EXPORT]) == settings.TILEMAPS_EXPORT:
-    #     return False
+    if not os.path.commonprefix([path, settings.TILEMAPS_EXPORT]) == settings.TILEMAPS_EXPORT:
+        return False
 
     if os.path.isfile(path+"\\data.json"):
         return True
@@ -105,11 +104,13 @@ def tilemap_has_changes(path: str, current_tiles_list: list, current_grid_size: 
         
         return True
     
-    if not is_valid_tilemap(path): return False
+    if not is_valid_tilemap(path): 
+        return False
     
     grid_size = get_data_gridsize(path)
-    
-    if not current_grid_size == grid_size:
+
+    if (not current_grid_size[0] == grid_size[0] 
+        and not current_grid_size[1] == grid_size[1]):
         return True
 
 

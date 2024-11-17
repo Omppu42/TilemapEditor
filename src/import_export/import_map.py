@@ -40,6 +40,12 @@ class Importer():
         self.scrollable = None
         self.confirm_popup = None
 
+        if not os.path.isfile(settings.TILEMAP_LOAD_DATES_JSON):
+            with open(settings.TILEMAP_LOAD_DATES_JSON, "w") as f:
+                data = {x : 0 for x in file_utils.get_tilemap_paths_alphabetically()}
+                json.dump(data, f, indent=4)
+
+
         logger.debug("Initialized Importer")
 
     def import_tilemap(self) -> None:
@@ -190,6 +196,7 @@ class Importer():
 
 
     def on_load_click(self, path_to_tilemap: str) -> None:
+        print("Loading", path_to_tilemap)
         self.import_tools.import_tilemap_from_path(path_to_tilemap)
         popup.popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()
@@ -231,7 +238,6 @@ class ImportTools:
     def import_tilemap_from_path(self, path: str, recenter_camera=True, check_palette_change=True) -> None:
         # Check that path isn't None and it points to a valid folder
         if not tilemap_util.is_valid_tilemap(path): return
-
         logger.log(f"Importing tilemap '{os.path.split(path)[1]}'")
 
         # Load the data
@@ -271,21 +277,19 @@ class ImportTools:
     def update_last_loaded(self, path: str) -> None:
         if not tilemap_util.is_valid_tilemap(path): return
 
-        if os.path.isfile(path+"\\data.json"):
-            json_path = path+"\\data.json"
-        elif os.path.isfile(path+"\\explanations.json"):
-            json_path = path+"\\explanations.json"
-        else:
-            logger.error("This shouldn't happen")
-            return
+        old_data = {}
+        new_data = {}
 
-        json_data = None
-        with open(json_path, "r") as f:
-            json_data = json.load(f)
+        with open(settings.TILEMAP_LOAD_DATES_JSON, "r") as f:
+            old_data = json.load(f) 
 
-        json_data["last_loaded"] = datetime.now().strftime(settings.EXPORT_TIME_FORMAT)
+        if path in old_data:
+            old_data.pop(path)
 
-        with open(json_path, "w") as f:
-            json.dump(json_data, f)
+        new_data[path] = datetime.now().strftime(settings.EXPORT_TIME_FORMAT)
+        new_data.update(old_data)
+        
+        with open(settings.TILEMAP_LOAD_DATES_JSON, "w") as f:
+            json.dump(new_data, f, indent=4)
 
 

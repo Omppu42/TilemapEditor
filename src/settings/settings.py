@@ -9,12 +9,12 @@ FPS_CAP = 60
 LOGS_FOLDER             = "Data\\Logs"
 PALETTES_PATH           = "Data\\Palettes"
 TILEMAPS_EXPORT         = "Data\\Tilemaps"
-LAST_SESSION_DATA_JSON  = "Data\\last_session_data.json"
 DELETED_TILEMAPS_PATH   = "Data\\_Deleted_tilemaps"
 DELETED_TILES_PATH      = "Data\\_Deleted_tiles"
 DELETED_PALETTES_PATH   = "Data\\_Deleted_palettes"
 
-TILEMAP_LOAD_ORDER_JSON = "Data\\Tilemaps\\load_order.json"
+LAST_SESSION_DATA_JSON  = "Data\\last_session_data.json"
+TILEMAP_LOAD_DATES_JSON = "Data\\Tilemaps\\load_dates.json"
 
 # SIDEBAR ------------
 TILES_PER_ROW = 5

@@ -6,6 +6,7 @@ from util.util import RunnableFunc
 from util import util
 
 from . import tilemap_util
+from . import ie_interface
 
 import GUI.button as button
 from GUI import popup
@@ -128,14 +129,20 @@ class PaletteLoader():
         self.confirm_popup.close_popup()
 
 
-    def on_load_click(self, path_to_tilemap: str) -> None:
-        result = palette.pm_obj.change_palette(path_to_tilemap)
-        if result == 0:
-            logger.error(f"Error while loading palette at path '{path_to_tilemap}'")
-
+    def on_load_click(self, palette_path: str) -> None:
         popup.popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()
+        
+        if palette_path == palette.pm_obj.current_palette.path:
+            return
+        
+        ie_interface.Iie_obj.save_tilemap_quiet()
 
+        result = palette.pm_obj.change_palette(palette_path)
+        if result == 0:
+            logger.error(f"Error while loading palette at path '{palette_path}'")
+
+        ie_interface.Iie_obj.import_empty_map()
 
 
 pl_obj: PaletteLoader = None

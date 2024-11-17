@@ -182,7 +182,7 @@ class Exporter():
             return
 
         tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
-        self.export_tools.export_tilemap(os.path.basename(map_name))
+        self.export_tools.export_tilemap(os.path.basename(map_name), load_map=False)
         data.saved_last_time = time.time()
 
     def save_tilemap_quiet(self) -> None:
@@ -192,7 +192,7 @@ class Exporter():
             return
 
         tilemap_util.delete_tilemap(map_name, move_to_deleted=False)
-        self.export_tools.export_tilemap(os.path.basename(map_name))
+        self.export_tools.export_tilemap(os.path.basename(map_name), load_map=False)
 
 
 
@@ -201,18 +201,20 @@ class ExportTools:
     def __init__(self, exporter):
         self.exporter: "Exporter" = exporter
     
-    def export_tilemap(self, tilemap_name: str):
+    def export_tilemap(self, tilemap_name: str, load_map=True):
         dest_folder = settings.TILEMAPS_EXPORT + "\\" + tilemap_name
         os.mkdir(dest_folder)
 
         self.create_tiles_folder(dest_folder)
         data_json = self.create_data_json()
+        print(f"Exporting {tilemap_name} data:", data_json)
 
         with open(dest_folder + "\\data.json", "w") as f:
             json_object = json.dumps(data_json, indent=None) #write json object to explanations.json
             f.write(json_object)
 
-        self.exporter.ie_interface.import_tilemap_from_path(dest_folder, recenter_camera=False)
+        if load_map:
+            self.exporter.ie_interface.import_tilemap_from_path(dest_folder, recenter_camera=False)
 
 
     def create_tiles_folder(self, dest_folder: str):
@@ -228,10 +230,9 @@ class ExportTools:
         shutil.copy(PALETTE_PATH+"\\_order.json", TILE_FOLDER)
 
 
-    def create_data_json(self, ) -> dict:
+    def create_data_json(self) -> dict:
         output = {}
 
-        output["last_loaded"] = datetime.now().strftime(settings.EXPORT_TIME_FORMAT)
         output["grid_size"] = ui.ui_obj.grid_size_rows_cols
         output["tile_ids"] = self.create_tiles_list()
 
