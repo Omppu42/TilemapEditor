@@ -62,7 +62,7 @@ class Palette:
         else:
             logger.debug(f"No last session order found for palette '{self.name}'. Creating from file order")
 
-        # PNG present now
+        # PNGs present now
         present_tiles = []
         # Get all png images
         for _png in glob.glob(self.path+"\\*.png"): 
@@ -148,7 +148,6 @@ class PaletteManager:
         return [settings.PALETTES_PATH + "\\" + x for x in os.listdir(settings.PALETTES_PATH)]
 
     def is_valid_palette_path(self, path: str) -> bool:
-        #TODO: CHeck that palette is in all_palettes
         if (path is None 
             or not os.path.exists(path)
             or not self.__get_palette_at_path(path)): 
@@ -439,64 +438,6 @@ class PaletteManager:
         self.all_palettes.remove(self.__get_palette_at_path(palette_path))
         
         logger.log(f"Palette deleted at '{palette_path}'. Moved palette to '{settings.DELETED_TILEMAPS_PATH}\\'")
-
-
-    # def delete_palette(self, ask_confirm=True, dest_folder=None):
-    #     if dest_folder is None:
-    #         dest_folder = manager.m_obj.ask_filedialog(initialdir="Data\\Palettes")
-    #         if dest_folder == "":return
-
-    #     allowed_path = os.path.abspath("Data\\Palettes")  #reformat paths
-    #     allowed_path = os.path.normpath(allowed_path)
-        
-    #     dest_folder = os.path.abspath(dest_folder)
-    #     dest_folder = os.path.normpath(dest_folder)
-
-    #     if not os.path.commonprefix([dest_folder, allowed_path]) == allowed_path: #check if in palettes folder
-    #         logger.error(f"Deleting palette: Tried deleting a non-palette folder. You can olny delete palettes folder inside 'Data\\Palettes'")
-    #         return
-
-    #     if dest_folder == allowed_path:
-    #         logger.error("Deleting palette: You cant select 'Data\\Palettes' folder. You have to select one of it's child folders")
-    #         return
-
-    #     palette = self.__get_palette_at_path(os.path.relpath(dest_folder, os.getcwd()))
-    #     if palette is None:
-    #         logger.error("Deleting palette: No palette found.")
-    #         return
-
-    #     if ask_confirm:
-    #         root = tkinter.Tk()
-    #         root.withdraw()
-    #         if not askokcancel("Confirm", f"Are you sure you want to delete {palette.name}?\nThis action cannot be undone.", icon=WARNING):
-    #             root.destroy()
-    #             return
-
-    #         root.destroy()
-
-    #     for file in os.listdir(dest_folder): #FIXME: This will no longer work
-    #         if not file.endswith(".png"):
-    #             logger.warning("Deleting palette: Not all files were '.png' files. Can't delete such folder")
-    #             return
-        
-    #     logger.log("Deleting palette: Deleting pngs..")
-    #     for f in glob.glob(dest_folder+"\\*.png"):
-    #         os.remove(f)
-    
-    #     if not os.listdir(dest_folder) == []:
-    #         logger.error("Deleting palette: Directory isn't empty. This should never happen")
-    #         return
-
-    #     logger.log("Deleting palette: Deleting folder")
-    #     os.rmdir(dest_folder)
-
-    #     if os.listdir("Data\\Palettes") == []:
-    #         self.create_empty_palette(ask_confirm=False, num=0)
-        
-    #     self.init_palettes()
-    #     self.current_palette = self.all_palettes[0]
-    #     self.__update_palette_change()
-    #     logger.log(f"Deleting palette: Deleted '{palette.name}'")
 
 
     def draw_current_palette_text(self, screen):

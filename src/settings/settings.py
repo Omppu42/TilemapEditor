@@ -31,7 +31,7 @@ DEFAULT_GIRD_OFFSET = (100, 50)
 EXPORT_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 
 # DEBUG ----------
-DRAW_TILE_IDS = False
+DEBUG_INFO = -1
 
 # TESTS------------
 TESTS_PALETTE_PATH = PALETTES_PATH   + "\\tests-sVLkGQUpMQokDdScZWsr"

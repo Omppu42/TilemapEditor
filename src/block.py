@@ -43,7 +43,7 @@ class Block:
                 self.surf.blit(palette_data[tile_pos_on_page]["image"], (0, 0))
             
             # Debug option to draw the tile ID on the tile
-            if settings.DRAW_TILE_IDS:
+            if settings.DEBUG_INFO == 1:
                 id_text = data.font_25.render(str(self.tile_id), False, (255, 0, 0))
                 _w, _h = id_text.get_size()
 

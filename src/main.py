@@ -8,7 +8,6 @@ from window import Window
 
 # TODO: Create popups for loading and exporting palettes
 # TODO: Rename Tilemaps and palettes
-# TODO: Move Tilemap Lastloaded to a seperate JSON where all the open dates are kept track of
 
 # TODO: Zooming
 # TODO: Layers
@@ -21,7 +20,7 @@ from window import Window
 
 # TODO: Ask to save if closing tilemap without saving first
 
-# TODO: Rename tilemaps
+# TODO: Undoing with a stack
 
 # FIXME: Make sure when loading a tilemap that the order of the tilemaps has not changed
 

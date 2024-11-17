@@ -80,6 +80,9 @@ class Window:
                 manager.m_obj.equip_color_picker()
             case pygame.K_g:
                 manager.m_obj.toggle_grid()
+            case pygame.K_F3:
+                settings.DEBUG_INFO *= -1
+                [block.update_surf(manager.m_obj.grid_on) for block in ui.ui_obj.blocks] # Update blocks
 
             # If any of the arrow keys were pressed
             case _key if _key in Window.ARROW_KEYS:
@@ -189,7 +192,7 @@ class Window:
         if (tilemap != None 
             and "loaded_tilemap" in old_data 
             and os.path.normpath(tilemap) == os.path.normpath(settings.TESTS_TILEMAP_PATH)):
-            
+
             tilemap = old_data["loaded_tilemap"]
 
 
