@@ -207,7 +207,6 @@ class ExportTools:
 
         self.create_tiles_folder(dest_folder)
         data_json = self.create_data_json()
-        print(f"Exporting {tilemap_name} data:", data_json)
 
         with open(dest_folder + "\\data.json", "w") as f:
             json_object = json.dumps(data_json, indent=None) #write json object to explanations.json

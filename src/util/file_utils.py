@@ -87,7 +87,7 @@ def __get_tilemap_data(tilemap_path: str) -> dict:
 
 def prevent_existing_file_overlap(filepath: str) -> str:
     """Returns a path that is valid, fixing conflicts by adding (1) or (2) depending on many conflicts there are"""
-    if not os.path.isfile(filepath):
+    if not os.path.exists(filepath):
         return filepath
 
     _filepath, _filename = os.path.split(filepath)
@@ -99,7 +99,7 @@ def prevent_existing_file_overlap(filepath: str) -> str:
 
     i = 1
     # find a free name
-    while os.path.isfile(new_filepath % i):
+    while os.path.exists(new_filepath % i):
         i += 1
 
     return new_filepath % i

@@ -1,21 +1,18 @@
 import pygame, os
 
-from util.util import timer
 from util.util_logger import logger
 from util.util import RunnableFunc
 from util import util
 
-from . import tilemap_util
 from . import ie_interface
 
 import GUI.button as button
 from GUI import popup
+from GUI import input_field
 
 import settings.data as data
 import settings.settings as settings
-import ui
 import palette
-import manager
 import anchors
 
 pygame.init()
@@ -143,6 +140,47 @@ class PaletteLoader():
             logger.error(f"Error while loading palette at path '{palette_path}'")
 
         ie_interface.Iie_obj.import_empty_map()
+
+
+    def new_palette_popup(self) -> None:
+        popup_size = (400, 340)
+        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
+                     settings.SCR_H//2 - popup_size[1]//2)
+
+        self.popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+
+        frame = popup.PopupContents(self.popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
+
+        text = data.font_30.render(f"Create a new Palette", True, (0,0,0))
+        text2 = data.font_25.render(f"Give it a name:", True, (0,0,0))
+
+        name = input_field.TextInputField((0,0), (320, 40), 30, placeholder=f"Palette_{len(palette.pm_obj.all_palettes) - 1}", empty_return_val="placeholder", bg_color=(180,180,180), active_color=(190,190,190), border_width=1, font=data.font_30)
+
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Create", 25)
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+
+        frame.add_surface(text, (0.0,-0.3), anchor=anchors.CENTER)
+        frame.add_surface(text2, (0.0,-0.2), anchor=anchors.CENTER)
+        frame.add_input_field(name, (0,0), anchor=anchors.CENTER)
+
+        frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.new_palette_confirmed, args=[name.get_value, frame]), anchor=anchors.BOTTOM)
+        frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.popup.close_popup), anchor=anchors.BOTTOM)
+
+        self.popup.add_contents_class(frame)
+
+    def new_palette_confirmed(self, name_getter: "function", frame: "popup.PopupContents") -> None:
+        name = name_getter()
+        if name == "":
+            name = f"Palette_{len(palette.pm_obj.all_palettes) - 1}"
+
+        conflict = any([n.name == name for n in palette.pm_obj.all_palettes])
+        if conflict: 
+            text = data.font_25.render(f"Palette name already taken", True, (0,0,0))
+            frame.add_surface(text, (0.0,0.15), anchor=anchors.CENTER)
+            return
+
+        palette.pm_obj.create_empty_palette(custom_name=name, save_tilemap=True)
+        self.popup.close_popup()
 
 
 pl_obj: PaletteLoader = None

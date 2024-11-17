@@ -196,7 +196,6 @@ class Importer():
 
 
     def on_load_click(self, path_to_tilemap: str) -> None:
-        print("Loading", path_to_tilemap)
         self.import_tools.import_tilemap_from_path(path_to_tilemap)
         popup.popup_window.popup_m_obj.close_popup(self.popup)
         self.scrollable.disable_clicking()

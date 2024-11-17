@@ -152,14 +152,13 @@ class UI:
             pos_size=(150, 0, 125, 30), 
             main="Palette", 
             options={"Load"  : import_palette.pl_obj.start_palette_import, 
-                    "New"    : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.create_empty_palette]), 
-                    "Delete" : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.delete_palette])} ))
+                     "New"   : RunnableFunc(import_palette.pl_obj.new_palette_popup)} ))
 
         dropdowns.append( DropDown(
             pos_size=(280, 0, 125, 30), 
             main="Tiles", 
             options={"New Tile" : RunnableFunc(tk_util.queue_func, args=[palette.pm_obj.add_tile]), 
-                    "Remove"    : self.toggle_delete} ))
+                     "Remove"   : self.toggle_delete} ))
 
         dropdowns.append( DropDown(
             pos_size=(410, 0, 125, 30), 

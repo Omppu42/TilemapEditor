@@ -36,16 +36,16 @@ class Logger:
     def warning(self, msg: str):
         if self.logging_level > 2: return
         self.log_to_file("WARNING", msg)
-        print("Warning logged")
+        print("Warning logged:", msg)
 
     def error(self, msg: str):
         if self.logging_level > 3: return
         self.log_to_file("ERROR", msg)
-        print("Error logged")
+        print("Error logged:", msg)
     
     def fatal(self, msg: str):
         self.log_to_file("FATAL", msg)
-        print("FATAL, QUITTING")
+        print("FATAL, QUITTING:", msg)
         sys.exit()
 
 

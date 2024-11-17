@@ -189,7 +189,7 @@ class PaletteManager:
     def __init_palettes(self):
         if self.PALETTE_DIRS == []:
             logger.warning("No palette in palettes folder, creating empty one")
-            self.create_empty_palette(ask_confirm=False, update_palette=False)
+            self.create_empty_palette(update_palette=False)
 
         for path in self.PALETTE_DIRS:
             self.all_palettes.append(Palette(path))
@@ -230,7 +230,7 @@ class PaletteManager:
         new_palette_folder = str(settings.PALETTES_PATH + "\\" + name)
 
         if os.path.isdir(new_palette_folder): #if already exists, delete old one
-            self.delete_palette(ask_confirm=False, dest_folder=new_palette_folder)
+            self.delete_palette(dest_folder=new_palette_folder) #FIXME: This is old code, I don't know what it's supposed to do ???
         os.mkdir(new_palette_folder)
     
         # if no tilesfolder, don't copy any tiles
@@ -387,24 +387,18 @@ class PaletteManager:
         logger.log(f"Moved '{os.path.split(tile_to_remove_path)[1]}' from '{self.current_palette.name}' to '{settings.DELETED_TILES_PATH}' folder")
 
 
-    def create_empty_palette(self, ask_confirm=True, update_palette=True, num=None):
-        if ask_confirm:
-            root = tkinter.Tk()
-            root.withdraw()
-            if not askokcancel("Confirm", "When you create a new palette, your map will reset.\nMake sure to save before continuing.", icon=WARNING):
-                root.destroy()
-                return
+    def create_empty_palette(self, update_palette=True, custom_name=None, save_tilemap=False):
+        if save_tilemap:
+            ie_interface.Iie_obj.save_tilemap_quiet()
 
-            root.destroy()
-
-        if num is None:
-            num = len(self.all_palettes)
-        logger.log(f"Creating new palette 'Palette_{num}'")
-        new_palette = self.__create_palette("Palette_"+str(num))
+        palette_name = custom_name if custom_name else f"Palette_{len(self.all_palettes) - 1}" 
+        
+        logger.log(f"Creating new palette '{palette_name}'")
+        new_palette = self.__create_palette(palette_name)
 
         if update_palette:
             self.change_palette(new_palette)
-            manager.m_obj.reset_map()
+            ie_interface.Iie_obj.import_empty_map()
 
 
     def delete_palette(self, palette_path: str, rename_to_path:str="", move_to_deleted=True):
@@ -418,19 +412,20 @@ class PaletteManager:
             try:
                 shutil.rmtree(palette_path)
             except Exception as e:
-                logger.error("Error: %s - %s." % (e.filename, e.strerror))
+                logger.error("Error during shuil.rmtree: %s - %s." % (e.filename, e.strerror))
             return
 
-        try:
-            shutil.move(palette_path, settings.DELETED_PALETTES_PATH)
+        palette_name = os.path.basename(palette_path)
+        target_path = settings.DELETED_PALETTES_PATH + "\\" + palette_name
+        target_path = file_utils.prevent_existing_file_overlap(target_path)
+        
+        if rename_to_path:
+            target_path = file_utils.prevent_existing_file_overlap(rename_to_path)
 
-            if rename_to_path:
-                rename_to_path = file_utils.prevent_existing_file_overlap(rename_to_path)
-                deleted_path = settings.DELETED_PALETTES_PATH + "\\" + os.path.basename(palette_path)
-                os.rename(deleted_path, rename_to_path)
-                
+        try:
+            shutil.move(palette_path, target_path)              
         except Exception as e:
-            logger.error("Error: %s - %s." % (e.filename, e.strerror))
+            logger.error("Error during shuil.move: %s - %s. %s" % (e.filename, e.strerror, e.args))
 
         self.current_palette = self.all_palettes[0]
         self.__update_palette_change()
