@@ -65,23 +65,6 @@ def get_tile_row_from_index(index: int) -> int:
     return math.floor((index % settings.TILES_PER_PAGE) / settings.TILES_PER_ROW)
 
 
-def pygame_different_color_text(font: "pygame.font.Font", texts: "list[str]", colors: "list[tuple]") -> "pygame.Surface":
-    """Adds different color texts together. Each list index of texts list corresponds with list index colors list."""
-    _size = font.size("".join(texts))
-    surf = pygame.Surface(_size).convert_alpha()
-    surf.fill((255,255,255, 0))
-
-    filled_to_x = 0
-
-    for _text, _col in zip(texts, colors):
-        _render = font.render(_text, True, _col)
-        surf.blit(_render, (filled_to_x, 0))
-
-        filled_to_x += _render.get_rect().w
-
-    return surf
-
-
 class RunnableFunc():
     def __init__(self, function: "function", args:list=[], kwargs:dict={}):
         self.function = function
@@ -89,6 +72,29 @@ class RunnableFunc():
         self.kwargs = kwargs
 
         self.traceback = traceback.extract_stack()[-2]
+
+    @staticmethod
+    def get_runnable_func(function: "function|RunnableFunc") -> "RunnableFunc":
+        """Static method for turning a possible default function into a RunnableFunc
+           
+           Pass in a normal function or a RunnableFunc"""
+        if callable(function):
+            return RunnableFunc(function)
+        elif isinstance(function, RunnableFunc):
+            return function
+        else:
+            raise TypeError(f"Invalid function passed: {function}. Not a function? (Type: {type(function)})")
+
+    @staticmethod
+    def call_function(function: "function|RunnableFunc") -> None:
+        if callable(function):
+            function()
+        elif isinstance(function, RunnableFunc):
+            function.run_function()
+        else:
+            raise TypeError(f"Invalid function passed: {function}. Not a function? (Type: {type(function)})")
+
+
 
     def run_function(self, start_args_override:list=None) -> None:
         args = start_args_override + self.args if start_args_override != None else self.args

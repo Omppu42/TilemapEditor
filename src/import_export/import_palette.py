@@ -2,7 +2,7 @@ import pygame, os
 
 from util.util_logger import logger
 from util.util import RunnableFunc
-from util import util
+from util import pygame_util
 
 from . import ie_interface
 
@@ -94,7 +94,7 @@ class PaletteLoader():
         frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
 
         palette_name = os.path.basename(palette_path)
-        confirm_text_1 = util.pygame_different_color_text(data.font_30, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
+        confirm_text_1 = pygame_util.render_different_color_text(data.font_30, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
         confirm_text_2 = data.font_30.render(f"'{palette_name}'?", True, (0,0,0))
         confirm_text_3 = data.font_25.render(f"The palette can be recovered from", True, (0,0,0))
         confirm_text_4 = data.font_25.render(f"'{settings.DELETED_PALETTES_PATH}'.", True, (0,0,0))

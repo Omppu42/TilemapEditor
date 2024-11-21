@@ -1,4 +1,4 @@
-import pygame, os, shutil, glob, json, time
+import pygame, os, shutil, glob, json, time, pygame
 from datetime import datetime
 
 from settings import data
@@ -7,7 +7,7 @@ from settings import settings
 from util.util import RunnableFunc
 from util.util_logger import logger
 from util import file_utils
-from util import util
+from util import pygame_util
 
 from . import tilemap_util
 
@@ -86,59 +86,14 @@ class Exporter():
 
 
     def confirm_default_export(self, default_map_name: str) -> None:
-        popup_size = (400, 300)
-        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
-                     settings.SCR_H//2 - popup_size[1]//2)
+        popup_text_surface = pygame_util.render_multiline_text(f"Empty tilemap name detected.\n\nExport as\n'{default_map_name}'?", 
+                                                                data.font_25, 
+                                                                linenum_to_font={1 : data.font_30})
+        popup.create_confirm_cancel_popup(self.screen, popup_text_surface, 
+                                          RunnableFunc(self.export_tools.export_tilemap, args=[default_map_name]),
+                                          yes_button_text="Export",
+                                          additional_on_yes_funcs=[self.popup.close_popup])
 
-        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-
-        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
-
-        confirm_text_1 = data.font_30.render(f"Empty tilemap name detected.", True, (0,0,0))
-        confirm_text_2 = data.font_25.render(f"Export as", True, (0,0,0))
-        confirm_text_3 = data.font_25.render(f"'{default_map_name}'?", True, (0,0,0))
-
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Export", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
-
-        frame.add_surface(confirm_text_1, (0.0,0.2), anchor=anchors.UP)
-        frame.add_surface(confirm_text_2, (0.0,0.4), anchor=anchors.UP)
-        frame.add_surface(confirm_text_3, (0.0,0.5), anchor=anchors.UP)
-
-        frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.confirmed_default_export, args=[default_map_name]), anchor=anchors.BOTTOM)
-        frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
-
-        self.confirm_popup.add_contents_class(frame)
-
-
-    def conflict_popup(self, map_name: str) -> None:
-        popup_size = (400, 300)
-        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
-                     settings.SCR_H//2 - popup_size[1]//2)
-
-        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-
-        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
-
-        confirm_text_1 = data.font_25.render(f"Tilemap '{map_name}'", True, (0,0,0))
-        confirm_text_2 = data.font_30.render(f"ALREADY EXISTS", True, (200,0,0))
-        confirm_text_3 = util.pygame_different_color_text(data.font_30, ["Do you want to ", "OVERRIDE IT?"], [(0,0,0), (200,0,0)])
-        confirm_text_4 = data.font_25.render(f"You can recover the old tilemap from", True, (0,0,0))
-        confirm_text_5 = data.font_25.render(f"'{settings.DELETED_TILEMAPS_PATH}'", True, (0,0,0))
-
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "OVERRIDE", 25, hover_col=(200,0,0))
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
-
-        frame.add_surface(confirm_text_1, (0.0,0.05), anchor=anchors.UP)
-        frame.add_surface(confirm_text_2, (0.0,0.15), anchor=anchors.UP)
-        frame.add_surface(confirm_text_3, (0.0,0.3), anchor=anchors.UP)
-        frame.add_surface(confirm_text_4, (0.0,0.5), anchor=anchors.UP)
-        frame.add_surface(confirm_text_5, (0.0,0.6), anchor=anchors.UP)
-
-        frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.confirm_override, args=[map_name]), anchor=anchors.BOTTOM)
-        frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
-
-        self.confirm_popup.add_contents_class(frame)
 
 
     def export(self, map_name_getter: "function") -> None:
@@ -153,8 +108,30 @@ class Exporter():
             self.export_tools.save_tilemap()
             return
         
+        # IF TILEMAP ALREADY EXISTS
         if settings.TILEMAPS_EXPORT + "\\" + map_name in self.tilemap_paths:
-            self.conflict_popup(map_name)
+            # SAVE INSTEAD POPUP
+            if os.path.basename(manager.m_obj.loaded_tilemap) == map_name:
+                popup_text_surface = pygame_util.render_multiline_text(f"Tilemap '{map_name}'\nIs currently loaded\n\nDo you want to save instead?", data.font_25, linenum_to_font={2 : data.font_30})
+                popup.create_confirm_cancel_popup(self.screen, popup_text_surface, self.save_tilemap,
+                                                  size=(400, 250),
+                                                  yes_button_text="Save",
+                                                  additional_on_yes_funcs=[self.popup.close_popup])
+                
+                return
+            
+            # CONFIRM OVERRIDE POPUP
+            colored_text_surf = pygame_util.render_different_color_text(data.font_30, ["Do you want to ", "OVERRIDE IT?"], [(0,0,0), (200,0,0)])
+            popup_text_surface = pygame_util.render_multiline_text(f"Tilemap '{map_name}'\nALREADY EXISTS\n\n", data.font_25, 
+                                                                   linenum_to_color={2 : (200,0,0)}, 
+                                                                   linenum_to_font={2 : data.font_30},
+                                                                   insert_surface_after_line={3 : colored_text_surf})
+            
+            popup.create_confirm_cancel_popup(  self.screen, popup_text_surface, 
+                                                RunnableFunc(self.confirm_override, args=[map_name]), 
+                                                yes_button_text="OVERRIDE",
+                                                yes_button_hover_color=(200,0,0))
+                                                
             return
         
         self.export_tools.export_tilemap(map_name)
@@ -168,7 +145,6 @@ class Exporter():
         self.export_tools.export_tilemap(tilemap_name)
 
     def confirm_override(self, tilemap_name: str) -> None:
-        self.confirm_popup.close_popup()
         self.popup.close_popup()
 
         tilemap_util.delete_tilemap(settings.TILEMAPS_EXPORT + "\\" + tilemap_name, rename_to_path=settings.DELETED_TILEMAPS_PATH + "\\overridden-" + tilemap_name)

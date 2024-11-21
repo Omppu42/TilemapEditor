@@ -5,7 +5,6 @@ from .. import input_field
 from . import settings_popup
 from . import popup_window
 
-from util import util
 from util.util import RunnableFunc
 
 import anchors
@@ -73,12 +72,12 @@ class PopupContents:
         self.frame_base.blit(surface, anchor_pos)
 
 
-    def add_button(self, button, pos_rel: tuple, on_click_func: "RunnableFunc", anchor=anchors.UL) -> None:
+    def add_button(self, button, pos_rel: tuple, on_click_func: "function|RunnableFunc", anchor=anchors.UL) -> None:
         """pos_rel being the relative (0 to 1) distance of the whole size in x and y, starting from top left corner"""
         anchor_pos = self.__get_anchor_position(button.btn_surf, pos_rel, anchor)
 
         self.buttons.append(
-            ButtonStruct(button, (anchor_pos.x, anchor_pos.y), on_click_func)
+            ButtonStruct(button, (anchor_pos.x, anchor_pos.y), RunnableFunc.get_runnable_func(on_click_func))
         )
         
 

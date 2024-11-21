@@ -10,7 +10,7 @@ pygame.init()
 
 class Button:
     def __init__(self, screen, pos: tuple, size: tuple, col_off=(100,100,100), col_on=(250,250,250), 
-                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20, tooltip_delay=0, on_click_func: RunnableFunc=None):
+                 can_toggle_off=True, hover_text="", border_w=1, hover_col=None, hover_col_on=None, hover_col_off=None, hover_change=20, tooltip_delay=0, **kwargs): #TODO: Turn this into kwargs
         self.pos = pos
         self.size = size
         self.col_off = col_off
@@ -52,16 +52,8 @@ class Button:
 
         # Disabling removes the ability to click and to render
         self.disabled = False
-
-        if on_click_func:
-            if callable(on_click_func):
-                self.on_click_func = RunnableFunc(on_click_func)
-            elif isinstance(on_click_func, RunnableFunc):
-                self.on_click_func = on_click_func
-            else:
-                assert False, f"Invalid on_click_func passed to a button class ({on_click_func})"
-        else:
-            self.on_click_func = None
+        
+        self.on_click_funcs: "list[RunnableFunc]" = []  # Add to this by calling add_onclick_func()
         
         self.set_color()
 
@@ -126,8 +118,9 @@ class Button:
             self.set_state(self.clicked)
             self.just_clicked = True
 
-            if self.on_click_func:
-                self.on_click_func.run_function()
+            for func in  self.on_click_funcs:
+                func.run_function()
+
             return True
         return False
             
@@ -189,6 +182,11 @@ class Button:
 
         self.clicked = state
         self.set_color()
+
+    def add_onclick_func(self, func: "function|RunnableFunc") -> None:
+        self.on_click_funcs.append(
+            RunnableFunc.get_runnable_func(func)
+        )
 
     def is_clicked(self) -> bool:
         if self.disabled: return

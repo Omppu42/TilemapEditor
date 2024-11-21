@@ -40,15 +40,17 @@ def delete_tilemap(tilemap_path: str, rename_to_path:str="", move_to_deleted=Tru
         return
     
     try:
-        shutil.move(tilemap_path, settings.DELETED_TILEMAPS_PATH)
+        target_path = settings.DELETED_TILEMAPS_PATH + "\\" + os.path.basename(tilemap_path)
+        target_path = file_utils.prevent_existing_file_overlap(target_path)
 
         if rename_to_path:
-            rename_to_path = file_utils.prevent_existing_file_overlap(rename_to_path)
-            deleted_path = settings.DELETED_TILEMAPS_PATH + "\\" + os.path.basename(tilemap_path)
-            os.rename(deleted_path, rename_to_path)
+            target_path = file_utils.prevent_existing_file_overlap(rename_to_path)
+
+        shutil.move(tilemap_path, target_path)
+
             
     except Exception as e:
-        logger.error("Error: %s - %s." % (e.filename, e.strerror))
+        logger.error("Error while moving tilemap to 'deleted tilemaps' folder: %s - %s." % (e.filename, e.strerror))
         
     logger.log(f"Tilemap deleted at '{tilemap_path}'. Moved tilemap to '{settings.DELETED_TILEMAPS_PATH}\\'")
 

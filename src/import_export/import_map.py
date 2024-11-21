@@ -6,7 +6,7 @@ from util.util import timer
 from util.util_logger import logger
 from util.util import RunnableFunc
 from util import file_utils
-from util import util
+from util import pygame_util
 
 from . import tilemap_util
 
@@ -38,7 +38,6 @@ class Importer():
         self.import_tools = ImportTools()
         self.popup = None
         self.scrollable = None
-        self.confirm_popup = None
 
         if not os.path.isfile(settings.TILEMAP_LOAD_DATES_JSON):
             with open(settings.TILEMAP_LOAD_DATES_JSON, "w") as f:
@@ -58,9 +57,6 @@ class Importer():
 
 
     def make_import_popup(self):
-        if self.confirm_popup:
-            self.confirm_popup.close_popup()
-
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
         scrollable_size = (500,440)
@@ -101,34 +97,17 @@ class Importer():
 
 
     def confirm_delete_frame(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
-        logger.debug(f"Opening tilemap delete confirmation popup to delete tilemap at '{map_path}'")
-        popup_size = (400, 340)
-        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
-                     settings.SCR_H//2 - popup_size[1]//2)
-
-        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
-
-        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
-
         mapname = os.path.basename(map_path)
-        confirm_text_1 = util.pygame_different_color_text(data.font_30, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
-        confirm_text_2 = data.font_30.render(f"'{mapname}'?", True, (0,0,0))
-        confirm_text_3 = data.font_25.render(f"The tilemap can be recovered from", True, (0,0,0))
-        confirm_text_4 = data.font_25.render(f"'{settings.DELETED_TILEMAPS_PATH}'.", True, (0,0,0))
 
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "DELETE", 25, hover_col=(200,0,0))
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+        multicolor_surface = pygame_util.render_different_color_text(data.font_30, ["Are you sure you want to ", "DELETE"], [(0,0,0), (200,00,00)])
+        text_surface = pygame_util.render_multiline_text(f"'{mapname}'?\n\nThe tilemap can be recovered from\n'{settings.DELETED_TILEMAPS_PATH}'.", data.font_25, 
+                                                         linenum_to_font={1 : data.font_30},
+                                                         insert_surface_after_line={0 : multicolor_surface})
 
-        frame.add_surface(confirm_text_1, (0.0,0.2), anchor=anchors.UP)
-        frame.add_surface(confirm_text_2, (0.0,0.3), anchor=anchors.UP)
+        popup.create_confirm_cancel_popup(self.screen, text_surface, RunnableFunc(self.delete_tilemap_confirmed, args=[frame_to_delete, map_path]),
+                                          yes_button_text="DELETE",
+                                          yes_button_hover_color=(200,0,0))
 
-        frame.add_surface(confirm_text_3, (0.0,0.5), anchor=anchors.UP)
-        frame.add_surface(confirm_text_4, (0.0,0.6), anchor=anchors.UP)
-
-        frame.add_button(yes_button,    (-0.17, -0.05), RunnableFunc(self.delete_tilemap_confirmed, args=[frame_to_delete, map_path]), anchor=anchors.BOTTOM)
-        frame.add_button(cancel_button, ( 0.17, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
-
-        self.confirm_popup.add_contents_class(frame)
 
 
     def delete_tilemap_confirmed(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:
@@ -139,95 +118,46 @@ class Importer():
         if map_path == manager.m_obj.loaded_tilemap:
             self.import_tools.import_empty_map()
 
-        self.confirm_popup.close_popup()
-
 
     def ask_save_first_popup(self) -> None:
-        popup_size = (400, 240)
-        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
-                     settings.SCR_H//2 - popup_size[1]//2)
+        text = pygame_util.render_multiline_text("Unsaved changes.\n\nSave before loading a different tilemap?", data.font_25, linenum_to_font={1 : data.font_30})
 
-        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        popup.create_save_dont_save_cancel_popup(self.screen, text, self.save_first_confirmed, self.make_import_popup, size=(400, 240))
 
-        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
-
-        confirm_text_1 = data.font_30.render(f"Unsaved changes.", True, (0,0,0))
-        confirm_text_2 = data.font_25.render(f"Save before loading a different tilemap?", True, (0,0,0))
-
-        ignore_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Don't save", 25, hover_col=(200,0,0))
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Save", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
-
-        frame.add_surface(confirm_text_1, (0.0,0.25), anchor=anchors.UP)
-        frame.add_surface(confirm_text_2, (0.0,0.45), anchor=anchors.UP)
-
-        frame.add_button(yes_button,    (-0.32, -0.05), RunnableFunc(self.save_first_confirmed), anchor=anchors.BOTTOM)
-        frame.add_button(ignore_button, (-0.0, -0.05),  RunnableFunc(self.make_import_popup), anchor=anchors.BOTTOM)
-        frame.add_button(cancel_button, ( 0.32, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
-
-        self.confirm_popup.add_contents_class(frame)
-        
         
     def ask_save_first_empty_tilemap(self) -> None:
         """Ask if wanting to save before loading an empty tilemap"""
-        popup_size = (400, 240)
-        popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 
-                     settings.SCR_H//2 - popup_size[1]//2)
+        text = pygame_util.render_multiline_text("Unsaved changes.\n\nSave before creating an empty tilemap?", data.font_25, linenum_to_font={1 : data.font_30})
 
-        self.confirm_popup = popup.PopupWindow(self.screen, popup_pos, popup_size, (120, 120, 120), (255, 255, 255), border_w=2, backdrop_depth=10)
+        popup.create_save_dont_save_cancel_popup(self.screen, text, self.save_first_empty_confirmed, self.import_tools.import_empty_map, size=(400, 240))
 
-        frame = popup.PopupContents(self.confirm_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60))
-
-        confirm_text_1 = data.font_30.render(f"Unsaved changes.", True, (0,0,0))
-        confirm_text_2 = data.font_25.render(f"Save before creating an empty tilemap?", True, (0,0,0))
-
-        ignore_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Don't save", 25, hover_col=(200,0,0))
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Save", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
-
-        frame.add_surface(confirm_text_1, (0.0,0.25), anchor=anchors.UP)
-        frame.add_surface(confirm_text_2, (0.0,0.45), anchor=anchors.UP)
-
-        frame.add_button(yes_button,    (-0.32, -0.05), RunnableFunc(self.save_first_empty_confirmed), anchor=anchors.BOTTOM)
-        frame.add_button(ignore_button, (-0.0, -0.05),  RunnableFunc(self.import_empty_nosave_confirmed), anchor=anchors.BOTTOM)
-        frame.add_button(cancel_button, ( 0.32, -0.05), RunnableFunc(self.confirm_popup.close_popup), anchor=anchors.BOTTOM)
-
-        self.confirm_popup.add_contents_class(frame)
 
 
     def on_load_click(self, path_to_tilemap: str) -> None:
         self.import_tools.import_tilemap_from_path(path_to_tilemap)
-        popup.popup_window.popup_m_obj.close_popup(self.popup)
+        self.popup.close_popup()
         self.scrollable.disable_clicking()
 
 
     def save_first_confirmed(self) -> None:
         if manager.m_obj.loaded_tilemap is None:
             self.ie_interface.export_tilemap()
-            self.confirm_popup.close_popup()
             return
         
         self.ie_interface.save_tilemap()
 
         self.make_import_popup()
-        self.confirm_popup.close_popup()
 
 
     def save_first_empty_confirmed(self) -> None:
         if manager.m_obj.loaded_tilemap is None:
             self.ie_interface.export_tilemap()
-            self.confirm_popup.close_popup()
             return
         
         self.ie_interface.save_tilemap()
 
         self.import_tools.import_empty_map()
-        self.confirm_popup.close_popup()
 
-
-    def import_empty_nosave_confirmed(self) -> None:
-        self.confirm_popup.close_popup()
-        self.import_tools.import_empty_map()
 
 
 class ImportTools:

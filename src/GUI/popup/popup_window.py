@@ -164,14 +164,6 @@ class PopupWindow:
 
         self.pos = self.__anim_ease_pos(progress)
 
-
-    def __get_runnable_func(self, func: "util.RunnableFunc | function") -> util.RunnableFunc:
-        if callable(func):
-            return util.RunnableFunc(func)
-        elif isinstance(func, util.RunnableFunc):
-            return func
-        else:
-            raise TypeError(f"Invalid function passed: {func}. Not a function?")
         
     def __get_positional_args(self, func: "function") -> "list[inspect.Parameter]":
         return [
@@ -210,18 +202,18 @@ class PopupWindow:
     def add_contents_draw_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function that draws the contents of the contents of the popup"""
         self.c_draw_obj.add_func(
-            self.__get_runnable_func(runnable_obj)
+            util.RunnableFunc.get_runnable_func(runnable_obj)
         )
 
     def add_destroy_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Called when the popup is off the screen and deleted"""
         self.on_destroy_func.add_func(
-            self.__get_runnable_func(runnable_obj)
+            util.RunnableFunc.get_runnable_func(runnable_obj)
         )
 
     def add_contents_onmousebuttondown_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
-        runnable_obj = self.__get_runnable_func(runnable_obj)
+        runnable_obj = util.RunnableFunc.get_runnable_func(runnable_obj)
         req_args = inspect.getfullargspec(runnable_obj.function).args
 
         assert (len(req_args) >= 2), f"{runnable_obj.function.__self__.__class__.__name__}.{runnable_obj.function.__name__}() must have at least 2 args: 'self' and 'event'. Current args: {req_args}"
@@ -230,7 +222,7 @@ class PopupWindow:
 
     def add_contents_onkeydown_func(self, runnable_obj: "util.RunnableFunc | function") -> None:
         """Function has to have 1st arg: event (pygame.Event). It is given automatically to the function when running it"""
-        runnable_obj = self.__get_runnable_func(runnable_obj)
+        runnable_obj = util.RunnableFunc.get_runnable_func(runnable_obj)
         req_args = inspect.getfullargspec(runnable_obj.function).args
 
         assert (len(req_args) >= 2), f"{runnable_obj.function.__self__.__class__.__name__}.{runnable_obj.function.__name__}() must have at least 2 args: 'self' and 'event'. Current args: {req_args}"
@@ -240,7 +232,7 @@ class PopupWindow:
 
 
     def bind_func_to_key(self, pygame_keycode: int, runnable_obj: "util.RunnableFunc | function") -> None:
-        runnable_obj = self.__get_runnable_func(runnable_obj)
+        runnable_obj = util.RunnableFunc.get_runnable_func(runnable_obj)
 
         self.key_bound_funcs[pygame_keycode] = runnable_obj
 
