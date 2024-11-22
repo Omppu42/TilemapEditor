@@ -64,6 +64,10 @@ def get_tile_row_from_index(index: int) -> int:
     """From 0 to TILES_PER_COL-1"""
     return math.floor((index % settings.TILES_PER_PAGE) / settings.TILES_PER_ROW)
 
+def round_to_significant_digits(number: float, digits: int) -> float:
+    return round(number, -int(math.floor(math.log10(abs(number)))) + (digits - 1))
+
+
 
 class RunnableFunc():
     def __init__(self, function: "function", args:list=[], kwargs:dict={}):

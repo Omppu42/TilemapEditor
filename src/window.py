@@ -182,8 +182,10 @@ class Window:
 
         if time.time() - data.saved_last_time < settings.SAVE_TEXT_TIME_S:
             self.screen.blit(saved_text_render, saved_text_rect)
-
-        self.frametime_graph.add_point(self.clock.get_time())
+        
+        if settings.DEBUG_INFO: 
+            self.frametime_graph.add_frametime(self.clock.get_time())
+            self.frametime_graph.add_framerate(self.clock.get_fps())
 
 
     def update_screen(self) -> None:
