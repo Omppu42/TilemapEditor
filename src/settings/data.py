@@ -9,6 +9,9 @@ font_30 = pygame.font.Font(None, 30)
 font_35 = pygame.font.Font(None, 35)
 font_50 = pygame.font.Font(None, 50)
 
+trash_image = pygame.image.load("Assets\\trash.png")
+close_image = pygame.image.load("Assets\\close.png")
+
 class State(Enum):
     BRUSH = 0
     ERASE = 1

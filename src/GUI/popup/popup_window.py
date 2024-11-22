@@ -2,6 +2,7 @@ import pygame, time, math
 import inspect
 
 from settings import settings
+from settings import data
 from util import util
 
 from .. import button
@@ -47,7 +48,7 @@ class PopupWindow:
         self.close_button = button.ImageButton(screen,
                                                (self.pos[0] + self.size[0] + border_w - settings_popup.POPUP_TOPBAR_H, self.pos[1] + border_w),
                                                (settings_popup.POPUP_TOPBAR_H, settings_popup.POPUP_TOPBAR_H),
-                                               "Assets\\close.png", hover_col_on=(255, 50, 50), img_color_on_hover=(255, 255, 255), border_w=0, col_on=(255,255,255))
+                                               data.close_image, hover_col_on=(255, 50, 50), img_color_on_hover=(255, 255, 255), border_w=0, col_on=(255,255,255))
 
         self.active = False # Set to true after the starting animation
         self.creation_time = time.time()

@@ -40,9 +40,9 @@ class Sidebar:
                         "ColorPickButton" : button.ToolButton(self.screen, (1011, 550), (32, 32), 
                                                               "Assets\\color_picker.png", state_when_clicked=State.COLOR_PICKER, hover_text="Tile Picker (O)", can_toggle_off=False),
                          "PageLeftButton" : button.TextButton(self.screen, (settings.SCR_W-self.size[0]+16, settings.SCR_H//2-56), (16, 48),  
-                                                              "<", 20, hover_col=(220,220,220)),
+                                                              "<", data.font_20, hover_col=(220,220,220)),
                         "PageRightButton" : button.TextButton(self.screen, (settings.SCR_W-30, settings.SCR_H//2-56), (16, 48),
-                                                              ">", 20, hover_col=(220,220,220))}
+                                                              ">", data.font_20, hover_col=(220,220,220))}
 
         self.brushes_group = button.ButtonGroup([self.buttons_dict["BrushButton"], self.buttons_dict["EraserButton"], self.buttons_dict["ColorPickButton"]])
 

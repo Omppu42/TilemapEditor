@@ -48,7 +48,7 @@ class Exporter():
         contents_canvas = popup.PopupContents(self.popup, (10, 10), (580, 455), (120,120,120))
 
         name = input_field.TextInputField((0,0), (320, 40), 30, placeholder="Enter tilemap name", empty_return_val="", bg_color=(180,180,180), border_width=1, font=data.font_30)
-        export_btn = button.TextButton(contents_canvas.frame_base, (0,0), (100,40), "Export", 30)
+        export_btn = button.TextButton(contents_canvas.frame_base, (0,0), (100,40), "Export", data.font_30)
 
         contents_canvas.add_input_field(name, (0.1, 0.35), anchor=anchors.LEFT)
         contents_canvas.add_button(export_btn, (0.7, 0.35), RunnableFunc(self.export, args=[name.get_value]), anchor=anchors.LEFT)

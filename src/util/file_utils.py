@@ -3,7 +3,7 @@ from datetime import datetime
 
 from settings import settings
 from util.util_logger import logger
-
+from util.util import timer
 
 def get_tilemap_paths_alphabetically() -> list:
     """Returns all valid tilemap paths in settings.TILEMAPS_EXPORT sorted alphabetically"""
@@ -28,7 +28,6 @@ def get_tilemap_paths_alphabetically() -> list:
         logger.warning(f"One or more of folder under {settings.TILEMAPS_EXPORT}\\ is not a tilemap. Invalid tilemaps ({len(bad_paths)}) are {bad_paths}")
 
     return dirs_clean
-
 
 def get_tilemap_paths_sort_date() -> list:
     """Returns all valid tilemap paths in settings.TILEMAPS_EXPORT sorted by the date opened"""

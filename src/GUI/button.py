@@ -4,7 +4,7 @@ import manager
 import settings.data as data
 import input_overrides
 
-from util.util import RunnableFunc
+from util.util import RunnableFunc, timer
 
 pygame.init()
 
@@ -53,8 +53,11 @@ class Button:
         # Disabling removes the ability to click and to render
         self.disabled = False
         
-        self.on_click_funcs: "list[RunnableFunc]" = []  # Add to this by calling add_onclick_func()
-        
+        if kwargs.get("on_click_func"):
+            self.on_click_funcs: "list[RunnableFunc]" = [RunnableFunc.get_runnable_func(kwargs["on_click_func"])]  # Add to this by calling add_onclick_func()
+        else:
+            self.on_click_funcs: "list[RunnableFunc]" = []
+
         self.set_color()
 
     def __init_hover_color(self, hover_both, hover_off, hover_on, hover_change) -> None:
@@ -249,10 +252,9 @@ class ToolButton(Button):
 
 
 class TextButton(Button):
-    def __init__(self, screen, pos: tuple, size: tuple, text: str, text_size: int, can_toggle=False, **kwargs):
+    def __init__(self, screen, pos: tuple, size: tuple, text: str, font: "pygame.font.Font", can_toggle=False, **kwargs):
         super().__init__(screen, pos, size, can_toggle_off=can_toggle, **kwargs)
         self.set_state(1)
-        font = pygame.font.Font(None, text_size)
         self.text_surf = font.render(text, True, (0,0,0))
         
 
@@ -285,12 +287,11 @@ class TextButton(Button):
 
 
 class ImageButton(Button):
-    def __init__(self, screen, pos: tuple, size: tuple, image_cwd_path: str, img_color_on_hover=None, image_rel_size=0.8, can_toggle=False, **kwargs):
+    def __init__(self, screen, pos: tuple, size: tuple, image_surface: str, img_color_on_hover=None, image_rel_size=0.8, can_toggle=False, **kwargs):
         super().__init__(screen, pos, size, can_toggle_off=can_toggle,**kwargs)
         self.set_state(1)
 
-        self.image_surf = pygame.image.load(image_cwd_path)
-        self.image_surf = pygame.transform.smoothscale(self.image_surf, (size[0] * image_rel_size, size[1] * image_rel_size))
+        self.image_surf = pygame.transform.smoothscale(image_surface, (size[0] * image_rel_size, size[1] * image_rel_size))
 
         self.image_hover_col = img_color_on_hover
         if self.image_hover_col:

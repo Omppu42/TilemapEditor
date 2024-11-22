@@ -4,6 +4,8 @@ from .. import button
 from . import scrollable_frame_piece
 from util.util import RunnableFunc
 
+from settings import data
+
 import anchors
 
 class ScrollableFrame:
@@ -32,18 +34,17 @@ class ScrollableFrame:
         self.first_frame_h = 0
 
         # Surfaces
-        self.surface = self.__redraw_surface()
+        self.surface = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
+        self.__redraw_surface()
         self.scroll_bar_surf = self.__redraw_scrollbar_surface()
 
         # This doesn't actually work, it's just needed for PopupContents to work
         self.border_w = 0
 
 
-
-    def __redraw_surface(self) -> pygame.surface.Surface:
-        surface = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
-        surface.fill((255,0,0,0))
-        return surface
+    def __redraw_surface(self) -> None:
+        self.surface.fill((255,0,0,0))
+    
     
     def __redraw_scrollbar_surface(self) -> pygame.surface.Surface:
         if not self.can_scroll:
@@ -121,6 +122,9 @@ class ScrollableFrame:
 
         self.total_scroll_amout += scroll
 
+        self.__redraw_surface()
+        self.scroll_bar_surf = self.__redraw_scrollbar_surface()
+
     # PUBLIC ----------------------------------------------------
     def delete_frame(self, frame: scrollable_frame_piece.FramePiece):
         self.frames.remove(frame)
@@ -167,32 +171,11 @@ class ScrollableFrame:
         self.frames.append(frame)
         self.__update_can_scroll()
 
-
-    def __create_frame(self) -> None:
-        font = pygame.font.Font(None, 35)
-        frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
-
-        mapname = f"Tilemap {len(self.frames) + 1}"
-        test_text = font.render(mapname, True, (0,0,0))
-
-        frame.add_surface(test_text, (0,0), anchor=anchors.CENTER)
-
-        load_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Load", 25)
-        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
-        frame.add_button(load_button, (0.05, 0.0), RunnableFunc(ScrollableFrame.load_btn_onclick_test, args=[f"Tilemaps\\{mapname}"]), anchor=anchors.LEFT)
-        frame.add_button(trash_button, (-0.05, 0.0), RunnableFunc(self.delete_frame, args=[frame]), anchor=anchors.RIGHT)
-
-        self.add_frame(frame)
-
-
-    def load_btn_onclick_test(map_path: str) -> None:
-        print("Load", map_path)
+        self.__redraw_surface()
+        self.scroll_bar_surf = self.__redraw_scrollbar_surface()
 
 
     def update(self) -> None:
-        self.surface = self.__redraw_surface()
-        self.scroll_bar_surf = self.__redraw_scrollbar_surface()
-
         for _frame in self.frames:
             _frame.update()
 

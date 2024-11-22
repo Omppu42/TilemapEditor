@@ -67,8 +67,8 @@ class PaletteLoader():
 
         frame.add_surface(name_text, (0.05, 0), anchor=anchors.CENTER)
 
-        load_button = button.TextButton(frame.frame_base, (0,0), (80, 35), "Load", 25)
-        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
+        load_button = button.TextButton(frame.frame_base, (0,0), (80, 35), "Load", data.font_25)
+        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), data.trash_image)
         
         frame.add_button(load_button, (-0.4, 0), RunnableFunc(self.__on_load_click, args=[path]), anchor=anchors.CENTER)
         frame.add_button(trash_button, (-0.015, 0), RunnableFunc(self.__confirm_delete_frame_popup, args=[frame, path]), anchor=anchors.RIGHT)
@@ -151,8 +151,8 @@ class PaletteLoader():
 
         name = input_field.TextInputField((0,0), (320, 40), 30, placeholder=f"Palette_{len(palette.pm_obj.all_palettes) - 1}", empty_return_val="placeholder", bg_color=(180,180,180), active_color=(190,190,190), border_width=1, font=data.font_30)
 
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Create", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", 25)
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Create", data.font_25)
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel", data.font_25)
 
         frame.add_surface(text, (0.0,-0.3), anchor=anchors.CENTER)
         frame.add_surface(text2, (0.0,-0.2), anchor=anchors.CENTER)

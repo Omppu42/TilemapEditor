@@ -37,14 +37,14 @@ class GridResizer:
         width_text = data.font_25.render(f"WIDTH", True, (150,150,150))
         height_text = data.font_25.render(f"HEIGHT", True, (150,150,150))
 
-        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Confirm", 25)
-        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel",  25)
+        yes_button =    button.TextButton(frame.frame_base, (0,0), (100, 35), "Confirm", data.font_25)
+        cancel_button = button.TextButton(frame.frame_base, (0,0), (100, 35), "Cancel",  data.font_25)
 
         x_size = input_field.NumberInputField((0,0), (60, 40), 3, start_value="", int_only=True, placeholder=str(current_w), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
         y_size = input_field.NumberInputField((0,0), (60, 40), 3, start_value="", int_only=True, placeholder=str(current_h), bg_color=(180,180,180), border_width=2, min_value=5, max_value=100, font=data.font_35)
 
 
-        by_image_surf = pygame.image.load("Assets\\close.png")
+        by_image_surf = data.close_image
         by_image_surf = pygame.transform.smoothscale(by_image_surf, (32, 32))
 
         frame.add_surface(current_size_text, (0, 0.05), anchor=anchors.UP)

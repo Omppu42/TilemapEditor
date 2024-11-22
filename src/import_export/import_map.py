@@ -36,10 +36,10 @@ class Importer():
                 data = {x : 0 for x in file_utils.get_tilemap_paths_alphabetically()}
                 json.dump(data, f, indent=4)
 
-
         logger.debug("Initialized Importer")
 
     # PRIVATE --------------------
+    
     def __make_import_popup(self):
         popup_size = (600, 510)
         popup_pos = (settings.SCR_W//2 - 2*popup_size[0]//3, 50)
@@ -61,8 +61,7 @@ class Importer():
 
         for _p in paths:
             self.__create_frame(_p)
-
-
+    
     def __create_frame(self, path) -> None:
         frame = popup.FramePiece(self.scrollable, (10,10), (480, 50))
 
@@ -70,14 +69,13 @@ class Importer():
         name_text = data.font_25.render(mapname, True, (0,0,0))
 
         frame.add_surface(name_text, (0.05, 0), anchor=anchors.CENTER)
+        load_button = button.TextButton(frame.frame_base, (0,0), (80, 35), "Load", data.font_25)
+        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), data.trash_image)
 
-        load_button = button.TextButton(frame.frame_base, (0,0), (80, 35), "Load", 25)
-        trash_button = button.ImageButton(frame.frame_base, (0,0), (35,35), "Assets\\trash.png")
-        
         frame.add_button(load_button, (-0.4, 0), RunnableFunc(self.__on_load_click, args=[path]), anchor=anchors.CENTER)
         frame.add_button(trash_button, (-0.015, 0), RunnableFunc(self.__confirm_delete_frame_popup, args=[frame, path]), anchor=anchors.RIGHT)
 
-        self.scrollable.add_frame(frame)
+        self.scrollable.add_frame(frame)      
 
 
     def __confirm_delete_frame_popup(self, frame_to_delete: "popup.FramePiece", map_path: str) -> None:

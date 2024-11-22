@@ -3,6 +3,7 @@ import pygame
 from typing import Any
 
 from settings import settings
+from settings import data
 from GUI import button
 
 from util.util import RunnableFunc
@@ -36,8 +37,8 @@ def __common_popup_base_two_buttons(screen: pygame.Surface, text_surface: pygame
     main_popup = popup_window.PopupWindow(screen, popup_pos, popup_size, popup_bg_color, topbar_bg_color, border_w=popup_border_w, backdrop_depth=popup_backdrop_depth)
     frame = popup_contents.PopupContents(main_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60), color=frame_color)    
 
-    yes_button = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("yes_button_text", "Yes"), 25, hover_col=kwargs.get("yes_button_hover_color", None))
-    no_button  = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("no_button_text", "No"), 25,   hover_col=kwargs.get("no_button_hover_color", None))
+    yes_button = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("yes_button_text", "Yes"), data.font_25, hover_col=kwargs.get("yes_button_hover_color", None))
+    no_button  = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("no_button_text", "No"), data.font_25,   hover_col=kwargs.get("no_button_hover_color", None))
 
     frame.add_surface(text_surface, (0.0, kwargs.get("text_rel_y", -0.1)), anchor=anchors.CENTER)
 
@@ -72,9 +73,9 @@ def __common_popup_base_three_buttons(screen: pygame.Surface, text_surface: pyga
     main_popup = popup_window.PopupWindow(screen, popup_pos, popup_size, popup_bg_color, topbar_bg_color, border_w=popup_border_w, backdrop_depth=popup_backdrop_depth)
     frame = popup_contents.PopupContents(main_popup, (10,10), (popup_size[0] - 20, popup_size[1] - 60), color=frame_color)    
 
-    save_button         = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("save_button_text", "Save"), 25, hover_col=kwargs.get("save_button_hover_color", None))
-    dont_save_button    = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("dont_save_button_text", "Don't save"), 25, hover_col=kwargs.get("dont_save_button_hover_color", (200, 0, 0)))
-    cancel_button       = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("cancel_button_text", "Cancel"), 25,   hover_col=kwargs.get("cancel_button_hover_color", None))
+    save_button         = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("save_button_text", "Save"), data.font_25, hover_col=kwargs.get("save_button_hover_color", None))
+    dont_save_button    = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("dont_save_button_text", "Don't save"), data.font_25, hover_col=kwargs.get("dont_save_button_hover_color", (200, 0, 0)))
+    cancel_button       = button.TextButton(frame.frame_base, (0,0), (100, 35), kwargs.get("cancel_button_text", "Cancel"), data.font_25,   hover_col=kwargs.get("cancel_button_hover_color", None))
 
     frame.add_surface(text_surface, (0.0, kwargs.get("text_rel_y", -0.1)), anchor=anchors.CENTER)
 

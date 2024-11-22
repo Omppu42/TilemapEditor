@@ -14,6 +14,8 @@ from settings import data
 from import_export import ie_interface
 from import_export import import_palette
 
+from frametime_graph import FrameTimeGraph
+
 import palette
 import ui
 import manager
@@ -40,6 +42,8 @@ class Window:
         pygame.display.set_caption("Tilemap Editor")
 
         self.clock = pygame.time.Clock()
+
+        self.frametime_graph = FrameTimeGraph(self.screen, (10, settings.SCR_H - 60), 100)
 
         # NOT DEPENDENT ON ANYTHING ELSE
         grid_resize.create_grid_resizer(self.screen)
@@ -81,7 +85,7 @@ class Window:
             case pygame.K_g:
                 manager.m_obj.toggle_grid()
             case pygame.K_F3:
-                settings.DEBUG_INFO *= -1
+                settings.DEBUG_INFO = not settings.DEBUG_INFO
                 [block.update_surf(manager.m_obj.grid_on) for block in ui.ui_obj.blocks] # Update blocks
 
             # If any of the arrow keys were pressed
@@ -155,6 +159,11 @@ class Window:
         else:
             loaded_map = "Not Saved"
 
+        # Frametime Graph
+        if settings.DEBUG_INFO: 
+            self.frametime_graph.draw_graph()
+        
+
         fps_render = data.font_20.render(f"FPS: {round(self.clock.get_fps(), 0)}", True, (0,0,0))
         fps_rect = fps_render.get_rect(topright=(settings.VIEWPORT_W-10, 10))
 
@@ -173,6 +182,8 @@ class Window:
 
         if time.time() - data.saved_last_time < settings.SAVE_TEXT_TIME_S:
             self.screen.blit(saved_text_render, saved_text_rect)
+
+        self.frametime_graph.add_point(self.clock.get_time())
 
 
     def update_screen(self) -> None:

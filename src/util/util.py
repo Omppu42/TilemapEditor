@@ -73,14 +73,14 @@ class RunnableFunc():
 
         self.traceback = traceback.extract_stack()[-2]
 
-    @staticmethod
-    def get_runnable_func(function: "function|RunnableFunc") -> "RunnableFunc":
+    @classmethod
+    def get_runnable_func(cls, function: "function|RunnableFunc"):
         """Static method for turning a possible default function into a RunnableFunc
            
            Pass in a normal function or a RunnableFunc"""
         if callable(function):
-            return RunnableFunc(function)
-        elif isinstance(function, RunnableFunc):
+            return cls(function)
+        elif isinstance(function, cls):
             return function
         else:
             raise TypeError(f"Invalid function passed: {function}. Not a function? (Type: {type(function)})")

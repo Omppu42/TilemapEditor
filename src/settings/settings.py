@@ -3,7 +3,7 @@ SCR_W = 1200
 SCR_H = 600
 CELL_SIZE = 32
 BG_COLOR = 100
-FPS_CAP = 60
+FPS_CAP = 6000
 
 # PATHS ---------
 LOGS_FOLDER             = "Data\\Logs"
@@ -31,7 +31,7 @@ DEFAULT_GIRD_OFFSET = (100, 50)
 EXPORT_TIME_FORMAT = "%d/%m/%Y %H:%M:%S"
 
 # DEBUG ----------
-DEBUG_INFO = -1
+DEBUG_INFO = True
 
 # TESTS------------
 TESTS_PALETTE_PATH = PALETTES_PATH   + "\\tests-sVLkGQUpMQokDdScZWsr"
