@@ -168,7 +168,7 @@ class ScrollableFrame:
         self.__update_can_scroll()
 
 
-    def create_frame(self) -> None:
+    def __create_frame(self) -> None:
         font = pygame.font.Font(None, 35)
         frame = scrollable_frame_piece.FramePiece(self, (10,10), (480, 50))
 

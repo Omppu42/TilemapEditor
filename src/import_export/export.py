@@ -25,15 +25,7 @@ pygame.init()
 
 
 
-class Exporter():
-    SELECTION_W = 500
-    SELECTION_H = 160
-
-    BTN_UNSELECTED_COLOR = "gray75"
-    BTN_SELECTED_COLOR = "gray80"
-    FRAME_BG = "gray60"
-    FRAME_BG_2 = "gray70"
-    
+class Exporter():    
     def __init__(self, screen: "pygame.Surface", ie_interface) -> None:
         self.screen = screen
         self.ie_interface = ie_interface
@@ -69,12 +61,12 @@ class Exporter():
             self.tilemap_paths.remove(settings.TESTS_TILEMAP_PATH)
 
         for _p in self.tilemap_paths:
-            self.create_frame(_p)
+            self.__create_frame(_p)
 
         logger.debug("Tilemap export popup initialized successfully")
         
 
-    def create_frame(self, path) -> None:
+    def __create_frame(self, path) -> None:
         frame = popup.FramePiece(self.scrollable, (10,10), (480, 30))
 
         mapname = os.path.basename(path)
